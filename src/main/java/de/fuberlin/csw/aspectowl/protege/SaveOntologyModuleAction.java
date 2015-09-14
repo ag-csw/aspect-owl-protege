@@ -1,0 +1,275 @@
+package de.fuberlin.csw.aspectowl.protege;
+
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
+import org.protege.editor.core.ui.action.ProtegeAction;
+import org.protege.editor.core.ui.error.ErrorLogPanel;
+import org.protege.editor.owl.OWLEditorKit;
+import org.protege.editor.owl.model.OWLModelManager;
+import org.protege.editor.owl.ui.ontology.OntologyIDJDialog;
+import org.protege.editor.owl.ui.OntologyFormatPanel;
+import org.protege.editor.owl.ui.UIHelper;
+import org.semanticweb.owlapi.model.AddAxiom;
+import org.semanticweb.owlapi.model.AddImport;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.ImportChange;
+import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLImportsDeclaration;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyChange;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyFormat;
+import org.semanticweb.owlapi.model.OWLOntologyID;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.vocab.PrefixOWLOntologyFormat;
+
+import uk.ac.manchester.cs.owl.owlapi.OWLImportsDeclarationImpl;
+
+public class SaveOntologyModuleAction extends ProtegeAction {
+
+	private enum SetOperation {
+		COMPLEMENT, INTERSECTION, UNION
+	}
+
+	/**
+     * 
+     */
+	private static final long serialVersionUID = 8969543617298643589L;
+	private OWLOntology aspectOntology;
+	private static boolean saveAnnotations;
+	private java.util.List<OWLAnnotation> items;
+	private SetOperation setOp;
+
+	public void actionPerformed(ActionEvent e) {
+		try {
+			
+
+			
+			OWLEditorKit editorKit = (OWLEditorKit) getEditorKit();
+	        
+
+			items = new ArrayList<OWLAnnotation>();
+			SelectAspectsPanel selectAspectPanel = new SelectAspectsPanel(
+					editorKit, items);
+
+			JComboBox comboBox = new JComboBox(SetOperation.values());
+
+			Object[] params = { comboBox, selectAspectPanel };
+			JOptionPane.showConfirmDialog(
+					SwingUtilities.getAncestorOfClass(JFrame.class,
+							editorKit.getOWLWorkspace()), params,
+					"Select Aspects", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+
+			OWLOntology activeOntology = editorKit.getModelManager()
+					.getActiveOntology();
+
+			OWLModelManager om = editorKit.getModelManager();
+
+			while (true) {
+				try {
+
+					OWLOntologyID id = showOntologyIDDialog(editorKit);
+
+					if (id != null) {
+
+						aspectOntology = om.createNewOntology(id, id.getDefaultDocumentIRI().toURI());
+
+						List<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
+
+						setOp = (SetOperation) comboBox.getSelectedItem();
+
+						Set<OWLAxiom> AxiomsForNewOntology = getAxiomsForNewOntology(activeOntology);
+
+						for (OWLAxiom axiom : AxiomsForNewOntology) {
+							if (!saveAnnotations) {
+								axiom = axiom.getAxiomWithoutAnnotations();
+							}
+							changes.add(new AddAxiom(aspectOntology, axiom));
+
+						}
+						
+						Set<OWLImportsDeclaration> importIRIs = activeOntology.getImportsDeclarations();
+						
+						// Keep all imports
+						/*for ( OWLImportsDeclaration importIRI : importIRIs){
+							changes.add(new AddImport(aspectOntology, importIRI));
+							System.out.println(importIRI.getIRI());
+						}*/
+						
+						OWLImportsDeclaration aspectOWLOnt = new OWLImportsDeclarationImpl(IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl"));
+						changes.add(new AddImport(aspectOntology, aspectOWLOnt));
+
+						
+						om.applyChanges(changes);
+
+						handleSaveAs(aspectOntology, editorKit);
+
+						om.removeOntology(aspectOntology);
+					}
+
+					break;
+
+				} catch (OWLOntologyCreationException CreationException) {
+					JOptionPane.showMessageDialog(null, "IRI already exists.");
+					System.out.println("IRI already exists");
+				}
+			}
+
+		} catch (Exception e1) {
+
+			ErrorLogPanel.showErrorDialog(e1);
+		}
+	}
+
+	private OWLOntologyID showOntologyIDDialog(OWLEditorKit editorKit) {
+		
+		OWLOntology activeOntology = editorKit.getModelManager()
+				.getActiveOntology();
+		
+		IRI iri = IRI.create(activeOntology.getOntologyID().getOntologyIRI().toString(), (new Long(System.currentTimeMillis()).toString()));
+		OWLOntologyID id = new OWLOntologyID(iri);
+		
+		
+		OntologyIDJDialog dialog = new OntologyIDJDialog(id);
+		JCheckBox checkbox = new JCheckBox("Keep aspect annotations");
+		checkbox.setSelected(true);
+		Object[] params = { checkbox, dialog };
+		int response = JOptionPane.showConfirmDialog(
+				SwingUtilities.getAncestorOfClass(JFrame.class,
+						editorKit.getOWLWorkspace()), params,
+				"Choose Ontology Name", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+		saveAnnotations = checkbox.isSelected();
+		return response == JOptionPane.OK_OPTION ? dialog.getOntologyID()
+				: null;
+	}
+
+	private boolean handleSaveAs(OWLOntology ont, OWLEditorKit editorKit)
+			throws Exception { // private
+		OWLOntologyManager man = editorKit.getModelManager()
+				.getOWLOntologyManager();
+		OWLOntologyFormat oldFormat = man.getOntologyFormat(ont);
+		OWLOntologyFormat format = OntologyFormatPanel.showDialog(editorKit,
+				oldFormat, "Choose a format to use when saving the "
+						+ editorKit.getModelManager().getRendering(ont)
+						+ " ontology");
+		if (format == null) {
+			return false;
+		}
+		if (oldFormat instanceof PrefixOWLOntologyFormat
+				&& format instanceof PrefixOWLOntologyFormat) {
+			PrefixOWLOntologyFormat oldPrefixes = (PrefixOWLOntologyFormat) oldFormat;
+			for (String name : oldPrefixes.getPrefixNames()) {
+				((PrefixOWLOntologyFormat) format).setPrefix(name,
+						oldPrefixes.getPrefix(name));
+			}
+		}
+		File file = getSaveAsOWLFile(ont, editorKit);
+		if (file != null) {
+			man.setOntologyFormat(ont, format);
+			man.setOntologyDocumentIRI(ont, IRI.create(file));
+			editorKit.getModelManager().save(ont);
+			editorKit.addRecent(file.toURI());
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private File getSaveAsOWLFile(OWLOntology ont, OWLEditorKit editorKit) {
+		UIHelper helper = new UIHelper(editorKit);
+		File file = helper
+				.saveOWLFile("Please select a location in which to save: "
+						+ editorKit.getModelManager().getRendering(ont));
+		if (file != null) {
+			int extensionIndex = file.toString().lastIndexOf('.');
+			if (extensionIndex == -1) {
+				file = new File(file.toString() + ".owl");
+			} else if (extensionIndex != file.toString().length() - 4) {
+				file = new File(file.toString() + ".owl");
+			}
+		}
+		return file;
+	}
+
+	public void initialise() throws Exception {
+
+	}
+
+	public void dispose() {
+	}
+
+	private Set<OWLAxiom> getAxiomsForNewOntology(OWLOntology activeOntology) {
+		Set<OWLAxiom> result = new HashSet<OWLAxiom>();
+
+		for (OWLAnnotation item : items) {
+			System.out.println("Selected Annotations : " + item);
+		}
+		for (OWLAxiom axiom : activeOntology.getAxioms()) {
+
+			Set<OWLAnnotation> axiomAnnotations = axiom.getAnnotations();
+			if (axiomAnnotations.equals(null)) {
+				System.out.println("DEBUG: No Annotations for Axiom: " + axiom);
+				break;
+			}
+			System.out.println("Annotations of current axiom : "
+					+ axiomAnnotations);
+
+			switch (setOp) {
+			case COMPLEMENT: {
+				Set<OWLAnnotation> tmp = new HashSet<OWLAnnotation>();
+				for (OWLAnnotation annot : axiomAnnotations) {
+					tmp.add(annot);
+				}
+				tmp.retainAll(items);
+				if (tmp.isEmpty()) {
+					result.add(axiom);
+					System.out.println("Add Complement Axiom : " + axiom);
+
+				}				
+				break;
+			}
+			case INTERSECTION: {
+				Set<OWLAnnotation> tmp = new HashSet<OWLAnnotation>();
+				for (OWLAnnotation annot : axiomAnnotations) {
+					tmp.add(annot);
+				}
+				tmp.addAll(items);
+				if (tmp.equals(axiomAnnotations)) {
+					result.add(axiom);
+					System.out.println("Add Intersection Axiom : " + axiom);
+				}
+				break;
+			}
+			case UNION: {
+				Set<OWLAnnotation> tmp = new HashSet<OWLAnnotation>();
+				for (OWLAnnotation annot : axiomAnnotations) {
+					tmp.add(annot);
+				}
+				tmp.retainAll(items);
+				if (!tmp.isEmpty()) {
+					result.add(axiom);
+					System.out.println("Add Union Axiom : " + axiom);
+
+				}
+
+			}
+			}
+		}
+		return result;
+	}
+
+}
