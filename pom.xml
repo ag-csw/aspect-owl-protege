@@ -8,12 +8,6 @@
 		<version>7</version>
 	</parent>
 
-	<!-- Change me! 
-
-         The next five properties should probably be customized for
-         your project.  If you don't know what to use for groupId,
-         don't worry, you can deal with that when you are ready for maven.
-      -->
 	<groupId>de.fuberlin.csw.aood.protege</groupId>
 	<artifactId>de.fuberlin.csw.aood.protege.plugin</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
