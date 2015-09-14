@@ -1,23 +1,65 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
 <plugin>
-
-      <!-- Change me!  Remove this and the corresponding java class when you start adding real plugin content of your own. -->
-       <extension id="example.menu"
-               point="org.protege.editor.core.application.EditorKitMenuAction">
-        <name value="Example..."/>
-        <class value="template.TemplateMenu"/>
-        <toolTip value="A menu plugin to bootstrap the new plugin process"/>
-        <path value="org.protege.editor.owl.menu.tools/SlotZ-Z"/>
-        <editorKitId value="OWLEditorKit"/>
+  
+   <extension
+         id="AspectInferenceViewComponent"
+         name="Inferred Aspects"
+         point="org.protege.editor.core.application.ViewComponent">
+      <label
+            value="Infererred Aspects">
+      </label>
+      <class
+            value="de.fuberlin.csw.aspectowl.protege.InferredAspectViewComponent">
+      </class>
+      <category
+            value="@org.protege.ontologycategory">
+      </category>
+   </extension>
+   <extension
+         id="VersioningWorkspaceTab"
+         point="org.protege.editor.core.application.WorkspaceTab">
+      <label
+            value="Aspects">
+      </label>
+      <class
+            value="de.fuberlin.csw.aspectowl.protege.AspectWorkspaceTab">
+      </class>
+      <index
+            value="X">
+      </index>
+      <editorKitId
+            value="OWLEditorKit">
+      </editorKitId>
+      <defaultViewConfigFileName
+            value="Aspects.layout.xml">
+      </defaultViewConfigFileName>
+   </extension>
+   <extension
+         id="AspectSparqlQueryView"
+         name="Aspect SPARQL Query"
+         point="org.protege.editor.core.application.ViewComponent">
+      <label
+            value="Aspect SPARQL Query">
+      </label>
+      <class
+            value="de.fuberlin.csw.aspectowl.protege.AspectSparqlQueryViewComponent">
+      </class>
+      <category
+            value="@org.protege.ontologycategory">
+      </category>
+   </extension>
+   <extension
+         id="menu.file.SaveOntologyModule"
+         name="SaveOntologyModule"
+         point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="Save ontology module"/>
+        <toolTip value="Save ontology module"/>
+        <class value="de.fuberlin.csw.aspectowl.protege.SaveOntologyModuleAction"/>
+        <path value="org.protege.editor.core.application.menu.FileMenu/SlotAB-Z"/>
+        <editorKitId value="any"/>
+        <accelerator value="shift S"/>
     </extension>
 
-      <!-- Change me!  Remove this and the corresponding java class when you start adding real plugin content of your own. -->
-    <extension id="example.view"
-               point="org.protege.editor.core.application.ViewComponent">
-        <label value="Example"/>
-        <class value="template.TemplateView"/>
-       	<headerColor value="@org.protege.ontologycolor"/>
-        <category value="@org.protege.ontologycategory"/>
-    </extension>
 </plugin>
