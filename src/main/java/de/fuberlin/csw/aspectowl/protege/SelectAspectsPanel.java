@@ -1,15 +1,17 @@
 package de.fuberlin.csw.aspectowl.protege;
 
+import java.awt.BorderLayout;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+
 import org.protege.editor.core.ui.list.MList;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.ui.renderer.OWLAnnotationCellRenderer;
 import org.protege.editor.owl.ui.renderer.OWLCellRenderer;
 import org.semanticweb.owlapi.model.OWLAnnotation;
-
-import javax.swing.*;
-
-import java.awt.*;
-import java.util.ArrayList;
 public class SelectAspectsPanel extends JComponent {
 
 	/**

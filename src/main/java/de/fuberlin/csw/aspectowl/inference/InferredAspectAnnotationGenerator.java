@@ -3,8 +3,6 @@ package de.fuberlin.csw.aspectowl.inference;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.ProgressMonitor;
-
 import org.apache.log4j.Logger;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.model.OWLWorkspace;

@@ -17,13 +17,12 @@ import org.protege.editor.core.ui.action.ProtegeAction;
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
-import org.protege.editor.owl.ui.ontology.OntologyIDJDialog;
 import org.protege.editor.owl.ui.OntologyFormatPanel;
 import org.protege.editor.owl.ui.UIHelper;
+import org.protege.editor.owl.ui.ontology.OntologyIDJDialog;
 import org.semanticweb.owlapi.model.AddAxiom;
 import org.semanticweb.owlapi.model.AddImport;
 import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.ImportChange;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLImportsDeclaration;
@@ -101,7 +100,7 @@ public class SaveOntologyModuleAction extends ProtegeAction {
 
 						}
 						
-						Set<OWLImportsDeclaration> importIRIs = activeOntology.getImportsDeclarations();
+//						Set<OWLImportsDeclaration> importIRIs = activeOntology.getImportsDeclarations();
 						
 						// Keep all imports
 						/*for ( OWLImportsDeclaration importIRI : importIRIs){

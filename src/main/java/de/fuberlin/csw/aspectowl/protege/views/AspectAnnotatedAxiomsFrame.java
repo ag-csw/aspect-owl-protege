@@ -7,8 +7,6 @@ import java.util.Set;
 
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.ui.frame.AbstractOWLFrame;
-import org.protege.editor.owl.ui.frame.InferredAxiomsFrame;
-import org.protege.editor.owl.ui.frame.InferredAxiomsFrameSection;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 
