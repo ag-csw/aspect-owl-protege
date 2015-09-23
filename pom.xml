@@ -18,38 +18,70 @@
 	<packaging>bundle</packaging>
 
 	
+	
 	<dependencies>
 		<dependency>
 			<groupId>edu.stanford.protege</groupId>
 			<artifactId>org.protege.common</artifactId>
-			<version>4.3.0</version>
+			<version>5.0.0-beta-17</version>
+			<type>bundle</type>
+			<scope>provided</scope>
 		</dependency>
 
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
 			<artifactId>org.protege.editor.core.application</artifactId>
-			<version>4.3.0</version>
+			<version>5.0.0-beta-17</version>
+			<type>bundle</type>
+			<scope>provided</scope>
         </dependency>
 
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
             <artifactId>org.protege.editor.owl</artifactId>
-			<version>4.3.0</version>
+			<version>5.0.0-beta-17</version>
+			<type>bundle</type>
+			<scope>provided</scope>
         </dependency>
         <dependency>
         	<groupId>com.miglayout</groupId>
         	<artifactId>miglayout</artifactId>
         	<version>3.7.4</version>
+        	<scope>compile</scope>
         </dependency>
         <dependency>
         	<groupId>com.hp.hpl.jena</groupId>
         	<artifactId>arq</artifactId>
         	<version>2.8.8</version>
+        	<scope>compile</scope>
         </dependency>
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>owlexplanation</artifactId>
         	<version>1.1.2</version>
+        	<scope>provided</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.logging.log4j.osgi</groupId>
+        	<artifactId>log4j-1.2-osgi-api</artifactId>
+        	<version>2.0-rc1</version>
+        	<type>bundle</type>
+        </dependency>
+        <dependency>
+        	<groupId>com.fasterxml.jackson.core</groupId>
+        	<artifactId>jackson-databind</artifactId>
+        	<version>2.6.1</version>
+        	<type>bundle</type>
+        </dependency>
+        <dependency>
+        	<groupId>net.sourceforge.owlapi</groupId>
+        	<artifactId>telemetry</artifactId>
+        	<version>1.0.0</version>
+        </dependency>
+        <dependency>
+        	<groupId>xml-apis</groupId>
+        	<artifactId>xml-apis</artifactId>
+        	<version>2.0.2</version>
         </dependency>
 	</dependencies>
 
@@ -67,21 +99,51 @@
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
+				<version>2.5.4</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-ClassPath>.</Bundle-ClassPath>
+						<Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Bundle-Vendor>The Protege Development Team</Bundle-Vendor>
 						<Import-Package>
-							org.apache.log4j.*;version="[1.2,2)", 
-							org.protege.editor.core.*;version="4.3",
-							org.protege.editor.owl.*;version="4.3",
+							org.protege.common.*;version="5.0",
+							org.protege.editor.owl.*;version="5.0",
+							org.semanticweb.owl.owlapi.*;version="3.5.1",
+							org.protege.editor.core.*;version="5.0",
+							org.w3c.dom.*,
+							!org.eclipse.swt.*,
+							!org.jvnet.substance.*,
+							!sun.io,
 							*
 						</Import-Package>
-						<Include-Resource>plugin.xml, {maven-resources}</Include-Resource>
-						<Private-Package>skeleton</Private-Package>
+						<Export-Package>
+							package de.fuberlin.csw.aspectowl.protege
+						</Export-Package>
+						<Include-Resource>plugin.xml, {maven-resources}, {maven-dependencies}</Include-Resource>
+						<Embed-Dependency>
+							owlexplanation,
+							arq,
+							jena-arq,
+							jena,
+							jena-core,
+							iri,
+							jena-iri,
+							jena-base,
+							jena-shaded-guava,
+							miglayout,
+							xercesImpl,
+							xml-apis,
+							jfact,
+							xml-resolver,
+							icu4j,
+							lucene-core,
+							telemetry
+						</Embed-Dependency>
+							<!-- jena-arq,jena,jena-core,iri,jena-iri,jena-base,jena-shaded-guava, -->
+						<Embed-Directory>lib</Embed-Directory>
+						<Embed-Transitive>true</Embed-Transitive>
+						<!-- Private-Package>skeleton</Private-Package-->
 					</instructions>
 					<executions>
 						<execution>
@@ -96,7 +158,7 @@
             </plugin>
             <plugin>
               <artifactId>maven-eclipse-plugin</artifactId>
-              <version>2.9</version>
+              <version>2.10</version>
               <configuration>
                 <pde>true</pde>
               </configuration>
