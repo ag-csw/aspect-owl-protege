@@ -14,6 +14,9 @@
 	<name>Aspect-Oriented Ontology Protégé Plug-In</name> 
 	<description>A plug-in for aspect-oriented ontology development.</description> 
 
+	<properties>
+		<org.osgi.framework.system.packages.extra>org.w3c.dom.ranges</org.osgi.framework.system.packages.extra>
+	</properties>
 
 	<packaging>bundle</packaging>
 
@@ -78,11 +81,6 @@
         	<artifactId>telemetry</artifactId>
         	<version>1.0.0</version>
         </dependency>
-        <dependency>
-        	<groupId>xml-apis</groupId>
-        	<artifactId>xml-apis</artifactId>
-        	<version>2.0.2</version>
-        </dependency>
 	</dependencies>
 
 	<build>
@@ -111,7 +109,7 @@
 							org.protege.editor.owl.*;version="5.0",
 							org.semanticweb.owl.owlapi.*;version="3.5.1",
 							org.protege.editor.core.*;version="5.0",
-							org.w3c.dom.*,
+							org.xml.sax.ext,
 							!org.eclipse.swt.*,
 							!org.jvnet.substance.*,
 							!sun.io,
@@ -133,7 +131,6 @@
 							jena-shaded-guava,
 							miglayout,
 							xercesImpl,
-							xml-apis,
 							jfact,
 							xml-resolver,
 							icu4j,
