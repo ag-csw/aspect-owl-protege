@@ -102,6 +102,9 @@ public class AspectSparqlQueryViewComponent extends AbstractActiveOntologyViewCo
 	            if (ret == JOptionPane.OK_OPTION) {
 	                selectedAspectAnnotation = annotationEditor.getEditedObject();
 	            }
+	            
+	            annotationEditor.dispose();
+	            
                 executeButton.setEnabled(selectedAspectAnnotation != null);
 			}
 		});
