@@ -15,7 +15,7 @@
 	<description>A plug-in for aspect-oriented ontology development.</description> 
 
 	<properties>
-		<org.osgi.framework.system.packages.extra>org.w3c.dom.ranges</org.osgi.framework.system.packages.extra>
+		<org.osgi.framework.system.packages.extra>org.w3c.dom.:ranges</org.osgi.framework.system.packages.extra>
 	</properties>
 
 	<packaging>bundle</packaging>
@@ -81,6 +81,11 @@
         	<artifactId>telemetry</artifactId>
         	<version>1.0.0</version>
         </dependency>
+        <dependency>
+        	<groupId>xml-apis</groupId>
+        	<artifactId>xml-apis</artifactId>
+        	<version>1.4.01</version>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -103,13 +108,14 @@
 					<instructions>
 						<Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Bundle-Vendor>The Protege Development Team</Bundle-Vendor>
+						<Bundle-Vendor>Corporate Semantic Web Group, Institute for Computer Science, Freie Universitaet Berlin</Bundle-Vendor>
 						<Import-Package>
 							org.protege.common.*;version="5.0",
 							org.protege.editor.owl.*;version="5.0",
 							org.semanticweb.owl.owlapi.*;version="3.5.1",
 							org.protege.editor.core.*;version="5.0",
-							org.xml.sax.ext,
+							org.xml.sax.*;version=1.4.01,
+							org.w3c.dom.*,
 							!org.eclipse.swt.*,
 							!org.jvnet.substance.*,
 							!sun.io,
@@ -133,11 +139,11 @@
 							xercesImpl,
 							jfact,
 							xml-resolver,
+							xml-apis,
 							icu4j,
 							lucene-core,
 							telemetry
 						</Embed-Dependency>
-							<!-- jena-arq,jena,jena-core,iri,jena-iri,jena-base,jena-shaded-guava, -->
 						<Embed-Directory>lib</Embed-Directory>
 						<Embed-Transitive>true</Embed-Transitive>
 						<!-- Private-Package>skeleton</Private-Package-->
