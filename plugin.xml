@@ -8,7 +8,7 @@
          name="Inferred Aspects"
          point="org.protege.editor.core.application.ViewComponent">
       <label
-            value="Infererred Aspects">
+            value="Ontology Aspects">
       </label>
       <class
             value="de.fuberlin.csw.aspectowl.protege.InferredAspectViewComponent">
@@ -41,7 +41,7 @@
          name="Aspect SPARQL Query"
          point="org.protege.editor.core.application.ViewComponent">
       <label
-            value="Aspect SPARQL Query">
+            value="Ontology Aspect Quantification with SPARQL">
       </label>
       <class
             value="de.fuberlin.csw.aspectowl.protege.AspectSparqlQueryViewComponent">

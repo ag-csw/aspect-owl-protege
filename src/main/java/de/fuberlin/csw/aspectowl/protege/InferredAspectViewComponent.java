@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.protege.editor.owl.model.event.EventType;
 import org.protege.editor.owl.model.event.OWLModelManagerChangeEvent;
 import org.protege.editor.owl.model.event.OWLModelManagerListener;
+import org.protege.editor.owl.model.inference.NoOpReasoner;
 import org.protege.editor.owl.ui.framelist.OWLFrameList;
 import org.protege.editor.owl.ui.view.AbstractActiveOntologyViewComponent;
 import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
@@ -20,6 +21,7 @@ import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLOntologyChangeListener;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import de.fuberlin.csw.aspectowl.inference.InferredAspectAnnotationGenerator;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAnnotatedAxiomsFrame;
@@ -111,7 +113,12 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 	}
 
 	private void updateHeader() {
-        getView().setHeaderText("(ontology classified using " + getOWLModelManager().getOWLReasonerManager().getCurrentReasonerName() + ")");
+		OWLReasoner reasoner = getOWLModelManager().getOWLReasonerManager().getCurrentReasoner();
+		if (reasoner instanceof NoOpReasoner) {
+	        getView().setHeaderText("(no reasoner active)");
+		} else {
+	        getView().setHeaderText("(inferred axioms supplied by " + reasoner.getReasonerName() + ")");
+		}
     }
 	
 	@Override
