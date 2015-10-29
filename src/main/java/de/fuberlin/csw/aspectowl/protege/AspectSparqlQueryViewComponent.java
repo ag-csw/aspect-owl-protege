@@ -147,6 +147,7 @@ public class AspectSparqlQueryViewComponent extends AbstractActiveOntologyViewCo
 		executeButton.setEnabled(false);
 		executeButton.addActionListener(new ActionListener() {
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -166,7 +167,7 @@ public class AspectSparqlQueryViewComponent extends AbstractActiveOntologyViewCo
 			        JScrollPane scrollPane = new JScrollPane(axiomList);
 					panel.add(scrollPane, BorderLayout.CENTER);
 					
-					panel.add(new JLabel("<html><body style='width:400px'>Do you really want to add the aspect <b>" + selectedAspectAnnotation.getProperty().getIRI().getFragment() + " " + selectedAspectAnnotation.getValue() +  " </b>to these axioms?</body></html>"), BorderLayout.NORTH);
+					panel.add(new JLabel("<html><body style='width:400px'>Do you really want to add the aspect <b>" + selectedAspectAnnotation.getProperty().getIRI().getRemainder() + " " + selectedAspectAnnotation.getValue() +  " </b>to these axioms?</body></html>"), BorderLayout.NORTH);
 					
 					int result = JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(getOWLWorkspace()), panel, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
 					if (result == JOptionPane.YES_OPTION) {

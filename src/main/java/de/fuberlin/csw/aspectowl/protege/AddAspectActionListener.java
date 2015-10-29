@@ -59,6 +59,7 @@ public class AddAspectActionListener implements ActionListener{
 		this.mList = mList;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		UIHelper uiHelper = new UIHelper(eKit);

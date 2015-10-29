@@ -38,16 +38,20 @@ package de.fuberlin.csw.aspectowl.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
+import org.semanticweb.owlapi.io.ReaderDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.util.OWLOntologyImportsClosureSetProvider;
@@ -65,7 +69,7 @@ import com.hp.hpl.jena.rdf.model.RDFWriter;
  */
 public class AspectOWLUtils {
 	
-	private static final Logger log = Logger.getLogger(AspectOWLUtils.class);
+//	private static final Logger log = Logger.getLogger(AspectOWLUtils.class);
 	
 	public static final IRI hasAspectPropertyIRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect");
 	public static final IRI ASPECT_BASE_CLASS_IRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl#Aspect");
@@ -100,12 +104,14 @@ public class AspectOWLUtils {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		writer.write(jenaModel, baos, null);
 		byte[] bytes = baos.toByteArray();
+		ReaderDocumentSource source = new ReaderDocumentSource(new InputStreamReader(new ByteArrayInputStream(bytes)));
 		
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+//		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+		
 		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+		OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 		
-		manager.setSilentMissingImportsHandling(true);
-        OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(bais);
+        OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(source, config);
         return owlOntology;
 	}
 	

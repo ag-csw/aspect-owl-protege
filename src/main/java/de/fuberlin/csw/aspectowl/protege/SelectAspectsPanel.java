@@ -37,6 +37,7 @@
 package de.fuberlin.csw.aspectowl.protege;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -53,22 +54,23 @@ public class SelectAspectsPanel extends JComponent {
 	/**
 	 * 
 	 */
-	private java.util.List<OWLAnnotation> items;
+//	private List<OWLAnnotation> items;
 	private static final long serialVersionUID = 1L;
 	private MList mList;
 	private JScrollPane jScrollPane;
-	private DefaultListModel defaultListModel;
+	private DefaultListModel<OWLAnnotation> defaultListModel;
 	private JButton jButton;
-	private OWLEditorKit eKit;
+//	private OWLEditorKit eKit;
 
-	public SelectAspectsPanel(final OWLEditorKit eKit, java.util.List<OWLAnnotation> items) {
-		this.items = items;
-		this.eKit = eKit;
+	@SuppressWarnings("unchecked")
+	public SelectAspectsPanel(final OWLEditorKit eKit, List<OWLAnnotation> items) {
+//		this.items = items;
+//		this.eKit = eKit;
 		BorderLayout thisLayout = new BorderLayout();
 		//this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setLayout(thisLayout);
 
-		defaultListModel = new DefaultListModel();
+		defaultListModel = new DefaultListModel<OWLAnnotation>();
 
 		mList = new MList();
         

@@ -99,7 +99,7 @@ public class SaveOntologyModuleAction extends ProtegeAction {
 			SelectAspectsPanel selectAspectPanel = new SelectAspectsPanel(
 					editorKit, items);
 
-			JComboBox comboBox = new JComboBox(SetOperation.values());
+			JComboBox<SetOperation> comboBox = new JComboBox<SetOperation>(SetOperation.values());
 
 			Object[] params = { comboBox, selectAspectPanel };
 			JOptionPane.showConfirmDialog(
