@@ -47,6 +47,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -123,11 +124,11 @@ public class AspectSparqlQueryExecutor {
 
 		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
 
-		om.addIRIMapper(new SimpleIRIMapper(exampleOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/AspectsExample.owl"))));
-		om.addIRIMapper(new SimpleIRIMapper(aspectOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/aspectOWL.owl"))));
-		om.addIRIMapper(new SimpleIRIMapper(IRI.create("http://www.w3.org/2006/time"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/University/Ralph/time.owl"))));
+		om.getIRIMappers().add(new SimpleIRIMapper(exampleOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/AspectsExample.owl"))));
+		om.getIRIMappers().add(new SimpleIRIMapper(aspectOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/aspectOWL.owl"))));
+		om.getIRIMappers().add(new SimpleIRIMapper(IRI.create("http://www.w3.org/2006/time"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/University/Ralph/time.owl"))));
 		
-		om.addIRIMapper(new SimpleIRIMapper(IRI.create("http://csw.inf.fu-berlin.de/ontologies/aood/test_inverse"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/testInverse.owl"))));
+		//om.getIRIMappers().add(new SimpleIRIMapper(IRI.create("http://csw.inf.fu-berlin.de/ontologies/aood/test_inverse"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/testInverse.owl"))));
 
 		
 		try {
@@ -149,7 +150,7 @@ public class AspectSparqlQueryExecutor {
 			
 			Set<OWLAxiom> axioms = module.getAxioms();
 			for (OWLAxiom axiom : axioms) {
-				if (onto.containsAxiomIgnoreAnnotations(axiom, true)) {
+				if (EntitySearcher.containsAxiomIgnoreAnnotations(axiom, onto, true)) {
 					System.out.println("YES :) -> " + axiom);					
 				} else {
 					System.out.println("NO :( -> " + axiom);					

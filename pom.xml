@@ -149,7 +149,7 @@
 						<Import-Package>
 							org.protege.common.*;version="5.0",
 							org.protege.editor.owl.*;version="5.0",
-							org.semanticweb.owl.owlapi.*;version="3.5.1",
+							org.semanticweb.owl.owlapi.*;version="4.1.0",
 							org.protege.editor.core.*;version="5.0",
 							org.xml.sax.*;version=1.4.01,
 							org.w3c.dom.*,
@@ -205,4 +205,13 @@
             </plugin>
 		</plugins>
 	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>net.sourceforge.owlapi</groupId>
+				<artifactId>owlapi-osgidistribution</artifactId>
+				<version>4.1.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

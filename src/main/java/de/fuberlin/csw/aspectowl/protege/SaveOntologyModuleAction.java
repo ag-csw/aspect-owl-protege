@@ -49,6 +49,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.coode.owlapi.latex.LatexOntologyFormat;
+import org.coode.owlapi.manchesterowlsyntax.ManchesterOWLSyntaxOntologyFormat;
+import org.coode.owlapi.obo.parser.OBOOntologyFormat;
+import org.coode.owlapi.turtle.TurtleOntologyFormat;
 import org.protege.editor.core.ui.action.ProtegeAction;
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.owl.OWLEditorKit;
@@ -56,11 +60,15 @@ import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.OntologyFormatPanel;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.ontology.OntologyIDJDialog;
+import org.semanticweb.owlapi.io.OWLFunctionalSyntaxOntologyFormat;
+import org.semanticweb.owlapi.io.OWLXMLOntologyFormat;
+import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.AddAxiom;
 import org.semanticweb.owlapi.model.AddImport;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLImportsDeclaration;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
@@ -68,8 +76,10 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.vocab.PrefixOWLOntologyFormat;
 
+import com.google.common.base.Optional;
+
+import de.uulm.ecs.ai.owlapi.krssparser.KRSS2OntologyFormat;
 import uk.ac.manchester.cs.owl.owlapi.OWLImportsDeclarationImpl;
 
 public class SaveOntologyModuleAction extends ProtegeAction {
@@ -120,7 +130,7 @@ public class SaveOntologyModuleAction extends ProtegeAction {
 
 					if (id != null) {
 
-						aspectOntology = om.createNewOntology(id, id.getDefaultDocumentIRI().toURI());
+						aspectOntology = om.createNewOntology(id, id.getDefaultDocumentIRI().get().toURI());
 
 						List<OWLOntologyChange> changes = new ArrayList<OWLOntologyChange>();
 
@@ -173,11 +183,9 @@ public class SaveOntologyModuleAction extends ProtegeAction {
 		
 		OWLOntology activeOntology = editorKit.getModelManager()
 				.getActiveOntology();
-		
-		IRI iri = IRI.create(activeOntology.getOntologyID().getOntologyIRI().toString(), (new Long(System.currentTimeMillis()).toString()));
-		OWLOntologyID id = new OWLOntologyID(iri);
-		
-		
+		Optional<IRI> iri = Optional.of(IRI.create(activeOntology.getOntologyID().getOntologyIRI().toString(), (new Long(System.currentTimeMillis()).toString())));
+		Optional<IRI> version = Optional.of(IRI.create(activeOntology.getOntologyID().getVersionIRI().toString()));
+		OWLOntologyID id  = new OWLOntologyID(iri, version);
 		OntologyIDJDialog dialog = new OntologyIDJDialog(id);
 		JCheckBox checkbox = new JCheckBox("Keep aspect annotations");
 		checkbox.setSelected(true);
@@ -196,21 +204,48 @@ public class SaveOntologyModuleAction extends ProtegeAction {
 			throws Exception { // private
 		OWLOntologyManager man = editorKit.getModelManager()
 				.getOWLOntologyManager();
-		OWLOntologyFormat oldFormat = man.getOntologyFormat(ont);
-		OWLOntologyFormat format = OntologyFormatPanel.showDialog(editorKit,
-				oldFormat, "Choose a format to use when saving the "
+		OWLDocumentFormat oldFormat = man.getOntologyFormat(ont);
+		//workaround while showDialog is not OWLApi4-ready!
+		//TODO: erase oldOntologyFormat as soon as showDialog is OWLApi4-ready
+		OWLOntologyFormat oldOntologyFormat = null;
+		switch (oldFormat.getClass().getName()) {
+			case "org.semanticweb.owlapi.formats.RDFXMLDocumentFormat":
+				oldOntologyFormat = new RDFXMLOntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.OWLXMLDocumentFormat":
+				oldOntologyFormat = new OWLXMLOntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat":
+				oldOntologyFormat = new OWLFunctionalSyntaxOntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.ManchesterSyntaxDocumentFormat":
+				oldOntologyFormat = new ManchesterOWLSyntaxOntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.OBODocumentFormat":
+				oldOntologyFormat = new OBOOntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.KRSS2DocumentFormat":
+				oldOntologyFormat = new KRSS2OntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.LatexDocumentFormat":
+				oldOntologyFormat = new LatexOntologyFormat();
+				break;
+			case "org.semanticweb.owlapi.formats.TurtleDocumentFormat":
+				oldOntologyFormat = new TurtleOntologyFormat();
+				break;
+			default:
+				oldOntologyFormat = new OWLFunctionalSyntaxOntologyFormat();
+		}
+		OWLDocumentFormat format = OntologyFormatPanel.showDialog(editorKit,
+				oldOntologyFormat, "Choose a format to use when saving the "
 						+ editorKit.getModelManager().getRendering(ont)
 						+ " ontology");
 		if (format == null) {
 			return false;
 		}
-		if (oldFormat instanceof PrefixOWLOntologyFormat
-				&& format instanceof PrefixOWLOntologyFormat) {
-			PrefixOWLOntologyFormat oldPrefixes = (PrefixOWLOntologyFormat) oldFormat;
-			for (String name : oldPrefixes.getPrefixNames()) {
-				((PrefixOWLOntologyFormat) format).setPrefix(name,
-						oldPrefixes.getPrefix(name));
-			}
+		if (oldFormat.isPrefixOWLOntologyFormat()
+				&& format.isPrefixOWLOntologyFormat()) {
+			format.asPrefixOWLOntologyFormat().copyPrefixesFrom(oldFormat.asPrefixOWLOntologyFormat().getPrefixName2PrefixMap());
 		}
 		File file = getSaveAsOWLFile(ont, editorKit);
 		if (file != null) {

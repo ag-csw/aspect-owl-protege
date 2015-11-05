@@ -128,7 +128,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 		
         OWLOntology inferredOnt = tempOM.createOntology(IRI.create("http://another.com/ontology" + System.currentTimeMillis()));
         InferredOntologyGenerator ontGen = new InferredOntologyGenerator(reasoner);
-        ontGen.fillOntology(tempOM, inferredOnt);
+        ontGen.fillOntology(tempOM.getOWLDataFactory(), inferredOnt);
         
         AnnotatedAxiomsDuplicateFilter.filter(inferredOnt);
 		

@@ -44,7 +44,7 @@ import java.util.Set;
 
 //import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
+import org.semanticweb.owlapi.formats.RDFXMLDocumentFormat;
 import org.semanticweb.owlapi.io.ReaderDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
@@ -54,6 +54,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.OWLOntologyImportsClosureSetProvider;
 import org.semanticweb.owlapi.util.OWLOntologyMerger;
 
@@ -88,7 +89,7 @@ public class AspectOWLUtils {
 	
 	private static Set<OWLAnnotationProperty> fillSubProperties(Set<OWLAnnotationProperty> set, OWLAnnotationProperty property, OWLOntology onto) {
 		set.add(property);
-		for(OWLAnnotationProperty subProperty : property.getSubProperties(onto, true)) {
+		for(OWLAnnotationProperty subProperty : EntitySearcher.getSubProperties(property, onto, true)) {
 			fillSubProperties(set, subProperty, onto);
 		}
 		return set;
@@ -130,7 +131,7 @@ public class AspectOWLUtils {
 		}
 		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		owlOntology.getOWLOntologyManager().saveOntology(owlOntology, new RDFXMLOntologyFormat(), baos);
+		owlOntology.getOWLOntologyManager().saveOntology(owlOntology, new RDFXMLDocumentFormat(), baos);
 		byte[] bytes = baos.toByteArray();
 		
 //		System.out.println("\n\n\n\n");
