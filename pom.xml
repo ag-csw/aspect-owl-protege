@@ -149,13 +149,17 @@
 						<Import-Package>
 							org.protege.common.*;version="5.0",
 							org.protege.editor.owl.*;version="5.0",
-							org.semanticweb.owl.owlapi.*;version="4.1.0",
+							org.semanticweb.owlapi.*;version="4.1.0",
 							org.protege.editor.core.*;version="5.0",
 							org.xml.sax.*;version=1.4.01,
 							org.w3c.dom.*,
 							!org.eclipse.swt.*,
 							!org.jvnet.substance.*,
 							!sun.io,
+							!com.google.inject.*,
+							!javax.annotation,
+							!javax.inject,
+							!org.apache.commons.io.*,
 							*
 						</Import-Package>
 						<Export-Package>
@@ -179,7 +183,8 @@
 							xml-apis,
 							icu4j,
 							lucene-core,
-							telemetry
+							telemetry,
+							owlapi-osgidistribution <!-- Just for testing. REMOVE ME. -->
 						</Embed-Dependency>
 						<Embed-Directory>lib</Embed-Directory>
 						<Embed-Transitive>true</Embed-Transitive>
