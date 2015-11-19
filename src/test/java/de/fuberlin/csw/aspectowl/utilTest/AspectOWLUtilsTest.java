@@ -186,11 +186,13 @@ public class AspectOWLUtilsTest {
 			{ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
 					+ "PREFIX asp: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>"
 					+ "SELECT ?x"
-					+ "WHERE { ?x rdf:type asp:PointCut }", "direct", null },
+					+ "WHERE { ?x rdf:type asp:PointCut }", "direct", null }
+			/*,
 			{ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
 					+ "PREFIX asp: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>"
 					+ "SELECT ?x"
 					+ "WHERE { ?x rdf:type asp:ReasoningComplexity }", "direct", "hashCode" }
+			*/
 		};
 		
 		for (Object[] queryLine : queries)
