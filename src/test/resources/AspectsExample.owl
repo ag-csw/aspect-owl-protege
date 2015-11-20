@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE Ontology [
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://csw.inf.fu-berlin.de/aood/example"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     ontologyIRI="http://csw.inf.fu-berlin.de/aood/example">
+    <Prefix name="" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Import>http://www.corporate-semantic-web.de/ontologies/aspect_owl</Import>
+    <Import>http://www.w3.org/2006/time</Import>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">An ontology demonstrating various use cases of aspects in ontological knowledge. The examples modeled in this ontology are:
+
+- Capital cities changing over time (Bonn/Berlin in Germany)</Literal>
+    </Annotation>
+    <Declaration>
+        <Class IRI="#Capital"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#City"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Country"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ProjecManagementAspect"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#ProjectAffiliationAspect"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Street"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#TemporalAspect"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#isCapitalOf"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#partOf"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#AspectTimeBonnCapital"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#BeginningBerlinCapital"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#BeginningBonnCapital"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Berlin"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Bonn"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#CSCProjectAffiliationAspect"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#EndBonnCapital"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#Germany"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#TimeIntervalBerlinCapital"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#TimeIntervalBonnCapital"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty IRI="#hasProjectAffiliation"/>
+    </Declaration>
+    <EquivalentClasses>
+        <Annotation>
+            <AnnotationProperty IRI="#hasProjectAffiliation"/>
+            <IRI>#CSCProjectAffiliationAspect</IRI>
+        </Annotation>
+        <Class IRI="#Capital"/>
+        <ObjectIntersectionOf>
+            <Class IRI="#City"/>
+            <ObjectSomeValuesFrom>
+                <ObjectProperty IRI="#isCapitalOf"/>
+                <Class IRI="#Country"/>
+            </ObjectSomeValuesFrom>
+        </ObjectIntersectionOf>
+    </EquivalentClasses>
+    <SubClassOf>
+        <Class IRI="#Capital"/>
+        <Class IRI="#City"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ProjecManagementAspect"/>
+        <Class IRI="http://www.corporate-semantic-web.de/ontologies/aspect_owl#NonfunctionalAspect"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#ProjectAffiliationAspect"/>
+        <Class IRI="#ProjecManagementAspect"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#TemporalAspect"/>
+        <Class IRI="http://www.corporate-semantic-web.de/ontologies/aspect_owl#FunctionalAspect"/>
+    </SubClassOf>
+    <ClassAssertion>
+        <Class IRI="http://www.w3.org/2006/time#Instant"/>
+        <NamedIndividual IRI="#BeginningBonnCapital"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#City"/>
+        <NamedIndividual IRI="#Berlin"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#City"/>
+        <NamedIndividual IRI="#Bonn"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#ProjectAffiliationAspect"/>
+        <NamedIndividual IRI="#CSCProjectAffiliationAspect"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.w3.org/2006/time#Instant"/>
+        <NamedIndividual IRI="#EndBonnCapital"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Country"/>
+        <NamedIndividual IRI="#Germany"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Annotation>
+            <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+            <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">The time interval in which Berlin was capital of the Federal Republic of Germany (starting on 3rd October 1990, and no ending, because Berlin is still capital).</Literal>
+        </Annotation>
+        <Class IRI="#TemporalAspect"/>
+        <NamedIndividual IRI="#TimeIntervalBerlinCapital"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.w3.org/2006/time#DateTimeInterval"/>
+        <NamedIndividual IRI="#TimeIntervalBerlinCapital"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Annotation>
+            <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+            <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">Time interval in which Bonn was Captial of the Federal Republic of Germany (starting on 3rd November 1949, ending on 3rd October 1990).</Literal>
+        </Annotation>
+        <Class IRI="#TemporalAspect"/>
+        <NamedIndividual IRI="#TimeIntervalBonnCapital"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="http://www.w3.org/2006/time#DateTimeInterval"/>
+        <NamedIndividual IRI="#TimeIntervalBonnCapital"/>
+    </ClassAssertion>
+    <DifferentIndividuals>
+        <NamedIndividual IRI="#Berlin"/>
+        <NamedIndividual IRI="#Bonn"/>
+    </DifferentIndividuals>
+    <ObjectPropertyAssertion>
+        <Annotation>
+            <AnnotationProperty IRI="http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect"/>
+            <IRI>#TimeIntervalBerlinCapital</IRI>
+        </Annotation>
+        <ObjectProperty IRI="#isCapitalOf"/>
+        <NamedIndividual IRI="#Berlin"/>
+        <NamedIndividual IRI="#Germany"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <Annotation>
+            <AnnotationProperty IRI="http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect"/>
+            <IRI>#TimeIntervalBonnCapital</IRI>
+        </Annotation>
+        <ObjectProperty IRI="#isCapitalOf"/>
+        <NamedIndividual IRI="#Bonn"/>
+        <NamedIndividual IRI="#Germany"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.w3.org/2006/time#hasBeginning"/>
+        <NamedIndividual IRI="#TimeIntervalBerlinCapital"/>
+        <NamedIndividual IRI="#BeginningBerlinCapital"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.w3.org/2006/time#hasBeginning"/>
+        <NamedIndividual IRI="#TimeIntervalBonnCapital"/>
+        <NamedIndividual IRI="#BeginningBonnCapital"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="http://www.w3.org/2006/time#hasEnd"/>
+        <NamedIndividual IRI="#TimeIntervalBonnCapital"/>
+        <NamedIndividual IRI="#EndBonnCapital"/>
+    </ObjectPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://www.w3.org/2006/time#inXSDDateTime"/>
+        <NamedIndividual IRI="#BeginningBerlinCapital"/>
+        <Literal datatypeIRI="&xsd;dateTime">1990-10-03T00:00:00</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://www.w3.org/2006/time#inXSDDateTime"/>
+        <NamedIndividual IRI="#BeginningBonnCapital"/>
+        <Literal datatypeIRI="&xsd;dateTime">1949-11-03T00:00:00</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="http://www.w3.org/2006/time#inXSDDateTime"/>
+        <NamedIndividual IRI="#EndBonnCapital"/>
+        <Literal datatypeIRI="&xsd;dateTime">1990-10-03T00:00:00</Literal>
+    </DataPropertyAssertion>
+    <TransitiveObjectProperty>
+        <ObjectProperty IRI="#partOf"/>
+    </TransitiveObjectProperty>
+    <SubAnnotationPropertyOf>
+        <AnnotationProperty IRI="#hasProjectAffiliation"/>
+        <AnnotationProperty IRI="http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect"/>
+    </SubAnnotationPropertyOf>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 3.5.1) http://owlapi.sourceforge.net -->
+
