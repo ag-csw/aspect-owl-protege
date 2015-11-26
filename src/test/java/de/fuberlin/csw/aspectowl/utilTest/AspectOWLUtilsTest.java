@@ -5,14 +5,12 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 
@@ -23,15 +21,29 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
 
 public class AspectOWLUtilsTest {
 	
+	/**
+	 * A global variable of the type hashmap that gives easy access 
+	 * to the important properties of the corresponding resource.
+	 * The key of the hashmap holds the name of the entire set.
+	 * The set itself contains the IRI and the path of the associated OWL file.
+	 */
 	private HashMap<String,HashMap<String,IRI>> setup = new HashMap<String,HashMap<String,IRI>>();
 
+	/**
+	 * The global variable setup is filled by the following function 
+	 * before the test class is constructed.
+	 * Starting with an array of triples (with a name for the set, the IRI 
+	 * and the particular resource path) the hashmap is filled.
+	 */
 	@Before
 	public void setUp() throws Exception
 	{
@@ -51,6 +63,10 @@ public class AspectOWLUtilsTest {
 		}
 	}
 
+	/**
+	 * Test function to verify if SPARQL queries are evaluated right.
+	 * The idea is to compare whether all expected axioms are part of the original ontology.
+	 */
 	@Test
 	public void sparqlQueryConstructTest()
 	{
@@ -107,6 +123,11 @@ public class AspectOWLUtilsTest {
 		
 	}
 	
+	/**
+	 * Test suite for ASK-Queries.
+	 * Since the result of these kind of queries is TRUE or FALSE, 
+	 * we just compare the result with an expected boolean value.
+	 */
 	@Test
 	public void sparqlQueryAskTest()
 	{
@@ -125,15 +146,14 @@ public class AspectOWLUtilsTest {
 			fail( e.toString() );
 		}
 		
+		String prefixes = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+						+ "PREFIX time: <http://www.w3.org/2006/time#>";
+		
 		// every line represents a query of the form: QUERY_STRING, EXPECTATION
 		String[][] queries = {
 			{ "ASK {}", "true" },
-			{ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
-					+ "PREFIX time: <http://www.w3.org/2006/time#>"
-					+ "ASK { time:TemporalEntity rdfs:subClassOf time:Interval }", "false" },
-			{ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
-					+ "PREFIX time: <http://www.w3.org/2006/time#>"
-					+ "ASK { time:Interval rdfs:subClassOf time:TemporalEntity }", "true" }
+			{ prefixes + "ASK { time:TemporalEntity rdfs:subClassOf time:Interval }", "false" },
+			{ prefixes + "ASK { time:Interval rdfs:subClassOf time:TemporalEntity }", "true" }
 		};
 		
 		for (String[] queryLine : queries)
@@ -143,12 +163,18 @@ public class AspectOWLUtilsTest {
 			
 			Query query = QueryFactory.create(queryString);
 			QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel);
-			assertEquals( qexec.execAsk(), expectation);
+			assertEquals( qexec.execAsk(), expectation );
 			qexec.close();
 		}
 		
 	}
 	
+	/**
+	 * Results of SELECT queries are tested by this function.
+	 * Depending on the test mode, the results are evaluated differently:
+	 * For the mode 'amount' the cardinality of the result list is compared to an expected number.
+	 * The resulting RDF nodes are compared by their expected name in the mode 'contains'.
+	 */
 	@Test
 	public void sparqlQuerySelectTest()
 	{
@@ -167,32 +193,28 @@ public class AspectOWLUtilsTest {
 			fail( e.toString() );
 		}
 		
+		String prefixes = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
+						+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>"
+						+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+						+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
+						+ "PREFIX asp: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>";
+		
 		// every line represents a query of the form: QUERY_STRING, EVALUATION_MODE, EXPECTATION
 		Object[][] queries = {
-			{ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
-					+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>"
-					+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
-					+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
-					+ "SELECT ?subject ?object"
-					+ "WHERE { ?subject rdfs:subClassOf ?object }", "amount", 16 },
-			{ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
-					+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>"
-					+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
-					+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
-					+ "SELECT ?subject ?object"
-					+ "WHERE { ?subject rdfs:subClassOf ?object ."
-					+ "        ?object rdfs:subClassOf ?object"
-					+ "}", "amount", 0 },
-			{ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
-					+ "PREFIX asp: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>"
-					+ "SELECT ?x"
-					+ "WHERE { ?x rdf:type asp:PointCut }", "direct", null }
-			/*,
-			{ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
-					+ "PREFIX asp: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>"
-					+ "SELECT ?x"
-					+ "WHERE { ?x rdf:type asp:ReasoningComplexity }", "direct", "hashCode" }
-			*/
+			{ prefixes
+				+ "SELECT ?subject ?object"
+				+ "WHERE { ?subject rdfs:subClassOf ?object }", "amount", 16 },
+			{ prefixes
+				+ "SELECT ?subject ?object"
+				+ "WHERE { ?subject rdfs:subClassOf ?object ."
+				+ "        ?object rdfs:subClassOf ?object"
+				+ "}", "amount", 0 },
+			{ prefixes
+				+ "SELECT ?x"
+				+ "WHERE { ?x rdf:type asp:PointCut }", "contains", null },
+			{ prefixes
+				+ "SELECT ?x ?y"
+				+ "WHERE { ?x rdf:type asp:ReasoningComplexity }", "contains", ".*Owl(QL|RL|EL)Complexity.*" }
 		};
 		
 		for (Object[] queryLine : queries)
@@ -204,27 +226,21 @@ public class AspectOWLUtilsTest {
 			Query query = QueryFactory.create(queryString);
 			QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel);
 			ResultSet results = qexec.execSelect();
-			//ResultSetFormatter.out(System.out, results, query);
+			
+			//ResultSetFormatter.out( results );
 			
 			switch ( testingMode )
 			{
 				case "amount":
 					assertEquals(Iterators.size(results), expectation);
 					break;
-				case "direct":
-					try {
-						Model resultModel = results.getResourceModel();
-						OWLOntology module = AspectOWLUtils.jenaModelToOWLOntology(resultModel);
-						Set<OWLAxiom> axioms = module.getAxioms();
-						
-						if (expectation == "hashCode")
-						{
-							String ax = axioms.toString();
-							assertEquals(ax.hashCode(), -2088790216);
-						}
-					}
-					catch (OWLOntologyCreationException e) {
-						fail( e.toString() );
+				case "contains":
+					while (results.hasNext())
+					{
+						QuerySolution solution = results.nextSolution();
+						RDFNode rdfNode = solution.get("?x");
+						String rdfNodeString = String.valueOf(rdfNode);
+						assertTrue(rdfNodeString.matches(String.valueOf(expectation)));
 					}
 					break;
 				default:
@@ -234,6 +250,35 @@ public class AspectOWLUtilsTest {
 			qexec.close();
 		}
 		
+	}
+	
+	/**
+	 * Here we test the functionality of the converters to turn a Jena model 
+	 * into an OWL model or vice versa.
+	 * The Jena model format is used as intermediate exchange format.
+	 */
+	@Test
+	public void ontologyConverterTest()
+	{
+		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
+		
+		HashMap<String,IRI> testIRIs = this.setup.get("aspect");
+		om.addIRIMapper(new SimpleIRIMapper(testIRIs.get("ontology"), testIRIs.get("document")));
+		
+		OWLOntology onto = null;
+		OntModel jenaModel = null;
+		OWLOntology ontoModel = null;
+		
+		try {
+			onto = om.loadOntology(testIRIs.get("ontology"));
+			jenaModel = AspectOWLUtils.owlOntologyToJenaModel(onto, false);
+			ontoModel = AspectOWLUtils.jenaModelToOWLOntology(jenaModel);
+		}
+		catch (Exception e) {
+			fail( e.toString() );
+		}
+		
+		assertEquals( onto.compareTo(ontoModel), 0 );
 	}
 
 }
