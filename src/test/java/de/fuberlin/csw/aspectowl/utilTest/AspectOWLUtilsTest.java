@@ -5,12 +5,15 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeSet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 
@@ -26,7 +29,9 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+
 import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
+import de.fuberlin.csw.aspectowl.utilTest.OWLAxiomComparator;
 
 public class AspectOWLUtilsTest {
 	
@@ -41,8 +46,11 @@ public class AspectOWLUtilsTest {
 	/**
 	 * The global variable setup is filled by the following function 
 	 * before the test class is constructed.
-	 * Starting with an array of triples (with a name for the set, the IRI 
-	 * and the particular resource path) the hashmap is filled.
+	 * Starting with an array of triples (with a NAME for the set, the IRI 
+	 * and the particular RESOURCE path) the hashmap is filled consecutively.
+	 * With get(NAME) the corresponding set is loaded.
+	 * To get to the values from the set, you need to write 
+	 * get("ontology") for the IRI and get("document") for the RESOURCE.
 	 */
 	@Before
 	public void setUp() throws Exception
@@ -51,7 +59,8 @@ public class AspectOWLUtilsTest {
 		String[][] setupContent = {
 				{"example", "http://csw.inf.fu-berlin.de/aood/example", "/AspectsExample.owl"},
 				{"aspect",  "http://www.corporate-semantic-web.de/ontologies/aspect_owl", "/aspectOWL.owl"},
-				{"time",    "http://www.w3.org/2006/time", "/time.owl"}
+				{"time",    "http://www.w3.org/2006/time", "/time.owl"},
+				{"siblings","http://www.semanticweb.org/test-ontology", "/sibs-full.owl"}
 		};
 		
 		for (String[] setupElement : setupContent)
@@ -279,6 +288,80 @@ public class AspectOWLUtilsTest {
 		}
 		
 		assertEquals( onto.compareTo(ontoModel), 0 );
+	}
+	
+	/**
+	 * Test of the functionality to create ontologies with CONSTRUCT queries.
+	 * The resulting ontology is compared with an expected one.
+	 */
+	@Test
+	public void ontologyCreatorTest()
+	{
+		String QUERY = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+				+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n"
+				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+				+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n"
+				+ "PREFIX test: <http://www.semanticweb.org/test-ontology#>\n"
+				+ "CONSTRUCT { ?s ?p ?o }\n"
+				+ "WHERE\n"
+				+ "{\n"
+				+ "?s ?p ?o .\n"
+				+ "FILTER ( !sameTerm(?s, test:C) && !sameTerm(?o, test:C)  )\n"
+				+ "}";
+		
+		Query query = QueryFactory.create(QUERY);
+		
+		TreeSet<OWLAxiom> sortedAxioms = new TreeSet<>(new OWLAxiomComparator());
+		
+		try {
+			OWLOntologyManager om = OWLManager.createOWLOntologyManager();
+			
+			HashMap<String,IRI> testIRIs = this.setup.get("siblings");
+			om.addIRIMapper(new SimpleIRIMapper(testIRIs.get("ontology"), testIRIs.get("document")));
+			
+			OWLOntology onto = om.loadOntology(testIRIs.get("ontology"));
+			
+			OntModel jenaModel = AspectOWLUtils.owlOntologyToJenaModel(onto, true);
+			QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel);
+			
+			Model result = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+			result = qexec.execConstruct(result);
+			
+			OWLOntology module = AspectOWLUtils.jenaModelToOWLOntology(result);
+			Set<OWLAxiom> axioms = module.getAxioms();
+			
+			int EXPECTED_SIZE = 13;
+			//assertEquals(axioms.size(), EXPECTED_SIZE);
+			if (axioms.size() != EXPECTED_SIZE)
+			{
+				fail();
+				System.exit(0);
+			}
+			
+			sortedAxioms.addAll(axioms);
+		}
+		catch (Exception e) {
+			fail( e.toString() );
+		}
+		
+		TreeSet<OWLAxiom> expectedAxioms = new TreeSet<OWLAxiom>(new OWLAxiomComparator());
+		
+		try {
+			File file = new File(getClass().getResource("/sibs-sparse.owl").getPath());
+			IRI expectedIRI = IRI.create(file);
+			
+			OWLOntologyManager omg = OWLManager.createOWLOntologyManager();
+			OWLOntology onto = omg.loadOntology(expectedIRI);
+			
+			Set<OWLAxiom> axioms = onto.getAxioms();
+			expectedAxioms.addAll(axioms);
+		}
+		catch (OWLOntologyCreationException e)
+		{
+			fail( e.toString() );
+		}
+		
+		assertTrue(sortedAxioms.equals(expectedAxioms));
 	}
 
 }
