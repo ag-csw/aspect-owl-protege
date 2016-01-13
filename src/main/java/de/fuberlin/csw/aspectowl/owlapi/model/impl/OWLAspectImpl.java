@@ -6,15 +6,8 @@ package de.fuberlin.csw.aspectowl.owlapi.model.impl;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLAnonymousIndividual;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.model.OWLDatatype;
-import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLObject;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectVisitor;
 import org.semanticweb.owlapi.model.OWLObjectVisitorEx;
 
@@ -25,6 +18,8 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectImpl;
  * @author ralph
  */
 public class OWLAspectImpl extends OWLObjectImpl implements OWLAspect {
+
+	private static final long serialVersionUID = 4829969668138075822L;
 
 	/* (non-Javadoc)
 	 * @see org.semanticweb.owlapi.model.OWLObject#accept(org.semanticweb.owlapi.model.OWLObjectVisitor)
@@ -69,6 +64,15 @@ public class OWLAspectImpl extends OWLObjectImpl implements OWLAspect {
 	protected int compareObjectOfSameType(OWLObject object) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.semanticweb.owlapi.model.HasAnnotationPropertiesInSignature#getAnnotationPropertiesInSignature()
+	 */
+	@Override
+	public Set<OWLAnnotationProperty> getAnnotationPropertiesInSignature() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
