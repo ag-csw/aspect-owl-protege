@@ -98,5 +98,12 @@
         <editorKitId value="any"/>
         <accelerator value="shift S"/>
     </extension>
+    <extension
+    	id="AspectOrientedFunctionalSyntaxOWLParserInitializer"
+    	name="Aspect-Oriented Functional Syntax OWL Parser Initializer"
+    	point="org.protege.editor.core.application.EditorKitHook">
+    	<class value="de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook"/>
+    	<editorKitId value="OWLEditorKit"/>
+    </extension>
 
 </plugin>

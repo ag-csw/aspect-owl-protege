@@ -4,12 +4,23 @@
 package de.fuberlin.csw.aspectowl.owlapi.protege;
 
 import org.protege.editor.core.editorkit.plugin.EditorKitHook;
+import org.protege.editor.owl.OWLEditorKit;
+import org.semanticweb.owlapi.io.OWLParserFactory;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.util.PriorityCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 
 /**
  * @author ralph
  */
 public class AspectOWLEditorKitHook extends EditorKitHook {
 
+	private static final Logger log = LoggerFactory.getLogger(AspectOWLEditorKitHook.class);
+	
+	
 	/**
 	 * 
 	 */
@@ -17,13 +28,15 @@ public class AspectOWLEditorKitHook extends EditorKitHook {
 		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
+	/* Sneaks in our preprocessor for aspect-oriented ontologies
 	 * @see org.protege.editor.core.plugin.ProtegePluginInstance#initialise()
 	 */
 	@Override
 	public void initialise() throws Exception {
-		// TODO Auto-generated method stub
-
+//		log.info("Initializing Aspect-Oriented OWL plug-in.");
+		OWLOntologyManager om = ((OWLEditorKit)getEditorKit()).getOWLModelManager().getOWLOntologyManager();
+		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
+		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 	}
 
 	/* (non-Javadoc)
