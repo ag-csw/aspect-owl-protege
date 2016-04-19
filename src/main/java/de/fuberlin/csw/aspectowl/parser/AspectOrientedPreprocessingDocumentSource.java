@@ -56,18 +56,20 @@ public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDoc
 			String prefix = hasPrefixMapping ? prefixMatcher.group(1) : null;
 			
 			boolean hasDeclarationAspects = buf.matches("Import(<http://www.corporate-semantic-web.de/ontologies/aspect/owl>)");
-				
-			BufferedReader in = new BufferedReader(new StringReader(buf));
 			
-			String line = null;
-			String lastLine = "";
+			// hier den Ersatz einfügen
 			
-			while ((line = in.readLine()) != null) {
-				if (line.isEmpty() && lastLine.startsWith(lastLine)) {
-					
-				}
-			}
-			
+//			BufferedReader in = new BufferedReader(new StringReader(buf));
+//			
+//			String line = null;
+//			String lastLine = "";
+//			
+//			while ((line = in.readLine()) != null) {
+//				if (line.isEmpty() && lastLine.startsWith(lastLine)) {
+//					
+//				}
+//			}
+//			
 //			content.replaceAll("^(\\w+\\()Aspect\\((.*?)\\)(.*)", "\\1");
 			
 			processedContent = buf;
