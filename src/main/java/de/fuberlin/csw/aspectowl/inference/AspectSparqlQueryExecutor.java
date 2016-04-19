@@ -36,30 +36,27 @@
  *******************************************************************************/
 package de.fuberlin.csw.aspectowl.inference;
 
-import java.io.File;
-import java.util.Set;
-
+import org.openrdf.query.GraphQuery;
+import org.openrdf.query.IncompatibleOperationException;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.Query;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFHandlerException;
 import org.protege.editor.owl.model.OWLWorkspace;
+import org.protege.editor.owl.rdf.SparqlResultSet;
+import org.protege.editor.owl.rdf.repository.GraphQueryHandler;
+import org.protege.owl.rdf.Utilities;
+import org.protege.owl.rdf.api.OwlTripleStore;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.semanticweb.owlapi.search.EntitySearcher;
-import org.semanticweb.owlapi.util.SimpleIRIMapper;
-
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-
-import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class handles the graph-based selection of parts of an ontology and
@@ -69,13 +66,21 @@ import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
  */
 public class AspectSparqlQueryExecutor {
 
+	private static final Logger log = LoggerFactory.getLogger(AspectSparqlQueryExecutor.class);
+
+	
 	private OWLWorkspace workspace;
+	OwlTripleStore tripleStore;
+//	private SparqlReasoner sparqlReasoner;
 	
 	/**
+	 * @throws RepositoryException 
 	 * 
 	 */
-	public AspectSparqlQueryExecutor(OWLWorkspace workspace) {
+	public AspectSparqlQueryExecutor(OWLWorkspace workspace) throws RepositoryException {
 		this.workspace = workspace;
+//		sparqlReasoner = new BasicSparqlReasonerFactory().createReasoner(workspace.getOWLModelManager().getOWLOntologyManager());
+		tripleStore = Utilities.getOwlTripleStore(workspace.getOWLModelManager().getOWLOntologyManager(), true);
 	}
 
 	/**
@@ -83,84 +88,131 @@ public class AspectSparqlQueryExecutor {
 	 * @param query The SPARQL query the resulting OWL axioms of which should be annotated with an aspect. 
 	 * @param aspectProperty The aspect annotation property that should be used.
 	 * @param aspectObject The entity that should be the object of the aspect annotations.
+	 * @throws RepositoryException 
+	 * @throws MalformedQueryException 
+	 * @throws RDFHandlerException 
+	 * @throws QueryEvaluationException 
 	 * @throws OWLOntologyCreationException 
 	 * @throws OWLOntologyStorageException 
 	 */
-	public OWLOntology getOntologyModule(String queryString) throws OWLOntologyStorageException, OWLOntologyCreationException {
-		OntModel jenaModel = AspectOWLUtils.owlOntologyToJenaModel(workspace.getOWLModelManager().getActiveOntology(), true);
+	public OWLOntology getOntologyModule(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException, RDFHandlerException, OWLOntologyCreationException {
 		
-		Query query = QueryFactory.create(queryString) ;
-		QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel) ;
+//		OntModel jenaModel = AspectOWLUtils.owlOntologyToJenaModel(workspace.getOWLModelManager().getActiveOntology(), true);
+//		
+		RepositoryConnection conn = tripleStore.getRepository().getConnection();
+		Query query = conn.prepareQuery(QueryLanguage.SPARQL, queryString);
 		
-		Model result = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
-		result = qexec.execConstruct(result);
-
-		OWLOntology module = AspectOWLUtils.jenaModelToOWLOntology(result);
-		return module;
-	}
-	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		String QUERY = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" + 
-				"PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" + 
-				"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" + 
-				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" + 
-				"PREFIX aspect: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>\n" + 
-				"\n" + 
-				"CONSTRUCT {?s ?p ?o}\n" + 
-				"WHERE {\n" + 
-				"	?s ?p ?o .\n" + 
-				"	?o rdfs:subClassOf+ aspect:Aspect .\n" + 
-				"}";
-
-		System.out.println("\n\n" + QUERY + "\n\n");
-		
-		IRI exampleOntoIRI = IRI.create("http://csw.inf.fu-berlin.de/aood/example");
-		
-		IRI aspectOntoIRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl");
-
-		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
-
-		om.getIRIMappers().add(new SimpleIRIMapper(exampleOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/AspectsExample.owl"))));
-		om.getIRIMappers().add(new SimpleIRIMapper(aspectOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/aspectOWL.owl"))));
-		om.getIRIMappers().add(new SimpleIRIMapper(IRI.create("http://www.w3.org/2006/time"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/University/Ralph/time.owl"))));
-		
-		//om.getIRIMappers().add(new SimpleIRIMapper(IRI.create("http://csw.inf.fu-berlin.de/ontologies/aood/test_inverse"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/testInverse.owl"))));
-
-		
-		try {
-			OWLOntology onto = om.loadOntology(exampleOntoIRI);
-			
-			System.out.println("orig: " + onto.getAxiomCount());
-			
-			OntModel jenaModel = AspectOWLUtils.owlOntologyToJenaModel(onto, true);
-			
-			Query query = QueryFactory.create(QUERY) ;
-			QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel) ;
-			
-			Model result = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
-			result = qexec.execConstruct(result);
-
-			OWLOntology module = AspectOWLUtils.jenaModelToOWLOntology(result);
-			
-			System.out.println("\nmodule: " + module.getAxiomCount() + "\n");
-			
-			Set<OWLAxiom> axioms = module.getAxioms();
-			for (OWLAxiom axiom : axioms) {
-				if (EntitySearcher.containsAxiomIgnoreAnnotations(axiom, onto, true)) {
-					System.out.println("YES :) -> " + axiom);					
-				} else {
-					System.out.println("NO :( -> " + axiom);					
-				}
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (!(query instanceof GraphQuery)) {
+			throw new IncompatibleOperationException("Only CONSTRUCT queries are allowed for the definition of pointcuts.");
 		}
+		
+		GraphQueryHandler handler = new GraphQueryHandler(tripleStore);
+		((GraphQuery)query).evaluate(handler);
+		SparqlResultSet resultSet = handler.getQueryResult();
 
+		int tripleCount = resultSet.getRowCount();
+		log.info("*** Query result ***");
+		for (int i = 0; i < tripleCount; i++) {
+			Object subject = resultSet.getResult(i, 0);
+			Object predicate = resultSet.getResult(i, 1);
+			Object object = resultSet.getResult(i, 2);
+			log.info(subject + " (CLASS:" + subject.getClass().getName() +  ")\t" + predicate + " (CLASS:" + predicate.getClass().getName()+ ")\t" + object + " (CLASS:" + object.getClass().getName() + ")");
+		}
+		
+		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
+		OWLOntology module = om.createOntology();
+		return module;
+		
+//		RDFGraph moduleGraph = new RDFGraph();
+//		
+//
+//		
+//		
+//		
+//		SailRepository moduleRep = null; // new SailRepository();
+//		
+//		
+//		RDFTranslator translator = new RDFTranslator(om, module, true);
+//		
+//		translator.
+//		
+//		
+//		resultSet.
+		
+//		QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel) ;
+//		
+//		Model result = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+//		result = qexec.execConstruct(result);
+//
+//		OWLOntology module = AspectOWLUtils.jenaModelToOWLOntology(result);
+//		return module;
 	}
+	
+	
+//	/**
+//	 * @param args
+//	 */
+//	public static void main(String[] args) {
+//		String QUERY = sparqlReasoner.getSampleQuery();
+//		
+//		
+//		String QUERY = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" + 
+//				"PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" + 
+//				"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" + 
+//				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" + 
+//				"PREFIX aspect: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>\n" + 
+//				"\n" + 
+//				"CONSTRUCT {?s ?p ?o}\n" + 
+//				"WHERE {\n" + 
+//				"	?s ?p ?o .\n" + 
+//				"	?o rdfs:subClassOf+ aspect:Aspect .\n" + 
+//				"}";
+//
+//		System.out.println("\n\n" + QUERY + "\n\n");
+//		
+//		IRI exampleOntoIRI = IRI.create("http://csw.inf.fu-berlin.de/aood/example");
+//		
+//		IRI aspectOntoIRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl");
+//
+//		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
+//
+//		om.getIRIMappers().add(new SimpleIRIMapper(exampleOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/AspectsExample.owl"))));
+//		om.getIRIMappers().add(new SimpleIRIMapper(aspectOntoIRI, IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/aspectOWL.owl"))));
+//		om.getIRIMappers().add(new SimpleIRIMapper(IRI.create("http://www.w3.org/2006/time"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/University/Ralph/time.owl"))));
+//		
+//		//om.getIRIMappers().add(new SimpleIRIMapper(IRI.create("http://csw.inf.fu-berlin.de/ontologies/aood/test_inverse"), IRI.create(new File("/Users/ralph/Documents/Arbeit/Ontologien/AspectOWL/testInverse.owl"))));
+//
+//		
+//		try {
+//			OWLOntology onto = om.loadOntology(exampleOntoIRI);
+//			
+//			System.out.println("orig: " + onto.getAxiomCount());
+//			
+//			OntModel jenaModel = AspectOWLUtils.owlOntologyToJenaModel(onto, true);
+//			
+//			Query query = QueryFactory.create(QUERY) ;
+//			QueryExecution qexec = QueryExecutionFactory.create(query, jenaModel) ;
+//			
+//			Model result = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+//			result = qexec.execConstruct(result);
+//
+//			OWLOntology module = AspectOWLUtils.jenaModelToOWLOntology(result);
+//			
+//			System.out.println("\nmodule: " + module.getAxiomCount() + "\n");
+//			
+//			Set<OWLAxiom> axioms = module.getAxioms();
+//			for (OWLAxiom axiom : axioms) {
+//				if (EntitySearcher.containsAxiomIgnoreAnnotations(axiom, onto, true)) {
+//					System.out.println("YES :) -> " + axiom);					
+//				} else {
+//					System.out.println("NO :( -> " + axiom);					
+//				}
+//			}
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 }

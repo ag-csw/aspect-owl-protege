@@ -58,6 +58,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.protege.editor.core.ProtegeApplication;
+import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.editor.OWLAnnotationEditor;
 import org.protege.editor.owl.ui.list.OWLAxiomList;
@@ -185,7 +186,8 @@ public class AspectSparqlQueryViewComponent extends AbstractActiveOntologyViewCo
 					
 				}
 				catch (Exception ex) {
-					ProtegeApplication.getErrorLog().logError(ex);
+//					ProtegeApplication.getErrorLog().logError(ex);
+					ErrorLogPanel.showErrorDialog(ex);
 					JOptionPane.showMessageDialog(getOWLWorkspace(), ex.getMessage() + "\nSee the logs for more information.");
 				}
 			}
@@ -238,8 +240,8 @@ public class AspectSparqlQueryViewComponent extends AbstractActiveOntologyViewCo
 		buf.append("PREFIX aspect: <http://www.corporate-semantic-web.de/ontologies/aspect_owl#>\n");
 		buf.append("PREFIX ex: <http://csw.inf.fu-berlin.de/aood/example#>\n");
 				
-		buf.append("CONSTRUCT {ex:Bonn ?p ?o}\n");
-		buf.append("	WHERE {ex:Bonn ?p ?o}");
+		buf.append("CONSTRUCT {?s ?p ?o}\n");
+		buf.append("	WHERE {?s ?p ?o}");
 		return buf.toString();
 	}
 	

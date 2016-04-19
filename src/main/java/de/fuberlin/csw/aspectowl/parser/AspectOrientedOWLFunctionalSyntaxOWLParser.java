@@ -35,8 +35,10 @@ public class AspectOrientedOWLFunctionalSyntaxOWLParser extends AbstractOWLParse
 	public OWLDocumentFormat parse(OWLOntologyDocumentSource documentSource, OWLOntology ontology,
 			OWLOntologyLoaderConfiguration configuration) throws IOException {
 
+//		documentSource.isReaderAvailable();
+		
 		// convert syntactic representations of axioms to annotations
-		Reader dsReader = documentSource.getReader();
+//		Reader dsReader = documentSource.getReader();
 
 		// maybe in a different thread?
 		
