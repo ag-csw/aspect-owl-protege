@@ -239,7 +239,7 @@ public class SaveOntologyModuleAction extends ProtegeAction {
 		OWLDocumentFormat format = OntologyFormatPanel.showDialog(editorKit,
 				oldOntologyFormat, "Choose a format to use when saving the "
 						+ editorKit.getModelManager().getRendering(ont)
-						+ " ontology");
+						+ " ontology").get();
 		if (format == null) {
 			return false;
 		}

@@ -103,23 +103,23 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 		}
 	};
 	
-	private OWLOntologyChangeListener changeListener = new OWLOntologyChangeListener() {
-		
-		@Override
-		public void ontologiesChanged(List<? extends OWLOntologyChange> changes)
-				throws OWLException {
-			for (OWLOntologyChange change : changes) {
-				if (change instanceof OWLAxiomChange) {
-					Set<OWLEntity> signature = change.getSignature();
-					OWLAxiom axiom = ((OWLAxiomChange)change).getAxiom();
-					if (axiom instanceof OWLAnnotationAssertionAxiom) {
-						signature = ((OWLAnnotationAssertionAxiom)axiom).getSubject().getSignature();
-					}
-					System.out.println("Signature: " + signature);
-				}
-			}
-		}
-	};
+//	private OWLOntologyChangeListener changeListener = new OWLOntologyChangeListener() {
+//		
+//		@Override
+//		public void ontologiesChanged(List<? extends OWLOntologyChange> changes)
+//				throws OWLException {
+//			for (OWLOntologyChange change : changes) {
+//				if (change instanceof OWLAxiomChange) {
+//					Set<OWLEntity> signature = change.getSignature();
+//					OWLAxiom axiom = ((OWLAxiomChange)change).getAxiom();
+//					if (axiom instanceof OWLAnnotationAssertionAxiom) {
+//						signature = ((OWLAnnotationAssertionAxiom)axiom).getSubject().getSignature();
+//					}
+//					System.out.println("Signature: " + signature);
+//				}
+//			}
+//		}
+//	};
 
 	public InferredAspectViewComponent() throws Exception {
 		
@@ -143,7 +143,7 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 		inferredAspectAnnotationGenerator = new InferredAspectAnnotationGenerator(getOWLWorkspace());
 		getOWLModelManager().addListener(listener);
 		
-		getOWLModelManager().addOntologyChangeListener(changeListener);
+//		getOWLModelManager().addOntologyChangeListener(changeListener);
 		
 		updateView(getOWLModelManager().getActiveOntology());
 	}
@@ -162,7 +162,7 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 		log.info("Aspect View Component disposed");
 		
 		getOWLModelManager().removeListener(listener);
-		getOWLModelManager().removeOntologyChangeListener(changeListener);
+//		getOWLModelManager().removeOntologyChangeListener(changeListener);
 		
 		frameList.dispose();
 		
