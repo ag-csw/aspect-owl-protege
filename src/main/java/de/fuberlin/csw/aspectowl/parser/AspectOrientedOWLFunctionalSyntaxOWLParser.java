@@ -32,18 +32,14 @@ public class AspectOrientedOWLFunctionalSyntaxOWLParser extends AbstractOWLParse
 	 * @see org.semanticweb.owlapi.io.OWLParser#parse(org.semanticweb.owlapi.io.OWLOntologyDocumentSource, org.semanticweb.owlapi.model.OWLOntology, org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration)
 	 */
 	@Override
-	public OWLDocumentFormat parse(OWLOntologyDocumentSource documentSource, OWLOntology ontology,
+	public OWLDocumentFormat parse(OWLOntologyDocumentSource originalDocumentSource, OWLOntology ontology,
 			OWLOntologyLoaderConfiguration configuration) throws IOException {
 
-//		documentSource.isReaderAvailable();
 		
-		// convert syntactic representations of axioms to annotations
-//		Reader dsReader = documentSource.getReader();
-
-		// maybe in a different thread?
+		AspectOrientedPreprocessingDocumentSource wrapperDocumentSource = new AspectOrientedPreprocessingDocumentSource(originalDocumentSource);
 		
 		OWLFunctionalSyntaxOWLParser functionalSyntaxParser = new OWLFunctionalSyntaxOWLParser();
-		return functionalSyntaxParser.parse(documentSource, ontology, configuration);
+		return functionalSyntaxParser.parse(wrapperDocumentSource, ontology, configuration);
 	}
 
 	/* (non-Javadoc)

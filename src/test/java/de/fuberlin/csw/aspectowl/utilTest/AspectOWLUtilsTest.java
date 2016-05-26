@@ -40,10 +40,10 @@ public class AspectOWLUtilsTest {
 //	}
 //
 //	/**
-//	 * Test function to verify if SPARQL queries are evaluated right.
+//	 * AspectOrientedPreprocessingDocumentTarget function to verify if SPARQL queries are evaluated right.
 //	 * The idea is to compare whether all expected axioms are part of the original ontology.
 //	 */
-//	@Test
+//	@AspectOrientedPreprocessingDocumentTarget
 //	public void sparqlQueryConstructTest()
 //	{
 //		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
@@ -100,11 +100,11 @@ public class AspectOWLUtilsTest {
 //	}
 //	
 //	/**
-//	 * Test suite for ASK-Queries.
+//	 * AspectOrientedPreprocessingDocumentTarget suite for ASK-Queries.
 //	 * Since the result of these kind of queries is TRUE or FALSE, 
 //	 * we just compare the result with an expected boolean value.
 //	 */
-//	@Test
+//	@AspectOrientedPreprocessingDocumentTarget
 //	public void sparqlQueryAskTest()
 //	{
 //		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
@@ -151,7 +151,7 @@ public class AspectOWLUtilsTest {
 //	 * For the mode 'amount' the cardinality of the result list is compared to an expected number.
 //	 * The resulting RDF nodes are compared by their expected name in the mode 'contains'.
 //	 */
-//	@Test
+//	@AspectOrientedPreprocessingDocumentTarget
 //	public void sparqlQuerySelectTest()
 //	{
 //		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
@@ -233,7 +233,7 @@ public class AspectOWLUtilsTest {
 //	 * into an OWL model or vice versa.
 //	 * The Jena model format is used as intermediate exchange format.
 //	 */
-//	@Test
+//	@AspectOrientedPreprocessingDocumentTarget
 //	public void ontologyConverterTest()
 //	{
 //		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
@@ -258,10 +258,10 @@ public class AspectOWLUtilsTest {
 //	}
 //	
 //	/**
-//	 * Test of the functionality to create ontologies with CONSTRUCT queries.
+//	 * AspectOrientedPreprocessingDocumentTarget of the functionality to create ontologies with CONSTRUCT queries.
 //	 * The resulting ontology is compared with an expected one.
 //	 */
-//	@Test
+//	@AspectOrientedPreprocessingDocumentTarget
 //	public void ontologyCreatorTest()
 //	{
 //		String QUERY = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"

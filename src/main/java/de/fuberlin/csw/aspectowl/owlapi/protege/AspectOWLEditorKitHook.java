@@ -7,11 +7,13 @@ import org.protege.editor.core.editorkit.plugin.EditorKitHook;
 import org.protege.editor.owl.OWLEditorKit;
 import org.semanticweb.owlapi.io.OWLParserFactory;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLStorerFactory;
 import org.semanticweb.owlapi.util.PriorityCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
+import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxStorerFactory;
 
 /**
  * @author ralph
@@ -33,10 +35,15 @@ public class AspectOWLEditorKitHook extends EditorKitHook {
 	 */
 	@Override
 	public void initialise() throws Exception {
-//		log.info("Initializing Aspect-Oriented OWL plug-in.");
+		log.info("Initializing Aspect-Oriented OWL plug-in.");
 		OWLOntologyManager om = ((OWLEditorKit)getEditorKit()).getOWLModelManager().getOWLOntologyManager();
+		
 		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
 		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
+		
+		PriorityCollection<OWLStorerFactory> storers = om.getOntologyStorers();
+		storers.add(new AspectOrientedOWLFunctionalSyntaxStorerFactory());
+		
 	}
 
 	/* (non-Javadoc)
