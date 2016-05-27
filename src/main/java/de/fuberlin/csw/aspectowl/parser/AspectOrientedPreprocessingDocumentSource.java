@@ -25,8 +25,10 @@ import org.semanticweb.owlapi.model.OWLRuntimeException;
  */
 public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDocumentSource {
 
-	private static final Pattern prefixPattern = Pattern.compile("(?m)^Prefix\\((.*?):=\\<http://www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect\\/owl#\\>\\)$");
-	private static final Pattern importPattern = Pattern.compile("(?m)^Import(<http://www.corporate-semantic-web.de/ontologies/aspect/owl>)$");
+	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect\\/owl";
+	private static final String aspectIRI = "<http://www.corporate-semantic-web.de/ontologies/aspect/owl/hasAspect>";
+	private static final String aspectRegex = "Aspect(\\s*?)\\(";
+	private static final Pattern aspectPattern = Pattern.compile(aspectRegex);
 	
 	private final OWLOntologyDocumentSource originalSource;
 	private String processedContent;
@@ -37,7 +39,6 @@ public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDoc
 	public AspectOrientedPreprocessingDocumentSource(OWLOntologyDocumentSource originalSource) {
 		this.originalSource = originalSource;
 	}
-
 	
 	/*
 	 * Lazily called on first invocation of getReader or getInputStream
@@ -47,32 +48,26 @@ public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDoc
 			// Read the whole thing into memory. We need to go through the lines several times anyway.
 			String buf = IOUtils.toString(originalSource.getReader());
 			
-			Matcher importMatcher = importPattern.matcher(buf);
-			boolean hasImport = importMatcher.find();
+			Pattern aspectIriPattern = Pattern.compile(aspectIriAsRegex);
+			Matcher aspectIriMatcher = aspectIriPattern.matcher(buf);
 			
-			Matcher prefixMatcher = prefixPattern.matcher(buf);
-			boolean hasPrefixMapping = prefixMatcher.find();
-			String prefix = hasPrefixMapping ? prefixMatcher.group(1) : null;
+			if (! aspectIriMatcher.find())
+			{
+				processedContent = buf;
+				return;
+			}
 			
-			boolean hasDeclarationAspects = buf.matches("Import(<http://www.corporate-semantic-web.de/ontologies/aspect/owl>)");
+			Matcher aspectMatcher = aspectPattern.matcher(buf);
 			
-			// hier den Ersatz einfügen
-			
-//			BufferedReader in = new BufferedReader(new StringReader(buf));
-//			
-//			String line = null;
-//			String lastLine = "";
-//			
-//			while ((line = in.readLine()) != null) {
-//				if (line.isEmpty() && lastLine.startsWith(lastLine)) {
-//					
-//				}
-//			}
-//			
-//			content.replaceAll("^(\\w+\\()Aspect\\((.*?)\\)(.*)", "\\1");
+			if (aspectMatcher.find())
+			{
+				String annotationProperty = "Annotation ( " + aspectIRI + " ";
+				buf = buf.replaceAll(aspectRegex, annotationProperty);
+			}
 			
 			processedContent = buf;
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new OWLRuntimeException(e);
 		}
 	}
