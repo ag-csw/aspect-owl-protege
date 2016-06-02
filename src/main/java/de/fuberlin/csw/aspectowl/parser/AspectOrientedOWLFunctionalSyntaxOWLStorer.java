@@ -20,6 +20,8 @@ public class AspectOrientedOWLFunctionalSyntaxOWLStorer extends AbstractOWLStore
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = -3653614869728991886L;
+
 	public AspectOrientedOWLFunctionalSyntaxOWLStorer() {
 		System.out.println("created AspectOrientedOWLFunctionalSyntaxOWLStorer");
 	}

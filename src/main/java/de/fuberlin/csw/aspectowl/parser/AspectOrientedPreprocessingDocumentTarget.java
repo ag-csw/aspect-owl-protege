@@ -10,15 +10,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.FileDocumentSource;
+import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentTarget;
 import org.semanticweb.owlapi.io.OWLParserFactory;
+import org.semanticweb.owlapi.io.StringDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -171,10 +176,13 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 
 		String originalContent = this.myOutputStream.toString();
 		
-		// ersetzungen
-		String processedContent = ""; // = ...
+		StringDocumentSource orig = new StringDocumentSource(originalContent);
+		AspectOrientedPreprocessingDocumentSource ds = new AspectOrientedPreprocessingDocumentSource(orig);
+		Reader processReader = ds.getReader();
 		
+		String processedContent = IOUtils.toString(processReader);
 		new OutputStreamWriter(originalTarget.getOutputStream()).write(processedContent);
+		
 	}
 	
 	private class MyOutputStream extends ByteArrayOutputStream {
