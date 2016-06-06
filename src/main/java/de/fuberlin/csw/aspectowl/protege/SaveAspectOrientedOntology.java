@@ -94,12 +94,18 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 			this.fileName  = fileToSave.getName();
 			this.directory = fileToSave.getPath();
 			
-			//System.out.println("[S] : try to save as " + fileToSave.toString());
-			
-			if (fileToSave.exists())
+			if (! fileToSave.exists())
 			{
-				int dialogResult = JOptionPane.showConfirmDialog(parentFrame,
-						"The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_OPTION);
+				saveActiveAspectOntology(fileToSave);
+			}
+			else {
+				// if the file already exists, ask to overwrite this file
+				
+				int dialogResult = JOptionPane.showConfirmDialog( null,
+						"Do you want to overwrite the existing file '" + this.fileName + "'?",
+						"File already exists",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
 				
 				if (dialogResult == JOptionPane.YES_OPTION) {
 					saveActiveAspectOntology(fileToSave);
@@ -107,9 +113,6 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 				else {
 					actionPerformed(event);
 				}
-			}
-			else {
-				saveActiveAspectOntology(fileToSave);
 			}
 			
 		}
