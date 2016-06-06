@@ -14,13 +14,13 @@ import org.protege.editor.core.ui.action.ProtegeAction;
 import org.protege.editor.owl.OWLEditorKit;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.OWLParserFactory;
-import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.model.OWLStorerFactory;
 import org.semanticweb.owlapi.util.PriorityCollection;
 
+import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFormat;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxStorerFactory;
 
@@ -102,14 +102,14 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 						"The file exists, overwrite?", "Existing file", JOptionPane.YES_NO_OPTION);
 				
 				if (dialogResult == JOptionPane.YES_OPTION) {
-					saveActiveOntology(fileToSave);
+					saveActiveAspectOntology(fileToSave);
 				}
 				else {
 					actionPerformed(event);
 				}
 			}
 			else {
-				saveActiveOntology(fileToSave);
+				saveActiveAspectOntology(fileToSave);
 			}
 			
 		}
@@ -120,7 +120,7 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 	 * 
 	 * @param fileToSave
 	 */
-	private void saveActiveOntology(File fileToSave)
+	private void saveActiveAspectOntology(File fileToSave)
 	{
 		
 		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
@@ -135,12 +135,9 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 		
 		OWLOntology activeOntology = editorKit.getModelManager().getActiveOntology();
 		
-		OWLDocumentFormat omf = activeOntology.getOWLOntologyManager().getOntologyFormat(activeOntology);
-
-		System.out.println(omf.toString());
-		
 		try {
-			om.saveOntology(activeOntology, omf, new FileOutputStream( fileToSave ));
+			om.saveOntology(activeOntology, new AspectOrientedFunctionalSyntaxDocumentFormat(),
+					new FileOutputStream( fileToSave ));
 		}
 		catch (OWLOntologyStorageException e) {
 			e.printStackTrace();

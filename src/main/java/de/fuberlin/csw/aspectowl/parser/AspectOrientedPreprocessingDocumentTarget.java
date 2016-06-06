@@ -19,8 +19,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.io.FileDocumentSource;
-import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentTarget;
 import org.semanticweb.owlapi.io.OWLParserFactory;
 import org.semanticweb.owlapi.io.StringDocumentSource;
@@ -37,8 +35,8 @@ import org.semanticweb.owlapi.util.PriorityCollection;
  */
 public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDocumentTarget {
 
-	private static final String aspectIRI = "http://www.corporate-semantic-web.de/ontologies/aspect/owl";
-	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect\\/owl";
+	private static final String aspectIRI = "http://www.corporate-semantic-web.de/ontologies/aspect_owl";
+	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect_owl";
 	
 	private static final Pattern prefixPattern = Pattern.compile("(?m)^Prefix(\\s*?)\\((\\s*)?(.*?:)=\\<" + aspectIriAsRegex + "#\\>(\\s*)?\\)$");
 	
@@ -50,7 +48,8 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	/**
 	 * 
 	 */
-	public AspectOrientedPreprocessingDocumentTarget(OWLOntologyDocumentTarget originalTarget) {
+	public AspectOrientedPreprocessingDocumentTarget(OWLOntologyDocumentTarget originalTarget)
+	{
 		this.originalTarget = originalTarget;
 		this.myOutputStream = new MyOutputStream(this);
 	}
@@ -103,7 +102,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	 */
 	@Override
 	public boolean isWriterAvailable() {
-		System.out.println("isWriterAvailable");
 		return true;
 	}
 
@@ -112,7 +110,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	 */
 	@Override
 	public Writer getWriter() throws IOException {
-		System.out.println("getWriter");
 		
 		StringWriter stringWriter = new StringWriter();
 		
@@ -131,7 +128,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	 */
 	@Override
 	public boolean isOutputStreamAvailable() {
-		System.out.println("isOutputStreamAvailable");
 		return true;
 	}
 
@@ -140,7 +136,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	 */
 	@Override
 	public OutputStream getOutputStream() throws IOException {
-		System.out.println("getOutputStream");
 		
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
 		
@@ -159,7 +154,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	 */
 	@Override
 	public boolean isDocumentIRIAvailable() {
-		System.out.println("isDocumentIRIAvailable");
 		return this.originalTarget.isDocumentIRIAvailable();
 	}
 
@@ -168,7 +162,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	 */
 	@Override
 	public IRI getDocumentIRI() {
-		System.out.println("getDocumentIRI");
 		return this.originalTarget.getDocumentIRI();
 	}
 

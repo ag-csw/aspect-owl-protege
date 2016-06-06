@@ -25,8 +25,8 @@ import org.semanticweb.owlapi.model.OWLRuntimeException;
  */
 public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDocumentSource {
 
-	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect\\/owl";
-	private static final String aspectIRI = "<http://www.corporate-semantic-web.de/ontologies/aspect/owl/hasAspect>";
+	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect_owl";
+	private static final String aspectIRI = "<http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect>";
 	private static final String aspectRegex = "Aspect(\\s*?)\\(";
 	private static final Pattern aspectPattern = Pattern.compile(aspectRegex);
 	
