@@ -22,10 +22,6 @@ public class AspectOrientedOWLFunctionalSyntaxOWLStorer extends AbstractOWLStore
 	 */
 	private static final long serialVersionUID = -3653614869728991886L;
 
-	public AspectOrientedOWLFunctionalSyntaxOWLStorer() {
-		System.out.println("created AspectOrientedOWLFunctionalSyntaxOWLStorer");
-	}
-
 	/* (non-Javadoc)
 	 * @see org.semanticweb.owlapi.model.OWLStorer#canStoreOntology(org.semanticweb.owlapi.model.OWLDocumentFormat)
 	 */
@@ -41,7 +37,8 @@ public class AspectOrientedOWLFunctionalSyntaxOWLStorer extends AbstractOWLStore
 	public void storeOntology(OWLOntology ontology, OWLOntologyDocumentTarget originalDocumentTarget, OWLDocumentFormat format)
 			throws OWLOntologyStorageException {
 		
-		super.storeOntology(ontology, new AspectOrientedPreprocessingDocumentTarget(originalDocumentTarget), format);
+		super.storeOntology(ontology, new AspectOrientedPreprocessingDocumentTarget(ontology, originalDocumentTarget), format);
+		
 	}
 	
 	/* (non-Javadoc)

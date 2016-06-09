@@ -4,31 +4,20 @@
 package de.fuberlin.csw.aspectowl.parser;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentTarget;
-import org.semanticweb.owlapi.io.OWLParserFactory;
-import org.semanticweb.owlapi.io.StringDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.semanticweb.owlapi.model.OWLStorerFactory;
-import org.semanticweb.owlapi.util.PriorityCollection;
+
 
 /**
  * @author ralph
@@ -41,25 +30,25 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	private static final Pattern prefixPattern = Pattern.compile("(?m)^Prefix(\\s*?)\\((\\s*)?(.*?:)=\\<" + aspectIriAsRegex + "#\\>(\\s*)?\\)$");
 	
 	private OWLOntologyDocumentTarget originalTarget;
-	private String processedContent;
 	
-	private MyOutputStream myOutputStream;
+	private String originalContent;
+	private String processedContent;
 	
 	/**
 	 * 
 	 */
-	public AspectOrientedPreprocessingDocumentTarget(OWLOntologyDocumentTarget originalTarget)
+	public AspectOrientedPreprocessingDocumentTarget(OWLOntology ontology, OWLOntologyDocumentTarget originalTarget)
 	{
-		this.originalTarget = originalTarget;
-		this.myOutputStream = new MyOutputStream(this);
+		this.originalContent = ontology.toString();
+		this.originalTarget  = originalTarget;
 	}
 	
 	/*
 	 * Triggered similar to the (first) call for preprocessing
 	 */
 	private void init() {
-		
-		String buf = this.originalTarget.toString();
+
+		String buf = this.originalContent;
 		
 		Pattern importPattern = Pattern.compile("(?m)^Import(\\s*?)\\((\\s*?)\\<" + aspectIriAsRegex + "\\>(\\s*?)\\)$");
 		
@@ -111,16 +100,35 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	@Override
 	public Writer getWriter() throws IOException {
 		
-		StringWriter stringWriter = new StringWriter();
-		
 		synchronized (this) {
 			if (this.processedContent == null)
 				init();
 		}
 		
-		stringWriter.write(processedContent);
+		String path = null;
 		
-		return stringWriter;
+		try {
+			Field pathField = FileOutputStream.class.getDeclaredField("path");
+			pathField.setAccessible(true);
+			path = (String) pathField.get(this.originalTarget.getOutputStream());
+		}
+		catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		OutputStream ostream = new FileOutputStream(path);
+		ostream.write(this.processedContent.getBytes(StandardCharsets.UTF_8));
+		
+		return new OutputStreamWriter(ostream, StandardCharsets.UTF_8);
 	}
 
 	/* (non-Javadoc)
@@ -163,60 +171,6 @@ public class AspectOrientedPreprocessingDocumentTarget implements OWLOntologyDoc
 	@Override
 	public IRI getDocumentIRI() {
 		return this.originalTarget.getDocumentIRI();
-	}
-
-	private void processContent() throws IOException {
-
-		String originalContent = this.myOutputStream.toString();
-		
-		StringDocumentSource orig = new StringDocumentSource(originalContent);
-		AspectOrientedPreprocessingDocumentSource ds = new AspectOrientedPreprocessingDocumentSource(orig);
-		Reader processReader = ds.getReader();
-		
-		String processedContent = IOUtils.toString(processReader);
-		new OutputStreamWriter(originalTarget.getOutputStream()).write(processedContent);
-		
-	}
-	
-	private class MyOutputStream extends ByteArrayOutputStream {
-		
-		private AspectOrientedPreprocessingDocumentTarget aspectOrientedPreprocessingDocumentTarget;
-		
-		/**
-		 * 
-		 */
-		public MyOutputStream(AspectOrientedPreprocessingDocumentTarget aspectOrientedPreprocessingDocumentTarget) {
-			this.aspectOrientedPreprocessingDocumentTarget = aspectOrientedPreprocessingDocumentTarget;
-		}
-		
-		/**
-		 * @see java.io.ByteArrayOutputStream#close()
-		 */
-		@Override
-		public void close() throws IOException {
-			aspectOrientedPreprocessingDocumentTarget.processContent();
-			super.close();
-		}
-	}
-
-	public static void main(String[] args) {
-		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
-		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
-		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
-		
-		PriorityCollection<OWLStorerFactory> storers = om.getOntologyStorers();
-		storers.add(new AspectOrientedOWLFunctionalSyntaxStorerFactory());
-		
-		try {
-			OWLOntology onto = om.loadOntologyFromOntologyDocument(new File("/Users/ralph/Documents/Development/Workspaces/workspace_eclipse/de.fuberlin.csw.aood.protege.aood_plugin/target/classes/input.owl"));
-			om.saveOntology(onto, new FileOutputStream("bla.owl"));
-		} catch (OWLOntologyCreationException e) {
-			e.printStackTrace();
-		} catch (OWLOntologyStorageException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 	
 }
