@@ -39,10 +39,13 @@ package de.fuberlin.csw.aspectowl.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.protege.editor.core.prefs.PreferencesManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.search.EntitySearcher;
+
+import de.fuberlin.csw.aspectowl.preferences.AspectOWLPreferencesPanel;
 
 /**
  * 
@@ -52,8 +55,8 @@ public class AspectOWLUtils {
 	
 //	private static final Logger log = Logger.getLogger(AspectOWLUtils.class);
 	
-	public static final IRI hasAspectPropertyIRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect");
-	public static final IRI ASPECT_BASE_CLASS_IRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl#Aspect");
+//	public final IRI hasAspectPropertyIRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect");
+//	public static final IRI ASPECT_BASE_CLASS_IRI = IRI.create("http://www.corporate-semantic-web.de/ontologies/aspect_owl#Aspect");
 	
 	
 	/**
@@ -64,6 +67,7 @@ public class AspectOWLUtils {
 	 * the top annotation property.
 	 */
 	public static Set<OWLAnnotationProperty> getAllAspectAnnotationProperties (OWLOntology onto) {
+		IRI hasAspectPropertyIRI = IRI.create(PreferencesManager.getInstance().getPreferencesForSet(AspectOWLPreferencesPanel.PREFERENCES_SET_ID, AspectOWLPreferencesPanel.PREFERENCES_ID_DEFAULT).getString(AspectOWLPreferencesPanel.PREFERENCES_ID_ASPECT_PROPERTY_IRI, AspectOWLPreferencesPanel.PREFERENCES_ID_ASPECT_PROPERTY_IRI_DEFAULT_VALUE));
 		return fillSubProperties(new HashSet<OWLAnnotationProperty>(), onto.getOWLOntologyManager().getOWLDataFactory().getOWLAnnotationProperty(hasAspectPropertyIRI), onto);
 	}
 	

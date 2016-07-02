@@ -116,5 +116,12 @@
     	<editorKitId value="OWLEditorKit"/>
     	<accelerator value="shift A"/>
     </extension>
+    <extension
+    	id="AspectOrientedOntologyDevelopmentPreferencesPanel"
+    	name="Aspect-Oriented Ontology Development Preferences"
+    	point="org.protege.editor.core.application.preferencespanel">
+    	<label value="Aspects" />
+    	<class value="de.fuberlin.csw.aspectowl.preferences.AspectOWLPreferencesPanel"/>
+    </extension>
 
 </plugin>
