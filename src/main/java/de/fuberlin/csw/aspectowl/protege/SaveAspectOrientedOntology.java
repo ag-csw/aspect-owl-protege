@@ -6,6 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,11 +21,13 @@ import org.protege.editor.core.ui.action.ProtegeAction;
 import org.protege.editor.owl.OWLEditorKit;
 import org.semanticweb.owlapi.functional.renderer.OWLFunctionalSyntaxRenderer;
 import org.semanticweb.owlapi.io.OWLRendererException;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook;
+import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
 
 public class SaveAspectOrientedOntology extends ProtegeAction {
 
@@ -36,9 +41,6 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 	private String fileName  = "ontology.aofn";
 	private String directory = "";
 	
-	private static final String aspectIRI = "http://www.corporate-semantic-web.de/ontologies/aspect_owl";
-	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect_owl";
-	private static final Pattern prefixPattern = Pattern.compile("(?m)^Prefix(\\s*?)\\((\\s*)?(.*?:)=\\<" + aspectIriAsRegex + "#\\>(\\s*)?\\)$");
 	
 	@Override
 	public void initialise() throws Exception {
@@ -146,8 +148,11 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 		
 		String ontologyInFunctionalSyntax = stringWriter.toString();
 		
+		Set<OWLAnnotationProperty> activeOntologyProperties = AspectOWLUtils.getAllAspectAnnotationProperties(activeOntology);
+		
 		//perform regex stuff on the ontology string
-		ontologyInFunctionalSyntax = changeToAspectOrientedFunctionalSyntax(ontologyInFunctionalSyntax);
+		ontologyInFunctionalSyntax =
+				changeToAspectOrientedFunctionalSyntax(ontologyInFunctionalSyntax, new ArrayList<OWLAnnotationProperty>(activeOntologyProperties));
 		
 		log.info("About to save ontology " + activeOntology.getOntologyID());
 		
@@ -161,13 +166,27 @@ public class SaveAspectOrientedOntology extends ProtegeAction {
 		}
 	}
 
+	private String escapeSpecialRegexChars(String stringWithUnescapedChars)
+	{
+		Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[\\{\\}\\(\\)\\[\\]\\.\\+\\*\\?\\^\\$\\\\\\|\\/]");
+		return SPECIAL_REGEX_CHARS.matcher(stringWithUnescapedChars).replaceAll("\\\\$0");
+	}
+	
 	/**
 	 * 
 	 * @param buf
 	 * @return
 	 */
-	private String changeToAspectOrientedFunctionalSyntax(String buf)
+	private String changeToAspectOrientedFunctionalSyntax(String buf, List<OWLAnnotationProperty> properties)
 	{
+		String aspectIRI = properties.size() == 0
+							? "http://www.corporate-semantic-web.de/ontologies/aspect_owl"
+							: properties.get(0).toStringID();
+		
+		String aspectIriAsRegex = escapeSpecialRegexChars(aspectIRI);
+		
+		Pattern prefixPattern = Pattern.compile("(?m)^Prefix(\\s*?)\\((\\s*)?(.*?:)=\\<" + aspectIriAsRegex + "#\\>(\\s*)?\\)$");
+		
 		Pattern importPattern = Pattern.compile("(?m)^Import(\\s*?)\\((\\s*?)\\<" + aspectIriAsRegex + "\\>(\\s*?)\\)$");
 		
 		Matcher importMatcher = importPattern.matcher(buf);

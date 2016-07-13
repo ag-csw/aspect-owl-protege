@@ -10,25 +10,29 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.FileDocumentSource;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLRuntimeException;
+
+import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
 
 /**
  * @author ralph
  */
 public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDocumentSource {
-
-	private static final String aspectIriAsRegex = "http:\\/\\/www\\.corporate-semantic-web\\.de\\/ontologies\\/aspect_owl";
-	private static final String aspectIRI = "<http://www.corporate-semantic-web.de/ontologies/aspect_owl#hasAspect>";
-	private static final String aspectRegex = "Aspect(\\s*?)\\(";
-	private static final Pattern aspectPattern = Pattern.compile(aspectRegex);
 	
 	private final OWLOntologyDocumentSource originalSource;
 	private String processedContent;
@@ -40,10 +44,46 @@ public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDoc
 		this.originalSource = originalSource;
 	}
 	
+	private String escapeSpecialRegexChars(String stringWithUnescapedChars)
+	{
+		Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[\\{\\}\\(\\)\\[\\]\\.\\+\\*\\?\\^\\$\\\\\\|\\/]");
+		return SPECIAL_REGEX_CHARS.matcher(stringWithUnescapedChars).replaceAll("\\\\$0");
+	}
+	
 	/*
 	 * Lazily called on first invocation of getReader or getInputStream
 	 */
-	private void init() {
+	private void init()
+	{
+		OWLOntologyManager om = OWLManager.createOWLOntologyManager();
+		OWLOntology activeOntology = null;
+		try {
+			activeOntology = om.createOntology();
+		}
+		catch (OWLOntologyCreationException e) {
+			e.printStackTrace();
+		}
+		
+		Set<OWLAnnotationProperty> activeOntologyProperties = AspectOWLUtils.getAllAspectAnnotationProperties(activeOntology);
+		
+		ArrayList<OWLAnnotationProperty> ontologyProperties = new ArrayList<OWLAnnotationProperty>(activeOntologyProperties);
+		
+		String aspectIRI = "http://www.corporate-semantic-web.de/ontologies/aspect_owl";
+		
+		if (ontologyProperties.size() > 0)
+		{
+			aspectIRI = ontologyProperties.get(0).toStringID();
+		}
+		
+		String hasAspectIRI = "<" + aspectIRI + "#hasAspect>";
+		
+		String aspectIriAsRegex = escapeSpecialRegexChars(aspectIRI);
+		
+		System.out.println(aspectIRI);
+		
+		final String aspectRegex = "Aspect(\\s*?)\\(";
+		final Pattern aspectPattern = Pattern.compile(aspectRegex);
+		
 		try {
 			// Read the whole thing into memory. We need to go through the lines several times anyway.
 			String buf = IOUtils.toString(originalSource.getReader());
@@ -61,7 +101,7 @@ public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDoc
 			
 			if (aspectMatcher.find())
 			{
-				String annotationProperty = "Annotation ( " + aspectIRI + " ";
+				String annotationProperty = "Annotation ( " + hasAspectIRI + " ";
 				buf = buf.replaceAll(aspectRegex, annotationProperty);
 			}
 			
