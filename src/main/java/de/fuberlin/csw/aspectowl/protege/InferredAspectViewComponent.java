@@ -57,6 +57,7 @@ import org.semanticweb.owlapi.model.OWLException;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
 import org.semanticweb.owlapi.model.OWLOntologyChangeListener;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import de.fuberlin.csw.aspectowl.inference.InferredAspectAnnotationGenerator;
@@ -90,7 +91,8 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 		@Override
 		public void handleChange(OWLModelManagerChangeEvent event) {
 			if (isSynchronizing()) {
-				if (event.isType(EventType.ONTOLOGY_CLASSIFIED)) {
+				switch (event.getType()) {
+				case ONTOLOGY_CLASSIFIED:
 					try {
 						log.info("Hurray! New inferred axioms coming in!");
 						frame.setInferredAspectAnnotatedAxioms(inferredAspectAnnotationGenerator.inferAspects());
@@ -98,6 +100,21 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
+					break;
+					
+				case ABOUT_TO_CLASSIFY:
+					
+					break;
+					
+				case REASONER_CHANGED:
+					log.info("Reasoner changed. Resetting view");
+					frame.setInferredAspectAnnotatedAxioms(null);
+					try {
+						updateView(getOWLModelManager().getActiveOntology());
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+					break;
 				}
 			}
 		}
