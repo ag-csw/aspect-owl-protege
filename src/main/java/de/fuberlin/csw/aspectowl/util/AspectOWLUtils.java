@@ -38,13 +38,17 @@ package de.fuberlin.csw.aspectowl.util;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.protege.editor.core.prefs.PreferencesManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectImpl;
 import de.fuberlin.csw.aspectowl.preferences.AspectOWLPreferencesPanel;
 
 /**
@@ -78,6 +82,14 @@ public class AspectOWLUtils {
 		}
 		return set;
 	}
+	
+//	public static Set<OWLAspect> getAllAspects(OWLAxiom axiom, OWLOntology onto) {
+//		getAllAspectAnnotationProperties(onto).stream().
+//			map(annotationProperty -> axiom.getAnnotations(annotationProperty)).
+//			flatMap(annotations -> annotations.stream()).
+//			map(annotation -> annotation.getValue().accept(null));
+//			
+//	}
 	
 //	/**
 //	 * Converts a Jena OntModel to an OWL API OWLOntology.
@@ -126,6 +138,8 @@ public class AspectOWLUtils {
 //		OntModel jenaModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
 //		jenaModel.read(bais, null, "RDF/XML");
 //		return jenaModel;
-//	}	
+//	}
+	
+	
 
 }

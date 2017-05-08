@@ -115,6 +115,9 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 						throw new RuntimeException(e);
 					}
 					break;
+
+				default:
+					break;
 				}
 			}
 		}
