@@ -123,7 +123,12 @@
     	<label value="Aspects" />
     	<class value="de.fuberlin.csw.aspectowl.preferences.AspectOWLPreferencesPanel"/>
     </extension>
-     <extension id="InconsistentAspectSeparatorOntologyExplanationGenerator"
+    <extension id="InconsistentAspectSeparatorOntologyExplanationGenerator"
+               point="org.protege.editor.owl.inconsistentOntologyExplanation">
+        <class value="uk.ac.manchester.cs.owl.explanation.InconsistentOntologyExplanationPluginImpl"/>
+        <name value="Identification and deactivation of aspects that cause inconsistency"/>
+    </extension>
+    <extension id="AspectOWLEditorPluginFactory"
                point="org.protege.editor.owl.inconsistentOntologyExplanation">
         <class value="uk.ac.manchester.cs.owl.explanation.InconsistentOntologyExplanationPluginImpl"/>
         <name value="Identification and deactivation of aspects that cause inconsistency"/>
