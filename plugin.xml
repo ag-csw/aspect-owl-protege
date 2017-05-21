@@ -55,7 +55,7 @@
       </category>
    </extension>
    <extension
-         id="VersioningWorkspaceTab"
+         id="AspectWorkspaceTab"
          point="org.protege.editor.core.application.WorkspaceTab">
       <label
             value="Aspects">
