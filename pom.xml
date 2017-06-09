@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>edu.stanford.protege</groupId>
 			<artifactId>protege-common</artifactId>
-			<version>5.0.0-RC2</version>
+			<version>5.2.0</version>
 			<scope>provided</scope>
 			<type>bundle</type>
 		</dependency>
@@ -71,7 +71,7 @@
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
 			<artifactId>protege-editor-core</artifactId>
-			<version>5.0.0-RC2</version>
+			<version>5.2.0</version>
 			<type>bundle</type>
 			<scope>provided</scope>
         </dependency>
@@ -79,7 +79,7 @@
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
             <artifactId>protege-editor-owl</artifactId>
-			<version>5.0.0-RC2</version>
+			<version>5.2.0</version>
 			<type>bundle</type>
 			<scope>provided</scope>
 			<exclusions>
@@ -110,13 +110,13 @@
         <dependency>
         	<groupId>com.fasterxml.jackson.core</groupId>
         	<artifactId>jackson-databind</artifactId>
-        	<version>2.6.1</version>
+        	<version>2.8.5</version>
         	<type>bundle</type>
         </dependency>
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>telemetry</artifactId>
-        	<version>1.0.0</version>
+        	<version>2.0.0</version>
         	<exclusions>
         		<exclusion>
         			<artifactId>owlapi-api</artifactId>
@@ -131,7 +131,7 @@
         <dependency>
         	<groupId>xml-apis</groupId>
         	<artifactId>xml-apis</artifactId>
-        	<version>1.4.01</version>
+        	<version>2.0.2</version>
         </dependency>
         <dependency>
         	<groupId>junit</groupId>
@@ -142,7 +142,7 @@
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>owlapi-rio</artifactId>
-        	<version>4.2.5</version>
+        	<version>5.1.0</version>
         	<exclusions>
         		<exclusion>
         			<artifactId>owlapi-api</artifactId>
@@ -168,7 +168,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
-              <version>3.0</version>
+              <version>3.6.1</version>
               <configuration>
                 <source>1.8</source>
                 <target>1.8</target>
@@ -177,8 +177,17 @@
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.2.0</version>
 				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>install</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<instructions>
 						<Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
@@ -228,23 +237,7 @@
 						<Embed-Transitive>true</Embed-Transitive>
 						<!-- Private-Package>skeleton</Private-Package-->
 					</instructions>
-					<executions>
-						<execution>
-							<id>bundle-manifest</id>
-							<phase>install</phase>
-							<goals>    
-								<goal>manifest</goal>
-							</goals>   
-						</execution>
-					</executions>
 				</configuration>
-            </plugin>
-            <plugin>
-              <artifactId>maven-eclipse-plugin</artifactId>
-              <version>2.10</version>
-              <configuration>
-                <pde>true</pde>
-              </configuration>
             </plugin>
 		</plugins>
 	</build>

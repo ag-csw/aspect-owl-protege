@@ -5,3 +5,5 @@ build.properties
 META-INF/
 target/
 
+.idea
+de.fuberlin.csw.aood.protege.plugin.iml

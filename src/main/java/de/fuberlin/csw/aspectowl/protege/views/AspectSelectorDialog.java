@@ -49,11 +49,14 @@ import org.protege.editor.owl.ui.selector.OWLAnnotationPropertySelectorPanel;
  */
 public class AspectSelectorDialog extends OWLAnnotationEditor {
 
+	private OWLEditorKit owlEditorKit; // Protege folks decided to make this member private in the super class, so we need to keep or own reference to the editor kit.
+	
 	/**
 	 * @param owlEditorKit
 	 */
 	public AspectSelectorDialog(OWLEditorKit owlEditorKit) {
 		super(owlEditorKit);
+		this.owlEditorKit = owlEditorKit;
 	}
 	
 	/**
