@@ -49,6 +49,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook {
 		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 		
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
+
 		
 	}
 

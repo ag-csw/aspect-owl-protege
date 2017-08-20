@@ -101,12 +101,12 @@
         	<version>2.0.0</version>
         	<scope>provided</scope>
         </dependency>
-        <dependency>
-        	<groupId>org.apache.logging.log4j.osgi</groupId>
+        <!--dependency>
+        	<groupId>org.apache.logging.log4j.osgi  </groupId>
         	<artifactId>log4j-1.2-osgi-api</artifactId>
         	<version>2.0-rc1</version>
         	<type>bundle</type>
-        </dependency>
+        </dependency-->
         <dependency>
         	<groupId>com.fasterxml.jackson.core</groupId>
         	<artifactId>jackson-databind</artifactId>
@@ -142,7 +142,7 @@
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>owlapi-rio</artifactId>
-        	<version>5.1.0</version>
+        	<version>4.2.8</version>
         	<exclusions>
         		<exclusion>
         			<artifactId>owlapi-api</artifactId>
@@ -153,8 +153,8 @@
         <dependency>
         	<groupId>edu.stanford.protege</groupId>
         	<artifactId>sparql-query-plugin</artifactId>
-        	<version>2.0.1</version>
-        	<type>bundle</type>
+        	<version>2.0.2</version>
+        	<!--type>bundle</type-->
         </dependency>
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
@@ -177,7 +177,7 @@
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<extensions>true</extensions>
 				<executions>
 					<execution>
@@ -194,11 +194,11 @@
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Bundle-Vendor>Corporate Semantic Web Group, Institute for Computer Science, Freie Universitaet Berlin</Bundle-Vendor>
 						<Import-Package>
-							org.protege.common.*;version="5.0",
-							org.protege.editor.owl;version="5.0",
-							org.protege.editor.owl.rdf;version="2.0",
-							org.semanticweb.owlapi.*;version="4.2.5",
-							org.protege.editor.core.*;version="5.0",
+							org.protege.common.*;version="5.2",
+							org.protege.editor.owl;version="5.2",
+							org.protege.editor.owl.rdf;version="2.0.2",
+							org.semanticweb.owlapi.*;version="4.2.8",
+							org.protege.editor.core.*;version="5.2",
 							org.xml.sax.*;version=1.4.01,
 							org.w3c.dom.*,
 							javax.swing.*,
@@ -246,7 +246,7 @@
 			<dependency>
 				<groupId>net.sourceforge.owlapi</groupId>
 				<artifactId>owlapi-osgidistribution</artifactId>
-				<version>4.2.5</version>
+				<version>4.2.8</version>
 				<type>bundle</type>
 			</dependency>
 		</dependencies>
