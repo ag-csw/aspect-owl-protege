@@ -42,7 +42,6 @@ import java.util.Set;
 
 import javax.swing.JScrollPane;
 
-import org.apache.log4j.Logger;
 import org.protege.editor.owl.model.event.EventType;
 import org.protege.editor.owl.model.event.OWLModelManagerChangeEvent;
 import org.protege.editor.owl.model.event.OWLModelManagerListener;
@@ -62,6 +61,8 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import de.fuberlin.csw.aspectowl.inference.InferredAspectAnnotationGenerator;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAnnotatedAxiomsFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -74,7 +75,7 @@ public class InferredAspectViewComponent extends AbstractActiveOntologyViewCompo
 
 	private static final long serialVersionUID = -1509104956712586572L;
 
-	private static final Logger log = Logger.getLogger(InferredAspectViewComponent.class);
+	private static final Logger log = LoggerFactory.getLogger(InferredAspectViewComponent.class);
 	
 //	private static final HashSet<InferredAspectViewComponent> components = new HashSet<InferredAspectViewComponent>();
 	

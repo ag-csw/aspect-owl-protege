@@ -40,7 +40,6 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.ui.editor.OWLObjectEditor;
 import org.protege.editor.owl.ui.frame.AbstractOWLFrameSection;
@@ -52,6 +51,8 @@ import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 
 import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,7 +61,7 @@ import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
  */
 public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<Set<OWLAxiom>, OWLAxiom, OWLAxiom> {
 
-	private static final Logger log = Logger.getLogger(AspectAnnotatedAxiomsFrameSection.class);
+	private static final Logger log = LoggerFactory.getLogger(AspectAnnotatedAxiomsFrameSection.class);
 	
 	private OWLOntology aspectAnnotatedInferredAxioms;
 	

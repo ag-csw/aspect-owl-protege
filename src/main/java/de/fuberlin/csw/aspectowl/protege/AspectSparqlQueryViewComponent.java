@@ -56,7 +56,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
 import org.protege.editor.core.ProtegeApplication;
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.owl.ui.UIHelper;
@@ -73,6 +72,8 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.PrefixManager;
 
 import de.fuberlin.csw.aspectowl.inference.AspectSparqlQueryExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ralph
@@ -82,7 +83,7 @@ public class AspectSparqlQueryViewComponent extends AbstractActiveOntologyViewCo
 	
 	private static final long serialVersionUID = 5901526849643522633L;
 
-	private static final Logger log = Logger.getLogger(AspectSparqlQueryExecutor.class);
+	private static final Logger log = LoggerFactory.getLogger(AspectSparqlQueryExecutor.class);
 
 	private UIHelper uiHelper;
 //	private NamespaceUtil nsUtil;

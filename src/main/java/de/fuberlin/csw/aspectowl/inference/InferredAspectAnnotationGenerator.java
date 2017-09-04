@@ -49,7 +49,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
 import org.protege.editor.core.util.ProtegeDirectories;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.model.OWLWorkspace;
@@ -73,6 +72,8 @@ import org.semanticweb.owlapi.util.InferredOntologyGenerator;
 import de.fuberlin.csw.aspectowl.util.AnnotatedAxiomsDuplicateFilter;
 import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
 import de.fuberlin.csw.aspectowl.util.DefaultOWLAxiomVisitorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.manchester.cs.owl.owlapi.concurrent.ConcurrentOWLOntologyImpl;
 
 /**
@@ -88,7 +89,7 @@ import uk.ac.manchester.cs.owl.owlapi.concurrent.ConcurrentOWLOntologyImpl;
  */
 public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAdapter {
 	
-	private static final Logger log = Logger.getLogger(InferredAspectAnnotationGenerator.class);
+	private static final Logger log = LoggerFactory.getLogger(InferredAspectAnnotationGenerator.class);
 
 	private OWLWorkspace workspace;
 	

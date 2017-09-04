@@ -133,5 +133,11 @@
         <class value="uk.ac.manchester.cs.owl.explanation.InconsistentOntologyExplanationPluginImpl"/>
         <name value="Identification and deactivation of aspects that cause inconsistency"/>
     </extension>
+    <extension id="AspectOrientedOntologyDevelopmentEditorKitFactory"
+               point="org.protege.editor.core.editorkit.EditorKitFactory">
+        <class value="de.fuberlin.csw.aspectowl.protege.editorkit.AspectOWLEditorKitFactory" />
+        <name value="Factory for the AOOD Protégé editor kit" />
+    </extension>
+
 
 </plugin>
