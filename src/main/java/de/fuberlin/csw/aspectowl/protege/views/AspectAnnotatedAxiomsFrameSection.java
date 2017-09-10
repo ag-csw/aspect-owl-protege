@@ -37,9 +37,11 @@
 package de.fuberlin.csw.aspectowl.protege.views;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.protege.editor.core.ui.list.MListButton;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.ui.editor.OWLObjectEditor;
 import org.protege.editor.owl.ui.frame.AbstractOWLFrameSection;
@@ -167,4 +169,8 @@ public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<S
 	protected void clear() {
 	}
 
+	@Override
+	public List<MListButton> getAdditionalButtons() {
+		return super.getAdditionalButtons();
+	}
 }

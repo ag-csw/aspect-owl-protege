@@ -177,6 +177,16 @@
 				</exclusion>
 			</exclusions>
         </dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>aspectj-maven-plugin</artifactId>
+			<version>1.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.8.10</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -190,6 +200,26 @@
                 <target>1.8</target>
               </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.8</version>
+				<configuration>
+					<complianceLevel>1.8</complianceLevel>
+					<source>1.8</source>
+					<target>1.8</target>
+					<outxml>true</outxml>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>       <!-- use this goal to weave all your main classes -->
+							<goal>test-compile</goal>  <!-- use this goal to weave all your test classes -->
+						</goals>
+						<phase>compile</phase>
+					</execution>
+				</executions>
+			</plugin>
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -235,7 +265,7 @@
 							*
 						</Import-Package>
 						<Export-Package>
-							package de.fuberlin.csw.aspectowl.protege
+							de.fuberlin.csw.aspectowl.protege
 						</Export-Package>
 						<Include-Resource>plugin.xml, {maven-resources}, {maven-dependencies}</Include-Resource>
 						<Embed-Dependency>
@@ -247,7 +277,8 @@
 							xml-apis,
 							icu4j,
 							lucene-core,
-							telemetry
+							telemetry,
+							aspectjrt
 						</Embed-Dependency>
 						<Embed-Directory>lib</Embed-Directory>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -256,6 +287,15 @@
 				</configuration>
             </plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>target/classes/META-INF</directory>
+				<includes>
+					<include>aop-ajc.xml</include>
+				</includes>
+				<targetPath>META-INF</targetPath>
+			</resource>
+		</resources>
 	</build>
 	<dependencyManagement>
 		<dependencies>
