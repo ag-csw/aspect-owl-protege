@@ -6,6 +6,8 @@ package de.fuberlin.csw.aspectowl.owlapi.protege;
 import org.protege.editor.core.editorkit.plugin.EditorKitHook;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
+import org.protege.editor.owl.model.event.OWLModelManagerChangeEvent;
+import org.protege.editor.owl.model.event.OWLModelManagerListener;
 import org.semanticweb.owlapi.io.OWLParserFactory;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.PriorityCollection;
@@ -38,13 +40,24 @@ public class AspectOWLEditorKitHook extends EditorKitHook {
 	public void initialise() throws Exception {
 		
 		log.info("Initializing Aspect-Oriented OWL plug-in.");
-		
+
+		OWLEditorKit kit = (OWLEditorKit)getEditorKit();
+
 		OWLModelManager mm = ((OWLEditorKit)getEditorKit()).getOWLModelManager();
-		
+
+		mm.addListener(event -> {
+			switch (event.getType()) {
+			}
+		});
+
 		mm.setOWLEntityFactory(new AspectOWLEntityFactory(mm));
 		
 		OWLOntologyManager om = mm.getOWLOntologyManager();
-		
+
+		om.addOntologyChangeListener(changes -> changes.forEach(change -> {
+
+		}));
+
 		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
 		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 		

@@ -67,7 +67,6 @@ public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<S
 	
 	/**
 	 * @param editorKit
-	 * @param label
 	 * @param frame
 	 */
 	public AspectAnnotatedAxiomsFrameSection(OWLEditorKit editorKit, OWLFrame<? extends Set<OWLAxiom>> frame) {
