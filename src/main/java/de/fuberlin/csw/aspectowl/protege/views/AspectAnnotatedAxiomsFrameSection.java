@@ -74,7 +74,7 @@ public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<S
 	public AspectAnnotatedAxiomsFrameSection(OWLEditorKit editorKit, OWLFrame<? extends Set<OWLAxiom>> frame) {
 		super(editorKit, "Axioms with aspects", frame);
 	}
-	
+
 	public void setAspectAnnotatedInferredAxioms(OWLOntology aspectAnnotatedInferredAxioms) {
 		this.aspectAnnotatedInferredAxioms = aspectAnnotatedInferredAxioms;
 	}
@@ -110,7 +110,7 @@ public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<S
 	}
 	
 	/**
-	 * @see org.protege.editor.owl.ui.frame.AbstractOWLFrameSection#createAxiom(org.semanticweb.owlapi.model.OWLAxiom)
+	 * @see org.protege.editor.owl.ui.frame.AbstractOWLFrameSection#createAxiom(Object)
 	 */
 	@Override
 	protected OWLAxiom createAxiom(OWLAxiom axiom) {
