@@ -330,6 +330,10 @@
 								<argument>-f</argument>
 								<argument>/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher</argument>
 							</arguments>
+							<successCodes>
+								<code>0</code>
+								<code>1</code>
+							</successCodes>
 						</configuration>
 					</execution>
 					<execution>
@@ -340,6 +344,8 @@
 						</goals>
 						<configuration>
 							<executable>/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher</executable>
+							<async>true</async>
+							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
 					</execution>
 				</executions>
