@@ -57,7 +57,12 @@
 
 	<packaging>bundle</packaging>
 
-	
+	<repositories>
+		<repository>
+			<id>local-repo</id>
+			<url>file://${basedir}/repository</url>
+		</repository>
+	</repositories>
 	
 	<dependencies>
 		<dependency>
@@ -177,7 +182,7 @@
 				</exclusion>
 			</exclusions>
         </dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>aspectj-maven-plugin</artifactId>
 			<version>1.8</version>
@@ -185,6 +190,21 @@
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
+			<version>1.8.10</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>1.8.9</version>
+		</dependency-->
+		<!--dependency>
+			<groupId>org.aspectj.local</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>1.8.10</version>
+		</dependency-->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>net.jasonday.org.aspectj.tools</artifactId>
 			<version>1.8.10</version>
 		</dependency>
 	</dependencies>
@@ -200,26 +220,26 @@
                 <target>1.8</target>
               </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>aspectj-maven-plugin</artifactId>
-				<version>1.8</version>
-				<configuration>
-					<complianceLevel>1.8</complianceLevel>
-					<source>1.8</source>
-					<target>1.8</target>
-					<outxml>true</outxml>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>       <!-- use this goal to weave all your main classes -->
-							<goal>test-compile</goal>  <!-- use this goal to weave all your test classes -->
-						</goals>
-						<phase>compile</phase>
-					</execution>
-				</executions>
-			</plugin>
+			<!--<plugin>-->
+				<!--<groupId>org.codehaus.mojo</groupId>-->
+				<!--<artifactId>aspectj-maven-plugin</artifactId>-->
+				<!--<version>1.8</version>-->
+				<!--<configuration>-->
+					<!--<complianceLevel>1.8</complianceLevel>-->
+					<!--<source>1.8</source>-->
+					<!--<target>1.8</target>-->
+					<!--<outxml>true</outxml>-->
+				<!--</configuration>-->
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<goals>-->
+							<!--<goal>compile</goal>       &lt;!&ndash; use this goal to weave all your main classes &ndash;&gt;-->
+							<!--<goal>test-compile</goal>  &lt;!&ndash; use this goal to weave all your test classes &ndash;&gt;-->
+						<!--</goals>-->
+						<!--<phase>compile</phase>-->
+					<!--</execution>-->
+				<!--</executions>-->
+			<!--</plugin>-->
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -242,6 +262,7 @@
 						<Import-Package>
 							org.protege.common.*;version="5.2",
 							org.protege.editor.owl;version="5.2",
+							org.protege.editor.owl.model.io;version="5.2",
 							org.protege.editor.owl.rdf;version="2.0.2",
 							org.semanticweb.owlapi.*;version="4.2.8",
 							org.protege.editor.core.*;version="5.2",
@@ -262,6 +283,13 @@
 							!org.coode.string,
 							!org.coode.xml,
 							!uk.ac.manchester.cs.bhig.util,
+							!com.bea.jvm,
+							!com.ibm.icu.text,
+							!com.sun.tools.javadoc,
+							!org.apache.tools.ant.*,
+							!org.apache.felix.resolver,
+							!org.aspectj.org.eclipse.jdt.internal.compiler.*,
+							!org.eclipse.core.*,
 							*
 						</Import-Package>
 						<Export-Package>
@@ -278,13 +306,13 @@
 							icu4j,
 							lucene-core,
 							telemetry,
-							aspectjrt
+							net.jasonday.org.aspectj.tools
 						</Embed-Dependency>
 						<Embed-Directory>lib</Embed-Directory>
 						<Embed-Transitive>true</Embed-Transitive>
 						<!-- Private-Package>skeleton</Private-Package-->
-						<Eclipse-SupplementBundle>org.protege.editor.owl</Eclipse-SupplementBundle>
-						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<!--Eclipse-SupplementBundle>org.protege.editor.owl</Eclipse-SupplementBundle>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy-->
 					</instructions>
 				</configuration>
             </plugin>
@@ -343,7 +371,8 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher</executable>
+							<executable>osascript</executable>
+							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher"'</commandlineArgs>
 							<async>true</async>
 							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
