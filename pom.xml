@@ -330,6 +330,10 @@
 								<argument>-f</argument>
 								<argument>/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher</argument>
 							</arguments>
+							<successCodes>
+								<code>0</code>
+								<code>1</code>
+							</successCodes>
 						</configuration>
 					</execution>
 					<execution>
@@ -339,7 +343,10 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher</executable>
+							<executable>osascript</executable>
+							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher"'</commandlineArgs>
+							<async>true</async>
+							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
 					</execution>
 				</executions>
