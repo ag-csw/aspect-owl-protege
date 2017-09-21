@@ -177,15 +177,26 @@
 				</exclusion>
 			</exclusions>
         </dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.codehaus.mojo</groupId>-->
+			<!--<artifactId>aspectj-maven-plugin</artifactId>-->
+			<!--<version>1.8</version>-->
+		<!--</dependency>-->
 		<dependency>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>aspectj-maven-plugin</artifactId>
-			<version>1.8</version>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.20.0-GA</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>1.8.10</version>
+		</dependency-->
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>4.3.1</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -200,26 +211,26 @@
                 <target>1.8</target>
               </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>aspectj-maven-plugin</artifactId>
-				<version>1.8</version>
-				<configuration>
-					<complianceLevel>1.8</complianceLevel>
-					<source>1.8</source>
-					<target>1.8</target>
-					<outxml>true</outxml>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>       <!-- use this goal to weave all your main classes -->
-							<goal>test-compile</goal>  <!-- use this goal to weave all your test classes -->
-						</goals>
-						<phase>compile</phase>
-					</execution>
-				</executions>
-			</plugin>
+			<!--<plugin>-->
+				<!--<groupId>org.codehaus.mojo</groupId>-->
+				<!--<artifactId>aspectj-maven-plugin</artifactId>-->
+				<!--<version>1.8</version>-->
+				<!--<configuration>-->
+					<!--<complianceLevel>1.8</complianceLevel>-->
+					<!--<source>1.8</source>-->
+					<!--<target>1.8</target>-->
+					<!--<outxml>true</outxml>-->
+				<!--</configuration>-->
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<goals>-->
+							<!--<goal>compile</goal>       &lt;!&ndash; use this goal to weave all your main classes &ndash;&gt;-->
+							<!--<goal>test-compile</goal>  &lt;!&ndash; use this goal to weave all your test classes &ndash;&gt;-->
+						<!--</goals>-->
+						<!--<phase>compile</phase>-->
+					<!--</execution>-->
+				<!--</executions>-->
+			<!--</plugin>-->
             <plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -262,6 +273,7 @@
 							!org.coode.string,
 							!org.coode.xml,
 							!uk.ac.manchester.cs.bhig.util,
+							!com.sun.jdi.*,
 							*
 						</Import-Package>
 						<Export-Package>
@@ -278,7 +290,7 @@
 							icu4j,
 							lucene-core,
 							telemetry,
-							aspectjrt
+							javassist
 						</Embed-Dependency>
 						<Embed-Directory>lib</Embed-Directory>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -334,6 +346,19 @@
 								<code>0</code>
 								<code>1</code>
 							</successCodes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>Wait</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>sleep</executable>
+							<arguments>
+								<argument>2</argument>
+							</arguments>
 						</configuration>
 					</execution>
 					<execution>
