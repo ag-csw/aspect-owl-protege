@@ -277,7 +277,8 @@
 							*
 						</Import-Package>
 						<Export-Package>
-							de.fuberlin.csw.aspectowl.protege
+							de.fuberlin.csw.aspectowl.protege,
+							de.fuberlin.csw.aspectowl.owlapi.protege
 						</Export-Package>
 						<Include-Resource>plugin.xml, {maven-resources}, {maven-dependencies}</Include-Resource>
 						<Embed-Dependency>

@@ -66,7 +66,7 @@ public class AspectOWLUtils {
 	/**
 	 * Returns all annotation properties that are transitively sub-property of
 	 * the top annotation property.
-	 * @param an ontology
+	 * @param onto an ontology
 	 * @return All annotation properties in the given ontology that are transitively sub-property of
 	 * the top annotation property.
 	 */
