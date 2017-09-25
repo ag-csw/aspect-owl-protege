@@ -48,45 +48,43 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	 * 
 	 */
 	public AspectOWLEditorKitHook() {
-		aspectButtonClasses.add("de.fuberlin.csw.aspectowl.protege.views.AspectAnnotatedAxiomsFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDisjointDataPropertiesFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLDifferentIndividualsAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.OWLAnnotationFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.datatype.OWLDatatypeDefinitionFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLEquivalentObjectPropertiesAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLClassAssertionAxiomTypeFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDataPropertyRangeFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLSubObjectPropertyAxiomSuperPropertyFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLNegativeDataPropertyAssertionFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointUnionAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.SWRLRulesFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.property.AbstractPropertyDomainFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDataPropertyDomainFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLObjectPropertyDomainFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyRangeFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLSameIndividualsAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLDataPropertyAssertionAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.InferredAxiomsFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLObjectPropertyAssertionAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.AxiomListFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLSubDataPropertyAxiomSuperPropertyFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLInverseObjectPropertiesAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLSubAnnotationPropertyFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.InheritedAnonymousClassesFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLKeySection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyDomainFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLNegativeObjectPropertyAssertionFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLObjectPropertyRangeFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.OWLGeneralClassAxiomsFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLClassGeneralClassAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.AbstractOWLClassAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointClassesAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLSubClassAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLEquivalentClassesAxiomFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLClassAssertionAxiomMembersSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLDisjointObjectPropertiesFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLEquivalentDataPropertiesFrameSection");
-		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLPropertyChainAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLDifferentIndividualAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyDomainFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLSameIndividualsAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.InferredAxiomsFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLObjectPropertyAssertionAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.SWRLRuleFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLClassAssertionAxiomMembersSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.datatype.OWLDatatypeDefinitionFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.AxiomListFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.InheritedAnonymousClassesFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.OWLAnnotationsFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLObjectPropertyRangeFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLEquivalentDataPropertiesFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLEquivalentClassesAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLSubDataPropertyAxiomSuperPropertyFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLInverseObjectPropertiesAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLClassAssertionAxiomTypeFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLKeyAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointUnionAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLDataPropertyAssertionAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLSubObjectPropertyAxiomSuperPropertyFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLSubClassAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLSubAnnotationPropertyFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.property.AbstractPropertyDomainFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDataPropertyDomainFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLObjectPropertyDomainFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLNegativeDataPropertyAssertionFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDisjointDataPropertiesFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyRangeFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLDisjointObjectPropertiesAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDataPropertyRangeFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLPropertyChainAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.OWLGeneralClassAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLNegativeObjectPropertyAssertionFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointClassesAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLClassGeneralClassAxiomFrameSectionRow");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLEquivalentObjectPropertiesAxiomFrameSectionRow");
 	}
 
 	/* Sneaks in our preprocessor for aspect-oriented ontologies
@@ -177,8 +175,9 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		List<MListButton> additionalButtons = new ArrayList<>(original); // original may be an immutable list, so we need to create a mutable clone
 		AspectButton button = new AspectButton();
 		button.setActionListener(e -> {
-			OWLAxiom selectedAxiom = ((OWLFrameSectionRow)button.getRowObject()).getAxiom();
-			log.info(selectedAxiom.toString());
+//			OWLAxiom selectedAxiom = ((OWLFrameSectionRow)button.getRowObject()).getAxiom();
+//			log.info(selectedAxiom.toString());
+			log.info(button.getRowObject().getClass().getName());
 		});
 		additionalButtons.add(button);
 
