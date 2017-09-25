@@ -5,34 +5,35 @@ package de.fuberlin.csw.aspectowl.owlapi.protege;
 
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
+import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAnnotatedAxiomsFrameSection;
 import javassist.*;
+import javassist.bytecode.Descriptor;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 import org.protege.editor.core.editorkit.plugin.EditorKitHook;
 import org.protege.editor.core.plugin.PluginUtilities;
-import org.protege.editor.core.ui.list.MListAddButton;
 import org.protege.editor.core.ui.list.MListButton;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.frame.*;
-import org.protege.editor.owl.ui.frame.annotationproperty.*;
+import org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyDomainFrameSection;
+import org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyRangeFrameSection;
+import org.protege.editor.owl.ui.frame.annotationproperty.OWLSubAnnotationPropertyFrameSection;
 import org.protege.editor.owl.ui.frame.cls.*;
 import org.protege.editor.owl.ui.frame.dataproperty.*;
-import org.protege.editor.owl.ui.frame.datatype.*;
+import org.protege.editor.owl.ui.frame.datatype.OWLDatatypeDefinitionFrameSection;
 import org.protege.editor.owl.ui.frame.individual.*;
 import org.protege.editor.owl.ui.frame.objectproperty.*;
-import org.protege.editor.owl.ui.frame.property.*;
-import org.protege.editor.owl.ui.framelist.ExplainButton;
+import org.protege.editor.owl.ui.frame.property.AbstractPropertyDomainFrameSection;
 import org.semanticweb.owlapi.io.OWLParserFactory;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.PriorityCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author ralph
@@ -41,11 +42,51 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 	private static final Logger log = LoggerFactory.getLogger(AspectOWLEditorKitHook.class);
 
+	private final HashSet<String> aspectButtonClasses = new HashSet<>();
+
 	/**
 	 * 
 	 */
 	public AspectOWLEditorKitHook() {
-		// TODO Auto-generated constructor stub
+		aspectButtonClasses.add("de.fuberlin.csw.aspectowl.protege.views.AspectAnnotatedAxiomsFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDisjointDataPropertiesFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLDifferentIndividualsAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.OWLAnnotationFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.datatype.OWLDatatypeDefinitionFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLEquivalentObjectPropertiesAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLClassAssertionAxiomTypeFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDataPropertyRangeFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLSubObjectPropertyAxiomSuperPropertyFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLNegativeDataPropertyAssertionFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointUnionAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.SWRLRulesFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.property.AbstractPropertyDomainFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLDataPropertyDomainFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLObjectPropertyDomainFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyRangeFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLSameIndividualsAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLDataPropertyAssertionAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.InferredAxiomsFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLObjectPropertyAssertionAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.AxiomListFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLSubDataPropertyAxiomSuperPropertyFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLInverseObjectPropertiesAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLSubAnnotationPropertyFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.InheritedAnonymousClassesFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLKeySection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.annotationproperty.OWLAnnotationPropertyDomainFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.individual.OWLNegativeObjectPropertyAssertionFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLObjectPropertyRangeFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.OWLGeneralClassAxiomsFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLClassGeneralClassAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.AbstractOWLClassAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointClassesAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLSubClassAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLEquivalentClassesAxiomFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.cls.OWLClassAssertionAxiomMembersSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLDisjointObjectPropertiesFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.dataproperty.OWLEquivalentDataPropertiesFrameSection");
+		aspectButtonClasses.add("org.protege.editor.owl.ui.frame.objectproperty.OWLPropertyChainAxiomFrameSection");
 	}
 
 	/* Sneaks in our preprocessor for aspect-oriented ontologies
@@ -65,75 +106,15 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		PluginUtilities.getInstance().getApplicationContext().registerService(WeavingHook.class, this, new Hashtable<>());
 
-//		pool.appendClassPath(new ClassClassPath(AbstractOWLFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(AspectAnnotatedAxiomsFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDisjointDataPropertiesFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDifferentIndividualsAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLAnnotationFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDatatypeDefinitionFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLEquivalentObjectPropertiesAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLClassAssertionAxiomTypeFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDataPropertyRangeFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLSubObjectPropertyAxiomSuperPropertyFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLNegativeDataPropertyAssertionFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDisjointUnionAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(SWRLRulesFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(AbstractPropertyDomainFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDataPropertyDomainFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLObjectPropertyDomainFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLAnnotationPropertyRangeFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLSameIndividualsAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDataPropertyAssertionAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(InferredAxiomsFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLObjectPropertyAssertionAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(AxiomListFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLSubDataPropertyAxiomSuperPropertyFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLInverseObjectPropertiesAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLSubAnnotationPropertyFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(InheritedAnonymousClassesFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLKeySection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLAnnotationPropertyDomainFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLNegativeObjectPropertyAssertionFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLObjectPropertyRangeFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLGeneralClassAxiomsFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLClassGeneralClassAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(AbstractOWLClassAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDisjointClassesAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLSubClassAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLEquivalentClassesAxiomFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLClassAssertionAxiomMembersSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLDisjointObjectPropertiesFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLEquivalentDataPropertiesFrameSection.class));
-//		pool.appendClassPath(new ClassClassPath(OWLPropertyChainAxiomFrameSection.class));
-
-
-
-//		Class clazz = AbstractOWLFrameSection.class;
-//		ClassLoader classLoader = clazz.getClassLoader();
-
-//		OWLEditorKit kit = (OWLEditorKit)getEditorKit();
-//
 		OWLModelManager mm = ((OWLEditorKit)getEditorKit()).getOWLModelManager();
-//
-////		mm.addListener(event -> {
-////			switch (event.getType()) {
-////			}
-////		});
-//
-//		mm.setOWLEntityFactory(new AspectOWLEntityFactory(mm));
-//
+
 		OWLOntologyManager om = mm.getOWLOntologyManager();
-//
-//		om.addOntologyChangeListener(changes -> changes.forEach(change -> {
-//
-//		}));
 
 		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
 		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 		
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
 
-		
 	}
 
 	/* (non-Javadoc)
@@ -148,38 +129,60 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	@Override
 	public void weave(WovenClass wovenClass) {
 
-		ClassPool pool = ClassPool.getDefault();
-		pool.appendSystemPath();
-		pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
-
-		pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
-
 		String className = wovenClass.getClassName();
 
-		try {
-			CtClass ctClass = pool.getCtClass(className);
+		if (aspectButtonClasses.contains(className)) {
 
-			CtMethod ctMethod = ctClass.getDeclaredMethod("getAdditionalButtons"); // throws NotFoundException if not defined
-			ctMethod.insertAfter("return de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getButtonsWithAspectButton($_);");
+			ClassPool pool = ClassPool.getDefault();
+			pool.appendSystemPath();
+			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
 
-			System.out.printf("    Hello, woven class %s.\n", className);
+			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
 
-			byte[] bytes = ctClass.toBytecode();
-			ctClass.detach();
-			wovenClass.setBytes(bytes);
 
-			wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+			try {
+				CtClass ctClass = pool.getCtClass(className);
 
-		} catch (Throwable t) {
-			System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+				CtMethod ctMethod = ctClass.getMethod("getAdditionalButtons", "()Ljava/util/List;"); // throws NotFoundException if method does not exist
+
+				CtClass declaringClass = ctMethod.getDeclaringClass();
+
+				if (declaringClass != ctClass) {
+					ctMethod = CtNewMethod.copy(ctMethod, ctClass, null);
+					ctClass.addMethod(ctMethod);
+				}
+
+				ctMethod.insertAfter("return de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getButtonsWithAspectButton($_);");
+
+				byte[] bytes = ctClass.toBytecode();
+				ctClass.detach();
+				wovenClass.setBytes(bytes);
+
+				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+				System.out.printf("    Hello, woven class %s.\n", className);
+
+			} catch (Throwable t) {
+				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+			}
 		}
 
 	}
 
+	/**
+	 * @param original
+	 * @return
+	 */
 	public static List<MListButton> getButtonsWithAspectButton(List<MListButton> original) {
 		List<MListButton> additionalButtons = new ArrayList<>(original); // original may be an immutable list, so we need to create a mutable clone
-		additionalButtons.add(new ExplainButton(e -> System.out.println("I do nothing.")));
+		AspectButton button = new AspectButton();
+		button.setActionListener(e -> {
+			OWLAxiom selectedAxiom = ((OWLFrameSectionRow)button.getRowObject()).getAxiom();
+			log.info(selectedAxiom.toString());
+		});
+		additionalButtons.add(button);
 
 		return additionalButtons;
 	}
+
 }
