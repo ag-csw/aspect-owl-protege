@@ -1,6 +1,7 @@
 package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
 import org.protege.editor.core.ui.list.MListButton;
+import org.protege.editor.owl.ui.renderer.OWLRendererPreferences;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -24,20 +25,46 @@ public class AspectButton extends MListButton {
     }
 
     @Override
+    public Color getBackground() {
+        if (aspectsPresent) {
+            return Color.ORANGE;
+        }
+        else {
+            return super.getBackground();
+        }
+    }
+    @Override
     public void paintButtonContent(Graphics2D g) {
 
-        int stringWidth = g.getFontMetrics().getStringBounds("A", g).getBounds().width;
         int w = getBounds().width;
         int h = getBounds().height;
-        g.drawString("A",
-                getBounds().x + w / 2 - stringWidth / 2,
-                getBounds().y + g.getFontMetrics().getAscent() / 2 + h / 2);
+        int x = getBounds().x;
+        int y = getBounds().y;
 
+        Font font = g.getFont().deriveFont(Font.BOLD, OWLRendererPreferences.getInstance().getFontSize());
+        g.setFont(font);
+        FontMetrics fontMetrics = g.getFontMetrics(font);
+        final Rectangle stringBounds = fontMetrics.getStringBounds(ASPECT_STRING, g).getBounds();
+        int baseline = fontMetrics.getLeading() + fontMetrics.getAscent();
+        g.drawString(ASPECT_STRING, x + w / 2 - stringBounds.width / 2, y + (h - stringBounds.height) / 2 + baseline );
 
-        Ellipse2D.Double eyeEllipse = new Ellipse2D.Double();
-        Area ellipseArea1 = new Area(eyeEllipse);
-        Area ellipseArea2 = new Area(eyeEllipse);
+//        if (aspectsPresent) {
+//            g.drawOval(x + 2, y + 2, w - 4, h - 4);
+//        }
 
-
+        g.setFont(font);
     }
+
+    @Override
+    public String getName() {
+        if (aspectsPresent) {
+            return "View or edit aspects referencing this axiom.";
+        }
+        return "This axiom is not target of any aspect. Click to add aspects.";
+    }
+
+    public void setAspectsPresent(boolean aspectsPresent) {
+        this.aspectsPresent = aspectsPresent;
+    }
+
 }
