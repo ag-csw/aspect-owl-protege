@@ -41,16 +41,14 @@ public class AspectButton extends MListButton {
         int x = getBounds().x;
         int y = getBounds().y;
 
-        Font font = g.getFont().deriveFont(Font.BOLD, OWLRendererPreferences.getInstance().getFontSize());
+//        Font font = g.getFont().deriveFont(Font.BOLD, OWLRendererPreferences.getInstance().getFontSize());
+        Font font = g.getFont().deriveFont(Font.BOLD, 12);
         g.setFont(font);
         FontMetrics fontMetrics = g.getFontMetrics(font);
         final Rectangle stringBounds = fontMetrics.getStringBounds(ASPECT_STRING, g).getBounds();
         int baseline = fontMetrics.getLeading() + fontMetrics.getAscent();
-        g.drawString(ASPECT_STRING, x + w / 2 - stringBounds.width / 2, y + (h - stringBounds.height) / 2 + baseline );
 
-//        if (aspectsPresent) {
-//            g.drawOval(x + 2, y + 2, w - 4, h - 4);
-//        }
+        g.drawString(ASPECT_STRING, x + w / 2 - stringBounds.width / 2, y + (h - stringBounds.height) / 2 + baseline );
 
         g.setFont(font);
     }

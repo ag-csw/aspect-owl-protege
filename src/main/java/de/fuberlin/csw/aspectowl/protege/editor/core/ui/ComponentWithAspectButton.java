@@ -1,23 +1,49 @@
 package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
+import jdk.nashorn.internal.codegen.ObjectClassGenerator;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class ComponentWithAspectButton extends JComponent {
+public class ComponentWithAspectButton extends JCheckBox {
 
     private AspectButton aspectButton = new AspectButton();
-    private JComponent guest;
+//    private JComponent guest;
 
-    public ComponentWithAspectButton(JComponent target, ActionListener aspectButtonActionListener) {
-         setLayout(new BorderLayout());
+    public ComponentWithAspectButton(String text, ActionListener aspectButtonActionListener) {
+        super(text);
+//         setLayout(new BorderLayout());
 
          aspectButton.setActionListener(aspectButtonActionListener);
 
-         add(target, BorderLayout.CENTER);
-         add(new JButton(), BorderLayout.LINE_END);
+//         add(target, BorderLayout.CENTER);
+//         add(new JButton(), BorderLayout.LINE_END);
 
-        Box parent = (Box)target.getParent();
+//        Box parent = (Box)target.getParent();
 //        parent.getComponent()
+    }
+
+    @Override
+    public int getWidth() {
+        return super.getWidth() + 20;
+    }
+
+    @Override
+    public void setBounds(int x, int y, int width, int height) {
+        super.setBounds(x, y, width, height);
+        aspectButton.setSize(height);
+        aspectButton.setLocation(0, 0);
+    }
+
+    @Override
+    public void paint(Graphics g) {
+
+        Graphics2D g2d = (Graphics2D)g;
+
+        aspectButton.paintButtonContent(g2d);
+
+        g.translate(20, 0);
+        super.paint(g);
     }
 }
