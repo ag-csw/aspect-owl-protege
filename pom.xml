@@ -339,28 +339,14 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>pkill</executable>
+							<executable>osascript</executable>
 							<arguments>
-								<argument>-f</argument>
-								<argument>/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher</argument>
+								<argument>build/helpers/stop-protege.scpt</argument>
 							</arguments>
 							<successCodes>
 								<code>0</code>
 								<code>1</code>
 							</successCodes>
-						</configuration>
-					</execution>
-					<execution>
-						<id>Wait</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>sleep</executable>
-							<arguments>
-								<argument>2</argument>
-							</arguments>
 						</configuration>
 					</execution>
 					<execution>
