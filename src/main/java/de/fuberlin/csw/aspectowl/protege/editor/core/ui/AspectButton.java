@@ -1,7 +1,9 @@
 package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import org.protege.editor.core.ui.list.MListButton;
 import org.protege.editor.owl.ui.renderer.OWLRendererPreferences;
+import org.semanticweb.owlapi.model.OWLAxiom;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -14,15 +16,18 @@ public class AspectButton extends MListButton {
 
     private static final String ASPECT_STRING = "A";
 
-    private boolean aspectsPresent = false;
+    private OWLAxiom axiom;
 
-    public AspectButton() {
+    private OWLOntologyAspectManager aspectManager = OWLOntologyAspectManager.instance();
+
+    public AspectButton(OWLAxiom axiom) {
         super("Aspects", ROLL_OVER_COLOR, null);
+        this.axiom = axiom;
     }
 
     @Override
     public Color getBackground() {
-        if (aspectsPresent) {
+        if (aspectManager.hasAssertedAspects(axiom)) {
             return Color.ORANGE;
         }
         else {
@@ -51,14 +56,9 @@ public class AspectButton extends MListButton {
 
     @Override
     public String getName() {
-        if (aspectsPresent) {
+        if (aspectManager.hasAssertedAspects(axiom)) {
             return "View or edit aspects referencing this axiom.";
         }
         return "This axiom is not target of any aspect. Click to add aspects.";
     }
-
-    public void setAspectsPresent(boolean aspectsPresent) {
-        this.aspectsPresent = aspectsPresent;
-    }
-
 }

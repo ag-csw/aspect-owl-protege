@@ -35,6 +35,10 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return Optional.ofNullable(aspectsForObject.get(potentialJoinPoint)).orElse(Collections.emptySet()).stream();
     }
 
+    public boolean hasAssertedAspects(OWLAxiom axiom) {
+        return !Optional.ofNullable(aspectsForObject.get(axiom)).orElse(Collections.emptySet()).isEmpty();
+    }
+
     /**
      * Returns a stream of all inferred aspects for the given axiom.
      * @param potentialJoinPoint a potential join point consisting of an owl axiom
@@ -46,7 +50,12 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     }
 
     public void addAspect(OWLAspect aspect, OWLAxiom axiom) {
-        aspectsForObject.putIfAbsent(axiom, Optional.of(aspectsForObject.get(axiom)).orElse(new HashSet<>())).add(aspect);
+        Set<OWLAspect> aspects = aspectsForObject.get(axiom);
+        if (aspects == null) {
+            aspects = new HashSet<>();
+            aspectsForObject.put(axiom, aspects);
+        }
+        aspects.add(aspect);
     }
 
     @Override

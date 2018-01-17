@@ -1,6 +1,7 @@
 package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
 import jdk.nashorn.internal.codegen.ObjectClassGenerator;
+import org.semanticweb.owlapi.model.OWLAxiom;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,13 +9,14 @@ import java.awt.event.ActionListener;
 
 public class ComponentWithAspectButton extends JCheckBox {
 
-    private AspectButton aspectButton = new AspectButton();
+    private AspectButton aspectButton;
 //    private JComponent guest;
 
-    public ComponentWithAspectButton(String text, ActionListener aspectButtonActionListener) {
+    public ComponentWithAspectButton(OWLAxiom axiom, String text, ActionListener aspectButtonActionListener) {
         super(text);
 //         setLayout(new BorderLayout());
 
+         aspectButton = new AspectButton(axiom);
          aspectButton.setActionListener(aspectButtonActionListener);
 
 //         add(target, BorderLayout.CENTER);

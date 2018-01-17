@@ -82,7 +82,10 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 //		frameSectionRowClassesForAspectButtons.add("org.protege.editor.owl.ui.frame.cls.OWLDisjointClassesAxiomFrameSectionRow");
 //		frameSectionRowClassesForAspectButtons.add("org.protege.editor.owl.ui.frame.cls.OWLClassGeneralClassAxiomFrameSectionRow");
 //		frameSectionRowClassesForAspectButtons.add("org.protege.editor.owl.ui.frame.objectproperty.OWLEquivalentObjectPropertiesAxiomFrameSectionRow");
-		frameSectionRowClassesForAspectButtons.add("org.protege.editor.owl.ui.frame.AbstractOWLFrameSectionRow");
+
+//		frameSectionRowClassesForAspectButtons.add("org.protege.editor.owl.ui.frame.AbstractOWLFrameSectionRow");
+
+		frameSectionRowClassesForAspectButtons.add("org.protege.editor.owl.ui.framelist.OWLFrameList");
 
 		propertyCharacteristicsViewComponentClassesForAspectButtons.add("org.protege.editor.owl.ui.view.objectproperty.OWLObjectPropertyCharacteristicsViewComponent");
 	}
@@ -142,7 +145,8 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 			try {
 				CtClass ctClass = pool.getCtClass(className);
 
-				CtMethod ctMethod = ctClass.getMethod("getAdditionalButtons", "()Ljava/util/List;"); // throws NotFoundException if method does not exist
+//				CtMethod ctMethod = ctClass.getMethod("getAdditionalButtons", "()Ljava/util/List;"); // throws NotFoundException if method does not exist
+				CtMethod ctMethod = ctClass.getMethod("getButtons", "(Ljava/lang/Object;)Ljava/util/List;"); // throws NotFoundException if method does not exist
 
 				CtClass declaringClass = ctMethod.getDeclaringClass();
 
@@ -151,15 +155,13 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 					ctClass.addMethod(ctMethod);
 				}
 
-				ctMethod.insertAfter("return de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getButtonsWithAspectButton($_);");
+				ctMethod.insertAfter("if (value instanceof org.protege.editor.owl.ui.frame.OWLFrameSectionRow) return de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getButtonsWithAspectButton($_, (org.protege.editor.owl.ui.frame.OWLFrameSectionRow)value);");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();
 				wovenClass.setBytes(bytes);
 
 				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
-
-				System.out.printf("    Hello, woven class %s.\n", className);
 
 			} catch (Throwable t) {
 //				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
@@ -193,7 +195,8 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	 * @param original
 	 * @return
 	 */
-	public static List<MListButton> getButtonsWithAspectButton(List<MListButton> original) {
+	public static List<MListButton> getButtonsWithAspectButton(List<MListButton> original, OWLFrameSectionRow frameSectionRow) {
+
 		for(MListButton button : original) {
 			if (button instanceof AspectButton) {
 				// sometimes classes get woven multiple times, make sure not to add another aspect button
@@ -203,12 +206,13 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
         List<MListButton> additionalButtons = new ArrayList<>(original); // original may be an immutable list, so we need to create a mutable clone
 
-        AspectButton button = new AspectButton();
+		OWLAxiom axiom = frameSectionRow.getAxiom();
+
+		AspectButton button = new AspectButton(axiom);
 		button.setActionListener(e -> {
             OWLOntologyAspectManager am = OWLOntologyAspectManager.instance();
-			OWLAxiom selectedAxiom = ((OWLFrameSectionRow<Object, OWLAxiom, Object>)button.getRowObject()).getAxiom();
-            if (am.getAssertedAspects(selectedAxiom).count() == 0) {
-                am.addAspect(new OWLNamedAspectImpl(IRI.create("http://www.example.org/aspectowl/FunnyAspect")), selectedAxiom);
+            if (am.getAssertedAspects(axiom).count() == 0) {
+                am.addAspect(new OWLNamedAspectImpl(IRI.create("http://www.example.org/aspectowl/FunnyAspect")), axiom);
             }
 		});
 		additionalButtons.add(button);

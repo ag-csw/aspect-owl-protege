@@ -5,10 +5,16 @@ package de.fuberlin.csw.aspectowl.aspectj;
  * A simple swing checkbox example with different constructors
  */
 
+        import com.google.common.collect.Sets;
         import de.fuberlin.csw.aspectowl.protege.editor.core.ui.ComponentWithAspectButton;
+        import org.semanticweb.owlapi.model.IRI;
+        import org.semanticweb.owlapi.model.OWLAxiom;
+        import uk.ac.manchester.cs.owl.owlapi.OWLClassImpl;
+        import uk.ac.manchester.cs.owl.owlapi.OWLDeclarationAxiomImpl;
 
         import javax.swing.*;
         import java.awt.*;
+        import java.util.Collections;
 
 public class TestCheckbox {
 
@@ -23,7 +29,10 @@ public class TestCheckbox {
 
         // Create checkbox with different constructors
 //        JCheckBox checkbox1 = new JCheckBox("Apple", true);
-        JCheckBox checkbox1 = new ComponentWithAspectButton("Apple", e -> System.out.println(e.getActionCommand()
+
+        OWLAxiom axiom = new OWLDeclarationAxiomImpl(new OWLClassImpl(IRI.create("http://example.org/aspectowl/A")), Collections.emptySet());
+
+        JCheckBox checkbox1 = new ComponentWithAspectButton(axiom,"Apple", e -> System.out.println(e.getActionCommand()
         ));
 
 
