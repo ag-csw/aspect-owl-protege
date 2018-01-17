@@ -5,25 +5,23 @@ package de.fuberlin.csw.aspectowl.owlapi.model;
 
 import java.util.Set;
 
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLObject;
+import org.semanticweb.owlapi.model.*;
 
 /**
+ * An OWL aspect (actually the advice which will potentially be applied to its pointcut).
  * @author ralph
  *
  */
-public interface OWLAspect extends OWLAnnotation {
+public interface OWLAspect extends OWLClassExpression {
 	
 	/**
 	 * Returns the pointcut of this aspect, i.e. the set of axioms that are
 	 * segregated under this aspect.
 	 * @return
 	 */
-	public Set<OWLObject> getPointcut();
-	
-	
-	public OWLClassExpression getAdvice();
+	public Set<OWLAxiom> getPointcut();
+
+	public Set<OWLObjectProperty> getAccessibilityRelations();
 	
 	
 }

@@ -20,10 +20,6 @@ public class AspectButton extends MListButton {
         super("Aspects", ROLL_OVER_COLOR, null);
     }
 
-    public void setActionListener(ActionListener actionListener) {
-        super.setActionListener(actionListener);
-    }
-
     @Override
     public Color getBackground() {
         if (aspectsPresent) {

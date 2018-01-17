@@ -38,17 +38,13 @@ package de.fuberlin.csw.aspectowl.util;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.protege.editor.core.prefs.PreferencesManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
-import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
-import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectImpl;
 import de.fuberlin.csw.aspectowl.preferences.AspectOWLPreferencesPanel;
 
 /**
