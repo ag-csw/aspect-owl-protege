@@ -9,10 +9,11 @@ import java.util.Set;
 
 public class Test {
     public static void main(String[] args) {
-//        System.out.println(OWLEntity.class.isAssignableFrom(OWLClass.class));
-        OWLOntologyAspectManager m = new OWLOntologyAspectManager();
-
-
-        System.out.println();
+        try {
+            Class cls = Test.class.getClassLoader().loadClass("org.semanticweb.owlapi.model.AxiomType");
+            System.out.println(cls);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

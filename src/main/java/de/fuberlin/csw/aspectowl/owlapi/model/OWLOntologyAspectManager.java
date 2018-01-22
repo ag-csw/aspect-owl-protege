@@ -35,6 +35,10 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return Optional.ofNullable(aspectsForObject.get(potentialJoinPoint)).orElse(Collections.emptySet()).stream();
     }
 
+    public void removeAssertedAspect(OWLAxiom axiom, OWLAspect aspect) {
+        Optional.ofNullable(aspectsForObject.get(axiom)).orElse(Collections.emptySet()).remove(aspect);
+    }
+
     public boolean hasAssertedAspects(OWLAxiom axiom) {
         return !Optional.ofNullable(aspectsForObject.get(axiom)).orElse(Collections.emptySet()).isEmpty();
     }
