@@ -18,7 +18,9 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -28,14 +30,32 @@ public class AspectAssertionsList extends MList {
 
     private static AxiomType<OWLAspectAssertionAxiom> OWL_AXIOM_ASSERTION_AXIOM_TYPE;
 
+//    TODO weaving does not work (yet)
+//    static {
+//        Class axiomTypeClass = AxiomType.class;
+//        try {
+//            Field axiomTypeField = axiomTypeClass.getField("OWL_AXIOM_ASSERTION_AXIOM_TYPE");
+//            OWL_AXIOM_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>) axiomTypeField.get(null);
+//        } catch (NoSuchFieldException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     static {
-        Class axiomTypeClass = AxiomType.class;
+        Class<AxiomType> axiomTypeClass = AxiomType.class;
         try {
-            Field axiomTypeField = axiomTypeClass.getField("OWL_AXIOM_ASSERTION_AXIOM_TYPE");
-            OWL_AXIOM_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>) axiomTypeField.get(null);
-        } catch (NoSuchFieldException e) {
+            Constructor constr = axiomTypeClass.getDeclaredConstructor(Class.class, Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE);
+            constr.setAccessible(true);
+            OWL_AXIOM_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>)constr.newInstance(OWLAspectAssertionAxiom.class, 38, "AspectAssertion", true, true, true);
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
     }

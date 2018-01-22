@@ -113,7 +113,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		String className = wovenClass.getClassName();
 
-		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
+//		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 
 		// add aspect buttons to frame section rows
 		if (frameSectionRowClassesForAspectButtons.contains(className)) {
@@ -167,18 +167,18 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 			} catch (Throwable t) {
 //				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
 			}
-		} else if (className.equals("org.semanticweb.owlapi.model.AxiomType$1")) {
-			try {
-				BundleWiring bundleWiring = wovenClass.getBundleWiring();
-				byte[] axiomTypesClassBytes = IOUtils.toByteArray(bundleWiring.getClassLoader().getResourceAsStream("org/semanticweb/owlapi/model/AxiomType.class"));
-				AspectOWLPostClassLoadingWeavingHelper.reweaveAxiomTypeClass(this, "org.semanticweb.owlapi.model.AxiomType", bundleWiring, axiomTypesClassBytes);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+//		} else if (className.equals("org.semanticweb.owlapi.model.AxiomType$1")) {
+//			try {
+//				BundleWiring bundleWiring = wovenClass.getBundleWiring();
+//				byte[] axiomTypesClassBytes = IOUtils.toByteArray(bundleWiring.getClassLoader().getResourceAsStream("org/semanticweb/owlapi/model/AxiomType.class"));
+//				AspectOWLPostClassLoadingWeavingHelper.reweaveAxiomTypeClass(this, "org.semanticweb.owlapi.model.AxiomType", bundleWiring, axiomTypesClassBytes);
+//			} catch (ClassNotFoundException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 		}
 //		} else if (OWLObject.class.isAssignableFrom(wovenClass.getDefinedClass())) {
 //			System.out.println("OWLObject subclass: " + className);

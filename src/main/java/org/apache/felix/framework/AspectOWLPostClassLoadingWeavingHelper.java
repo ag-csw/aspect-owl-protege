@@ -5,6 +5,7 @@ import de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook;
 import javassist.*;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.wiring.BundleWiring;
+import org.semanticweb.owlapi.model.AxiomType;
 
 /**
  * Lives in package org.apache.felix.framework because we need access to the WovenClassImpl constructor, which is
@@ -19,7 +20,7 @@ public class AspectOWLPostClassLoadingWeavingHelper {
         pool.appendSystemPath();
         pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
 
-        pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
+        pool.insertClassPath(new ByteArrayClassPath(className, originalBytes));
 
         try {
             CtClass ctClass = pool.getCtClass(className);
@@ -36,6 +37,8 @@ public class AspectOWLPostClassLoadingWeavingHelper {
             wovenClass.setBytes(bytes);
 
             wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+            wovenClass.complete(wovenClass.getDefinedClass(), null, null);
 
         } catch (Throwable t) {
 //				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
