@@ -6,7 +6,7 @@ import org.protege.editor.owl.ui.framelist.ExplainButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public aspect AspectOrientedOWLOntologyManagerAspect {
+public aspectAssertionAxiom AspectOrientedOWLOntologyManagerAspect {
 
     pointcut testPointcut():
             execution(java.util.List getAdditionalButtons());

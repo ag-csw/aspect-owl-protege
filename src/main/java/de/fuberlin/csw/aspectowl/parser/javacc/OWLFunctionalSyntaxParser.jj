@@ -1266,9 +1266,9 @@ OWLAspectAssertionAxiom AspectAssertion() :
 Set<OWLAspect> AspectSet() :
 {
 	Set<OWLAspect> aspects = new HashSet<>();
-	OWLAspect aspect;
+	OWLAspect aspectAssertionAxiom;
 }
-{ (aspect=Aspect(){ aspects.add(aspect); })* { return aspects; } }
+{ (aspectAssertionAxiom=Aspect(){ aspects.add(aspectAssertionAxiom); })* { return aspects; } }
 
 OWLJoinPoint JoinPoint() :
 {
@@ -1290,20 +1290,20 @@ OWLPointcut Pointcut() :
 
 SPARQLPointCut SPARQLPointcut() :
 {
-	OWLAspect aspect;
+	OWLAspect aspectAssertionAxiom;
 	String query;
 	Set<OWLAnnotation> annotations;
 }
-{ <SPARQLPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspect=Aspect() query=QuotedString())<CLOSEPAR> { return new SPARQLPointcut(aspect, query, annotations); } }
+{ <SPARQLPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspectAssertionAxiom=Aspect() query=QuotedString())<CLOSEPAR> { return new SPARQLPointcut(aspectAssertionAxiom, query, annotations); } }
 
 
 OWLModulePointcut ModulePointcut() :
 {
-	OWLAspect aspect;
+	OWLAspect aspectAssertionAxiom;
 	Set<OWLEntity> signature;
 	Set<OWLAnnotation> annotations;
 }
-{ <MODULEPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspect=Aspect() signature=Signature())<CLOSEPAR> { return new OWLModulePointcut(aspect, query, annotations); } }
+{ <MODULEPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspectAssertionAxiom=Aspect() signature=Signature())<CLOSEPAR> { return new OWLModulePointcut(aspectAssertionAxiom, query, annotations); } }
 
 Set<OWLEntity> Signature() :
 {
@@ -1320,8 +1320,8 @@ OWLEntity EntityIRI() :
 
 DLQueryPointcut DLQueryPointcut() :
 {
-	OWLAspect aspect;
+	OWLAspect aspectAssertionAxiom;
 	OWLClassExpression dlQuery;
 	Set<OWLAnnotation> annotations;
 }
-{ <DLQUERYPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspect=Aspect() dlQuery=ClassExpression() )<CLOSEPAR> { return new DLQueryPointcut(aspect, dlQuery, annotations); } }
+{ <DLQUERYPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspectAssertionAxiom=Aspect() dlQuery=ClassExpression() )<CLOSEPAR> { return new DLQueryPointcut(aspectAssertionAxiom, dlQuery, annotations); } }

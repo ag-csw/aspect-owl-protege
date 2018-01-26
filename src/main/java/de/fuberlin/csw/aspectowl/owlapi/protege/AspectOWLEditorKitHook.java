@@ -4,7 +4,6 @@
 package de.fuberlin.csw.aspectowl.owlapi.protege;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
-import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
@@ -12,11 +11,8 @@ import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
 import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionPanel;
 import javassist.*;
-import org.apache.commons.io.IOUtils;
-import org.apache.felix.framework.AspectOWLPostClassLoadingWeavingHelper;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
-import org.osgi.framework.wiring.BundleWiring;
 import org.protege.editor.core.editorkit.EditorKit;
 import org.protege.editor.core.editorkit.plugin.EditorKitHook;
 import org.protege.editor.core.plugin.PluginUtilities;
@@ -35,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;

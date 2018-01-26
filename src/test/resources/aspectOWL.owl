@@ -291,7 +291,7 @@
     <AnnotationAssertion>
         <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
         <IRI>#BaseModule</IRI>
-        <Literal datatypeIRI="&rdfs;Literal">This is the default aspect. All expressions which are not covered by an explicit aspect definition are automatically part of the base module. </Literal>
+        <Literal datatypeIRI="&rdfs;Literal">This is the default aspectAssertionAxiom. All expressions which are not covered by an explicit aspectAssertionAxiom definition are automatically part of the base module. </Literal>
     </AnnotationAssertion>
     <AnnotationAssertion>
         <AnnotationProperty IRI="http://attempto.ifi.uzh.ch/ace_lexicon#CN_pl"/>

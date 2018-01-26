@@ -106,11 +106,11 @@
     </extension>
     <extension
     	id="SaveAspectOrientedOntology"
-    	name="Save aspect-oriented Ontology"
+    	name="Save aspectAssertionAxiom-oriented Ontology"
     	point="org.protege.editor.core.application.EditorKitMenuAction">
-    	<name value="Save aspect-oriented Ontology"/>
+    	<name value="Save aspectAssertionAxiom-oriented Ontology"/>
     	<class value="de.fuberlin.csw.aspectowl.protege.SaveAspectOrientedOntology"/>
-    	<toolTip value="Save your aspect-oriented Ontology in its own file format"/>
+    	<toolTip value="Save your aspectAssertionAxiom-oriented Ontology in its own file format"/>
     	<path value="org.protege.editor.core.application.menu.FileMenu/SlotAB-Z"/>
     	<editorKitId value="OWLEditorKit"/>
     	<accelerator value="shift A"/>

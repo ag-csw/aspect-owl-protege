@@ -24,7 +24,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return instance;
     }
 
-    private ConcurrentHashMap<OWLAxiom, Set<OWLAspect>> aspectsForObject = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<OWLAxiom, Set<OWLAspectAssertionAxiom>> aspectsForObject = new ConcurrentHashMap<>();
 
     /**
      * Returns a stream of all aspects asserted for the given axiom.
@@ -32,6 +32,15 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      * @return a stream containing all aspects asserted for the given join point
      */
     public Stream<OWLAspect> getAssertedAspects(OWLAxiom potentialJoinPoint) {
+        return Optional.ofNullable(aspectsForObject.get(potentialJoinPoint)).orElse(Collections.emptySet()).stream().map(assertionAxiom -> assertionAxiom.getAspect());
+    }
+
+    /**
+     * Returns a stream of all aspects asserted for the given axiom.
+     * @param potentialJoinPoint a potential join point consisting of an owl axiom
+     * @return a stream containing all aspects asserted for the given join point
+     */
+    public Stream<OWLAspectAssertionAxiom> getAspectAssertionAxioms(OWLAxiom potentialJoinPoint) {
         return Optional.ofNullable(aspectsForObject.get(potentialJoinPoint)).orElse(Collections.emptySet()).stream();
     }
 
@@ -53,8 +62,8 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return Stream.empty();
     }
 
-    public void addAspect(OWLAspect aspect, OWLAxiom axiom) {
-        Set<OWLAspect> aspects = aspectsForObject.get(axiom);
+    public void addAspect(OWLAspectAssertionAxiom aspect, OWLAxiom axiom) {
+        Set<OWLAspectAssertionAxiom> aspects = aspectsForObject.get(axiom);
         if (aspects == null) {
             aspects = new HashSet<>();
             aspectsForObject.put(axiom, aspects);
@@ -65,6 +74,16 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     @Override
     public void ontologiesChanged(@Nonnull List<? extends OWLOntologyChange> changes) throws OWLException {
         changes.forEach(change -> change.accept(this));
+    }
+
+    @Override
+    public void visit(AddAxiom change) {
+        OWLAxiom axiom = change.getAxiom();
+        if (axiom instanceof OWLAspectAssertionAxiom) {
+            OWLAspectAssertionAxiom aspectAssertionAxiom = (OWLAspectAssertionAxiom)axiom;
+            OWLAxiom joinPointAxiom = aspectAssertionAxiom.getAxiom();
+            addAspect(aspectAssertionAxiom, axiom);
+        }
     }
 
     @Override

@@ -49,7 +49,7 @@
 	<artifactId>de.fuberlin.csw.aood.protege.plugin</artifactId>
 	<version>v0.4.2.5-alpha</version>
 	<name>Aspect-Oriented Ontology Protégé Plug-In</name> 
-	<description>A plug-in for aspect-oriented ontology development.</description> 
+	<description>A plug-in for aspectAssertionAxiom-oriented ontology development.</description>
 
 	<properties>
 		<org.osgi.framework.system.packages.extra>org.w3c.dom.:ranges</org.osgi.framework.system.packages.extra>
