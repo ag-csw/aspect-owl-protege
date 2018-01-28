@@ -1,8 +1,10 @@
 package de.fuberlin.csw.aspectowl.protege.views;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.AspectContainer;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
 import org.protege.editor.core.ui.list.MList;
 import org.protege.editor.core.ui.list.MListItem;
 import org.protege.editor.core.ui.list.MListSectionHeader;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 public class AspectAssertionsList extends MList {
 
     private static AxiomType<OWLAspectAssertionAxiom> OWL_AXIOM_ASSERTION_AXIOM_TYPE;
+
+    private final static OWLOntologyAspectManager aspectManager = OWLOntologyAspectManager.instance();
 
 //    TODO weaving does not work (yet)
 //    static {
@@ -67,7 +71,7 @@ public class AspectAssertionsList extends MList {
 
     private OWLClassDescriptionEditor editor;
 
-    private OWLAxiom root;
+    private OWLAxiomInstance root;
 
     private OWLAxiom newAxiom;
 
@@ -103,18 +107,18 @@ public class AspectAssertionsList extends MList {
         eKit.getOWLModelManager().addOntologyChangeListener(ontChangeListener);
     }
 
-    public void setRootObject(OWLAxiom root){
+    public void setRootObject(OWLAxiomInstance root){
         this.root = root;
         refill(root);
     }
 
-    protected void refill(OWLAxiom root) {
+    protected void refill(OWLAxiomInstance root) {
         List<Object> data = new ArrayList<>();
 
         data.add(header);
 
         if (root != null){
-            List<OWLAspectAssertionAxiom> aspects = new ArrayList<OWLAspectAssertionAxiom>(OWLOntologyAspectManager.instance().getAspectAssertionAxioms(root).collect(Collectors.toList()));
+            List<OWLAspectAssertionAxiom> aspects = new ArrayList<>(aspectManager.getAspectAssertionAxioms(root.getOntology(), root.getAxiom()));
             Comparator<OWLObject> owlObjectComparator = editorKit.getOWLModelManager().getOWLObjectComparator();
             OWLClassExpressionComparator aspectComparator =
                     new OWLClassExpressionComparator(editorKit.getOWLModelManager());
@@ -135,7 +139,7 @@ public class AspectAssertionsList extends MList {
     }
 
 
-    public OWLAxiom getRoot(){
+    public OWLAxiomInstance getRoot(){
         return root;
     }
 
@@ -205,7 +209,7 @@ public class AspectAssertionsList extends MList {
             if (ret == JOptionPane.OK_OPTION) {
                 OWLAspect newAspect = (OWLAspect) editor.getEditedObject();
                 if (newAspect != null && !newAspect.equals(originalAspect)){
-                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom, newAspect);
+                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
                     editorKit.getModelManager().applyChanges(changes);
                 }
             }
@@ -229,15 +233,15 @@ public class AspectAssertionsList extends MList {
         }
     }
 
-    protected List<OWLOntologyChange> getReplaceChanges(OWLAspect oldAnnotation, OWLAspect newAnnotation) {
+    protected List<OWLOntologyChange> getReplaceChanges(OWLAspect oldAspect, OWLAspect newAspect) {
         List<OWLOntologyChange> changes = new ArrayList<>();
         final OWLAxiom ax = getRoot().getAxiom();
         final OWLOntology ont = getRoot().getOntology();
-        Set<OWLAnnotation> annotations = new HashSet<>(ax.getAnnotations());
-        annotations.remove(oldAnnotation);
-        annotations.add(newAnnotation);
+        Set<OWLAspect> aspects = new HashSet<>(aspectManager.getAssertedAspects(ont, ax));
+        aspects.remove(oldAspect);
+        aspects.add(newAspect);
 
-        newAxiom = ax.getAxiomWithoutAnnotations().getAnnotatedAxiom(annotations);
+        newAxiom = ax.getAxiomWithoutAnnotations().getAnnotatedAxiom(aspects);
 
         changes.add(new RemoveAxiom(ont, ax));
         changes.add(new AddAxiom(ont, newAxiom));
