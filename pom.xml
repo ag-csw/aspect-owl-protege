@@ -52,6 +52,8 @@
 	<description>A plug-in for aspectAssertionAxiom-oriented ontology development.</description>
 
 	<properties>
+		<protege.version>5.2.0</protege.version>
+		<owlapi.version>4.2.8</owlapi.version>
 		<org.osgi.framework.system.packages.extra>org.w3c.dom.:ranges</org.osgi.framework.system.packages.extra>
 	</properties>
 
@@ -60,29 +62,28 @@
 	
 	
 	<dependencies>
-		<dependency>
-			<groupId>edu.stanford.protege</groupId>
-			<artifactId>protege-common</artifactId>
-			<version>5.2.0</version>
-			<scope>provided</scope>
-			<type>bundle</type>
-		</dependency>
-
-        <dependency>
-			<groupId>edu.stanford.protege</groupId>
-			<artifactId>protege-editor-core</artifactId>
-			<version>5.2.0</version>
-			<type>bundle</type>
-			<scope>provided</scope>
-        </dependency>
 
         <dependency>
 			<groupId>edu.stanford.protege</groupId>
             <artifactId>protege-editor-owl</artifactId>
-			<version>5.2.0</version>
-			<type>bundle</type>
-			<scope>provided</scope>
+			<version>${protege.version}</version>
         </dependency>
+		<dependency>
+			<groupId>edu.stanford.protege</groupId>
+			<artifactId>protege-common</artifactId>
+			<version>${protege.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.stanford.protege</groupId>
+			<artifactId>protege-editor-core</artifactId>
+			<version>${protege.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-distribution</artifactId>
+			<version>${owlapi.version}</version>
+		</dependency>
+
         <dependency>
         	<groupId>com.miglayout</groupId>
         	<artifactId>miglayout</artifactId>
@@ -107,12 +108,12 @@
         	<version>2.0-rc1</version>
         	<type>bundle</type>
         </dependency-->
-        <dependency>
+<!--        <dependency>
         	<groupId>com.fasterxml.jackson.core</groupId>
         	<artifactId>jackson-databind</artifactId>
         	<version>2.8.5</version>
         	<type>bundle</type>
-        </dependency>
+        </dependency>-->
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>telemetry</artifactId>
@@ -160,14 +161,18 @@
         	<groupId>edu.stanford.protege</groupId>
         	<artifactId>sparql-query-plugin</artifactId>
         	<version>2.0.2</version>
-        	<!--type>bundle</type-->
 			<exclusions>
 				<exclusion>
 					<artifactId>owlapi-distribution</artifactId>
 					<groupId>net.sourceforge.owlapi</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>owlapi-osgidistribution</artifactId>
+					<groupId>net.sourceforge.owlapi</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
+
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>pellet-modularity-ignazio1977</artifactId>
@@ -284,6 +289,8 @@
 							!uk.ac.manchester.cs.bhig.util,
 							!com.sun.jdi.*,
 							!org.apache.felix.framework.*,
+							!gnu.trove.map.hash,
+							!gnu.trove.set.hash,
 							*
 						</Import-Package>
 						<Export-Package>
@@ -295,12 +302,7 @@
 						<Embed-Dependency>
 							owlexplanation,
 							miglayout,
-							xercesImpl,
-							jfact,
-							xml-resolver,
 							xml-apis,
-							icu4j,
-							lucene-core,
 							telemetry,
 							javassist
 						</Embed-Dependency>
