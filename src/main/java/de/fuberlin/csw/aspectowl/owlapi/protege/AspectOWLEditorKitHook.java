@@ -5,6 +5,7 @@ package de.fuberlin.csw.aspectowl.owlapi.protege;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
@@ -25,6 +26,7 @@ import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
 import org.semanticweb.owlapi.io.OWLParserFactory;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.util.PriorityCollection;
 import org.slf4j.Logger;
@@ -200,8 +202,9 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
         List<MListButton> additionalButtons = new ArrayList<>(original); // original may be an immutable list, so we need to create a mutable clone
 
 		OWLAxiom axiom = frameSectionRow.getAxiom();
+		OWLOntology ontology = frameSectionRow.getOntology();
 
-		AspectButton button = new AspectButton(axiom);
+		AspectButton button = new AspectButton(axiom, ontology);
 		button.setActionListener(e -> {
             OWLOntologyAspectManager am = OWLOntologyAspectManager.instance();
 
@@ -212,7 +215,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 //			}
 
 			AspectAssertionPanel aspectAssertionPanel = new AspectAssertionPanel(editorKit);
-			aspectAssertionPanel.setAxiom(axiom);
+			aspectAssertionPanel.setAxiom(new OWLAxiomInstance(axiom, ontology));
 			new UIHelper(editorKit).showDialog("Aspects for " + axiom.getAxiomType().toString(), aspectAssertionPanel, JOptionPane.CLOSED_OPTION);
 			aspectAssertionPanel.dispose();
 

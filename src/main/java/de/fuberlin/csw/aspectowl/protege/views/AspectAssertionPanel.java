@@ -1,5 +1,6 @@
 package de.fuberlin.csw.aspectowl.protege.views;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLEditorKitIRIShortFormProvider;
 import org.protege.editor.owl.model.OWLEditorKitOntologyShortFormProvider;
@@ -50,10 +51,10 @@ public class AspectAssertionPanel extends JComponent {
     }
 
 
-    public void setAxiom(OWLAxiom axiom) {
+    public void setAxiom(OWLAxiomInstance axiom) {
         axiomPanel.setStyledString(StyledString.EMPTY_STYLED_STRING);
         if (axiom != null) {
-            StyledString axiomRendering = getAxiomRendering(axiom);
+            StyledString axiomRendering = getAxiomRendering(axiom.getAxiom());
             axiomPanel.setStyledString(axiomRendering);
             aspectAssertionComponent.setRootObject(axiom);
         }
@@ -63,7 +64,7 @@ public class AspectAssertionPanel extends JComponent {
     }
 
 
-    public OWLAxiom getAxiom() {
+    public OWLAxiomInstance getAxiom() {
         return aspectAssertionComponent.getRoot();
     }
 

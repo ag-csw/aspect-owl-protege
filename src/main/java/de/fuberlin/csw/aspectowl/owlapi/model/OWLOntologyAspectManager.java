@@ -1,8 +1,11 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectAssertionAxiomImpl;
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.util.OWLOntologyChangeVisitorAdapter;
+import uk.ac.manchester.cs.owl.owlapi.OWLAnonymousAspectImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -28,8 +31,19 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
 
     private ConcurrentHashMap<OntologyAxiomTuple, Set<OWLAspectAssertionAxiom>> aspectsForObject = CollectionFactory.createSyncMap();
 
+    public OWLAspect getAspect(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLClassExpression expr) {
+        if (expr.isAnonymous()) {
+            return new OWLAnonymousAspectImpl((OWLAnonymousClassExpression)expr);
+        }
+        return new OWLNamedAspectImpl(((OWLClass) expr).getIRI());
+    }
+
+    public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLAspect aspect, Set<OWLAnnotation> annotations) {
+        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect, annotations);
+    }
+
     /**
-     * Returns a stream of all aspects asserted for the given axiom.
+     * Returns a set containing all aspects asserted for the given axiom.
      * @param potentialJoinPoint a potential join point consisting of an owl axiom
      * @return a stream containing all aspects asserted for the given join point
      */
@@ -38,7 +52,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     }
 
     /**
-     * Returns a stream of all aspects asserted for the given axiom.
+     * Returns a set containing all aspects asserted for the given axiom.
      * @param ontology the contology containing the axiom declaration
      * @param potentialJoinPoint a potential join point consisting of an owl axiom
      * @return a stream containing all aspects asserted for the given join point

@@ -1,6 +1,5 @@
 package de.fuberlin.csw.aspectowl.protege.views;
 
-import de.fuberlin.csw.aspectowl.owlapi.model.AspectContainer;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
@@ -22,13 +21,15 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AspectAssertionsList extends MList {
 
-    private static AxiomType<OWLAspectAssertionAxiom> OWL_AXIOM_ASSERTION_AXIOM_TYPE;
+    // TODO This belongs to the model, move it elsewhere.
+    public static AxiomType<OWLAspectAssertionAxiom> OWL_AXIOM_ASSERTION_AXIOM_TYPE;
 
     private final static OWLOntologyAspectManager aspectManager = OWLOntologyAspectManager.instance();
 
@@ -195,6 +196,24 @@ public class AspectAssertionsList extends MList {
             return true;
         }
 
+        protected void handleAdd() {
+            // don't need to check the section as only the direct imports can be added
+            if (editor == null){
+                editor = new OWLClassDescriptionEditor(editorKit, null);
+            }
+
+            UIHelper uiHelper = new UIHelper(editorKit);
+            int ret = uiHelper.showValidatingDialog("Create Aspect", editor.getEditorComponent(), null);
+
+            if (ret == JOptionPane.OK_OPTION) {
+                OWLClassExpression expression = editor.getEditedObject();
+                if (expression != null) {
+                    OWLAspect aspect = aspectManager.getAspect(ontology, getRoot().getAxiom(), expression);
+                    OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspect, Collections.EMPTY_SET);
+                    editorKit.getModelManager().applyChange(new AddAxiom(ontology, aspectAssertionAxiom));
+                }
+            }
+        }
 
         public void handleEdit() {
             // don't need to check the section as only the direct imports can be added
@@ -209,7 +228,11 @@ public class AspectAssertionsList extends MList {
             if (ret == JOptionPane.OK_OPTION) {
                 OWLAspect newAspect = (OWLAspect) editor.getEditedObject();
                 if (newAspect != null && !newAspect.equals(originalAspect)){
-                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
+                    ArrayList<OWLOntologyChange> changes = new ArrayList<>(2);
+                    changes.add(new RemoveAxiom(ontology, aspectAssertionAxiom));
+                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), newAspect, aspectAssertionAxiom.getAnnotations())));
+
+//                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
                     editorKit.getModelManager().applyChanges(changes);
                 }
             }
@@ -222,47 +245,46 @@ public class AspectAssertionsList extends MList {
 
 
         public boolean handleDelete() {
-            List<OWLOntologyChange> changes = getDeleteChanges(aspectAssertionAxiom);
-            editorKit.getModelManager().applyChanges(changes);
+            editorKit.getModelManager().applyChange(new RemoveAxiom(ontology, aspectAssertionAxiom));
             return true;
         }
 
-
         public String getTooltip() {
-            return "";
+            return "Asserted aspect";
         }
     }
 
-    protected List<OWLOntologyChange> getReplaceChanges(OWLAspect oldAspect, OWLAspect newAspect) {
-        List<OWLOntologyChange> changes = new ArrayList<>();
-        final OWLAxiom ax = getRoot().getAxiom();
-        final OWLOntology ont = getRoot().getOntology();
-        Set<OWLAspect> aspects = new HashSet<>(aspectManager.getAssertedAspects(ont, ax));
-        aspects.remove(oldAspect);
-        aspects.add(newAspect);
+//    protected List<OWLOntologyChange> getReplaceChanges(OWLAspect oldAspect, OWLAspect newAspect) {
+//        List<OWLOntologyChange> changes = new ArrayList<>();
+//        final OWLAxiom ax = getRoot().getAxiom();
+//        final OWLOntology ont = getRoot().getOntology();
+//        Set<OWLAspect> aspects = new HashSet<>(aspectManager.getAssertedAspects(ont, ax));
+//        aspects.remove(oldAspect);
+//        aspects.add(newAspect);
+//
+//        newAxiom = ax.getAxiomWithoutAnnotations().getAnnotatedAxiom(aspects);
+//
+//        changes.add(new RemoveAxiom(ont, ax));
+//        changes.add(new AddAxiom(ont, newAxiom));
+//        return changes;
+//    }
+//
+//
+//    protected List<OWLOntologyChange> getDeleteChanges(OWLAspectAssertionAxiom oldAspectAssertionAxiom) {
+//        List<OWLOntologyChange> changes = new ArrayList<>();
+//        final OWLAxiom ax = getRoot();
+//        final OWLOntology ont = getRoot().getOntology();
+//
+//        Set<OWLAnnotation> annotations = new HashSet<>(ax.getAnnotations());
+//        annotations.remove(oldAnnotation);
+//
+//        newAxiom = ax.getAxiomWithoutAnnotations().getAnnotatedAxiom(annotations);
+//
+//        changes.add(new RemoveAxiom(ont, ax));
+//        changes.add(new AddAxiom(ont, newAxiom));
+//        return changes;
+//    }
 
-        newAxiom = ax.getAxiomWithoutAnnotations().getAnnotatedAxiom(aspects);
-
-        changes.add(new RemoveAxiom(ont, ax));
-        changes.add(new AddAxiom(ont, newAxiom));
-        return changes;
-    }
-
-
-    protected List<OWLOntologyChange> getDeleteChanges(OWLAspectAssertionAxiom oldAspectAssertionAxiom) {
-        List<OWLOntologyChange> changes = new ArrayList<>();
-        final OWLAxiom ax = getRoot();
-        final OWLOntology ont = getRoot().getOntology();
-
-        Set<OWLAnnotation> annotations = new HashSet<>(ax.getAnnotations());
-        annotations.remove(oldAnnotation);
-
-        newAxiom = ax.getAxiomWithoutAnnotations().getAnnotatedAxiom(annotations);
-
-        changes.add(new RemoveAxiom(ont, ax));
-        changes.add(new AddAxiom(ont, newAxiom));
-        return changes;
-    }
     private class AspectAssertionListItemRenderer implements ListCellRenderer {
 
         private OWLCellRenderer ren;
