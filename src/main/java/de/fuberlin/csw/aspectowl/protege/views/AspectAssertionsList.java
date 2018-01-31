@@ -167,6 +167,27 @@ public class AspectAssertionsList extends MList {
 //        }
     }
 
+    protected void handleAdd() {
+        // don't need to check the section as only the direct imports can be added
+        if (editor == null){
+            editor = new OWLClassDescriptionEditor(editorKit, null);
+        }
+
+        UIHelper uiHelper = new UIHelper(editorKit);
+        int ret = uiHelper.showValidatingDialog("Create Aspect", editor.getEditorComponent(), null);
+
+        if (ret == JOptionPane.OK_OPTION) {
+            OWLClassExpression expression = editor.getEditedObject();
+            if (expression != null) {
+                OWLOntology ontology = getRoot().getOntology();
+                OWLAspect aspect = aspectManager.getAspect(ontology, getRoot().getAxiom(), expression);
+                OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspect, Collections.EMPTY_SET);
+                editorKit.getModelManager().applyChange(new AddAxiom(ontology, aspectAssertionAxiom));
+            }
+        }
+    }
+
+
 
     public void dispose() {
         editorKit.getOWLModelManager().removeOntologyChangeListener(ontChangeListener);
@@ -194,25 +215,6 @@ public class AspectAssertionsList extends MList {
 
         public boolean isEditable() {
             return true;
-        }
-
-        protected void handleAdd() {
-            // don't need to check the section as only the direct imports can be added
-            if (editor == null){
-                editor = new OWLClassDescriptionEditor(editorKit, null);
-            }
-
-            UIHelper uiHelper = new UIHelper(editorKit);
-            int ret = uiHelper.showValidatingDialog("Create Aspect", editor.getEditorComponent(), null);
-
-            if (ret == JOptionPane.OK_OPTION) {
-                OWLClassExpression expression = editor.getEditedObject();
-                if (expression != null) {
-                    OWLAspect aspect = aspectManager.getAspect(ontology, getRoot().getAxiom(), expression);
-                    OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspect, Collections.EMPTY_SET);
-                    editorKit.getModelManager().applyChange(new AddAxiom(ontology, aspectAssertionAxiom));
-                }
-            }
         }
 
         public void handleEdit() {

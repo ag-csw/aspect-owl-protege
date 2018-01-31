@@ -216,7 +216,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 			AspectAssertionPanel aspectAssertionPanel = new AspectAssertionPanel(editorKit);
 			aspectAssertionPanel.setAxiom(new OWLAxiomInstance(axiom, ontology));
-			new UIHelper(editorKit).showDialog("Aspects for " + axiom.getAxiomType().toString(), aspectAssertionPanel, JOptionPane.CLOSED_OPTION);
+			new UIHelper(editorKit).showDialog("Aspects for " + axiom.getAxiomType().toString() + " axiom", aspectAssertionPanel, JOptionPane.CLOSED_OPTION);
 			aspectAssertionPanel.dispose();
 
 
