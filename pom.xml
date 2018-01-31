@@ -78,9 +78,10 @@
 			<artifactId>protege-editor-core</artifactId>
 			<version>${protege.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-distribution</artifactId>
+			<artifactId>owlapi-osgidistribution</artifactId>
 			<version>${owlapi.version}</version>
 		</dependency>
 
