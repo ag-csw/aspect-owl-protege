@@ -305,7 +305,7 @@ public class AspectAssertionsList extends MList {
                 ren.setOntology(item.ontology);
                 ren.setHighlightKeywords(true);
                 ren.setWrap(false);
-                return ren.getListCellRendererComponent(list, item.aspectAssertionAxiom.getAxiom(), index, isSelected, cellHasFocus);
+                return ren.getListCellRendererComponent(list, item.aspectAssertionAxiom.getAspect(), index, isSelected, cellHasFocus);
             }
             else {
                 return ren.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
