@@ -370,7 +370,7 @@
 						</goals>
 						<configuration>
 							<executable>osascript</executable>
-							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher"'</commandlineArgs>
+							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher ${project.basedir}/src/main/resources/test.owl"'</commandlineArgs>
 							<async>true</async>
 							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
