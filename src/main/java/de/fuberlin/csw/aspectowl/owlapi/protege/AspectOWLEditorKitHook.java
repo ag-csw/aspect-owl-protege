@@ -89,6 +89,8 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		OWLModelManager mm = ((OWLEditorKit)getEditorKit()).getOWLModelManager();
 
+		mm.addOntologyChangeListener(OWLOntologyAspectManager.instance());
+
 		OWLOntologyManager om = mm.getOWLOntologyManager();
 
 		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
@@ -102,7 +104,8 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	 */
 	@Override
 	public void dispose() throws Exception {
-		// TODO Auto-generated method stub
+		((OWLEditorKit)getEditorKit()).getModelManager().addOntologyChangeListener(OWLOntologyAspectManager.instance());
+
 	}
 
 	@Override
