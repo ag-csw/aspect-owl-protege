@@ -266,18 +266,10 @@
 						<Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Bundle-Vendor>Corporate Semantic Web Group, Institute for Computer Science, Freie Universitaet Berlin</Bundle-Vendor>
+						<Require-Bundle>
+							org.semanticweb.owl.owlapi
+						</Require-Bundle>
 						<Import-Package>
-							org.protege.common.*;version="5.2",
-							org.protege.editor.owl;version="5.2",
-							org.protege.editor.owl.rdf;version="2.0.2",
-							org.semanticweb.owlapi.*;version="4.2.8",
-							org.protege.editor.core.*;version="5.2",
-							org.xml.sax.*;version=1.4.01,
-							org.w3c.dom.*,
-							javax.swing.*,
-							org.apache.log4j.*,
-							org.slf4j.*,
-							javax.management.*,
 							!org.eclipse.swt.*,
 							!org.jvnet.substance.*,
 							!sun.io,

@@ -20,12 +20,17 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     private OWLAspectImplDelegate aspectDelegate;
 
     public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression) {
-        if (!(classExpression instanceof OWLClassExpressionImpl)) {
-            throw new IllegalArgumentException("Can only deal with default implementations of entity types.");
+//        if (!(classExpression instanceof OWLClassExpressionImpl)) {
+//            throw new IllegalArgumentException(String.format("Can only deal with default implementations of entity types. Got %s", classExpression.getClass().getName()));
+//        }
+        try {
+            this.ceDelegate = (OWLAnonymousClassExpressionImpl) classExpression;
+            this.aspectDelegate = new OWLAspectImplDelegate(this);
+        } catch (ClassCastException ex) {
+            IllegalArgumentException up = new IllegalArgumentException(String.format("Can only deal with default implementations of entity types. Got %s", classExpression.getClass().getName()));
+            up.fillInStackTrace();
+            throw up; // heh heh
         }
-
-        this.ceDelegate = (OWLAnonymousClassExpressionImpl)classExpression;
-        this.aspectDelegate = new OWLAspectImplDelegate(this);
     }
 
     @Override

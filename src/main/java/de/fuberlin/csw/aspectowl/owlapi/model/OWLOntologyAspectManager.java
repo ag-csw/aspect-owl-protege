@@ -66,7 +66,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     }
 
     public boolean hasAssertedAspects(OWLOntology ontology, OWLAxiom joinPointAxiom) {
-        return !Optional.ofNullable(aspectsForObject.get(joinPointAxiom)).orElse(Collections.emptySet()).isEmpty();
+        return !Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, joinPointAxiom))).orElse(Collections.emptySet()).isEmpty();
     }
 
     /**

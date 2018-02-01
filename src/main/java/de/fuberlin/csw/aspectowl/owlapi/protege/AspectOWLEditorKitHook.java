@@ -104,8 +104,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	 */
 	@Override
 	public void dispose() throws Exception {
-		((OWLEditorKit)getEditorKit()).getModelManager().addOntologyChangeListener(OWLOntologyAspectManager.instance());
-
+		((OWLEditorKit)getEditorKit()).getModelManager().removeOntologyChangeListener(OWLOntologyAspectManager.instance());
 	}
 
 	@Override
@@ -187,7 +186,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 	}
 
-	private static final OWLAspect testAspect = new OWLNamedAspectImpl(IRI.create("http://www.example.org/aspectowl/FunnyAspect"));
+//	private static final OWLAspect testAspect = new OWLNamedAspectImpl(IRI.create("http://www.example.org/aspectowl/FunnyAspect"));
 
 	/**
 	 * @param original
@@ -223,7 +222,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 			aspectAssertionPanel.dispose();
 
 
-			editorKit.getModelManager().fireEvent(EventType.ACTIVE_ONTOLOGY_CHANGED);
+//			editorKit.getModelManager().fireEvent(EventType.ACTIVE_ONTOLOGY_CHANGED);
 		});
 		additionalButtons.add(button);
 
