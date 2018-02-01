@@ -5,13 +5,12 @@ import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.util.OWLOntologyChangeVisitorAdapter;
-import uk.ac.manchester.cs.owl.owlapi.OWLAnonymousAspectImpl;
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAnonymousAspectImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /* I know. Calling a class 'SomethingManager' is an anti-pattern. What brought me here was days of
   unsuccessful experimenting with OSGI byte code weaving (in order to add all the aspect related

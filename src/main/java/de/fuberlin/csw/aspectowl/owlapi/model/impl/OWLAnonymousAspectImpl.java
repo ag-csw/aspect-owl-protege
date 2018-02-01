@@ -1,11 +1,14 @@
-package uk.ac.manchester.cs.owl.owlapi;
+package de.fuberlin.csw.aspectowl.owlapi.model.impl;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAnonymousAspect;
-import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectImplDelegate;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.OWLObjectTypeIndexProvider;
+import uk.ac.manchester.cs.owl.owlapi.OWLAnonymousClassExpressionImpl;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -16,20 +19,26 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
 
     static final OWLObjectTypeIndexProvider OWLOBJECT_TYPEINDEX_PROVIDER = new OWLObjectTypeIndexProvider();
 
+    private Method indexMethod;
+    private Method compareObjectOfSameTypeMethod;
+
     private OWLAnonymousClassExpressionImpl ceDelegate;
     private OWLAspectImplDelegate aspectDelegate;
 
     public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression) {
-//        if (!(classExpression instanceof OWLClassExpressionImpl)) {
-//            throw new IllegalArgumentException(String.format("Can only deal with default implementations of entity types. Got %s", classExpression.getClass().getName()));
-//        }
         try {
             this.ceDelegate = (OWLAnonymousClassExpressionImpl) classExpression;
             this.aspectDelegate = new OWLAspectImplDelegate(this);
-        } catch (ClassCastException ex) {
-            IllegalArgumentException up = new IllegalArgumentException(String.format("Can only deal with default implementations of entity types. Got %s", classExpression.getClass().getName()));
-            up.fillInStackTrace();
-            throw up; // heh heh
+
+            Class poorInnocentClass = classExpression.getClass();
+
+            indexMethod = poorInnocentClass.getMethod("index");
+            compareObjectOfSameTypeMethod = poorInnocentClass.getMethod("compareObjectOfSameType", Object.class);
+
+            Arrays.asList(indexMethod, compareObjectOfSameTypeMethod).forEach(method -> method.setAccessible(true));
+
+        } catch (ClassCastException | NoSuchMethodException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -67,12 +76,23 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
 
     @Override
     protected int index() {
-        return ceDelegate.index() + 17; // there are 17 types of anonymous class expressions in OWL 2 (index 1 to 17), we assign aspect anonymous CEs indexes from 18 to 35.
+        try {
+            return (Integer) indexMethod.invoke(ceDelegate);
+        } catch (IllegalAccessException | InvocationTargetException e)  {
+            e.printStackTrace();
+            return 0;
+        }
+//        return ceDelegate.index() + 17; // there are 17 types of anonymous class expressions in OWL 2 (index 1 to 17), we assign aspect anonymous CEs indexes from 18 to 35.
     }
 
     @Override
     protected int compareObjectOfSameType(@Nonnull OWLObject object) {
-        return ceDelegate.compareObjectOfSameType(object);
+        try {
+            return (Integer)compareObjectOfSameTypeMethod.invoke(ceDelegate, object);
+        } catch (IllegalAccessException | InvocationTargetException e)  {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     @Override
