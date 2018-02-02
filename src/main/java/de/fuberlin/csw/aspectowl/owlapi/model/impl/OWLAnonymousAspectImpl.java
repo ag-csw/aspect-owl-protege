@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Is in package uk.ac.manchester.cs.owl.owlapi because it needs to access the index and compareObjectOfSameType
@@ -19,6 +20,8 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
 
     static final OWLObjectTypeIndexProvider OWLOBJECT_TYPEINDEX_PROVIDER = new OWLObjectTypeIndexProvider();
 
+    private static final ConcurrentHashMap<NameParameterTypesTuple, Method> methodCache = new ConcurrentHashMap<>();
+
     private Method indexMethod;
     private Method compareObjectOfSameTypeMethod;
 
@@ -26,20 +29,24 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     private OWLAspectImplDelegate aspectDelegate;
 
     public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression) {
-        try {
-            this.ceDelegate = (OWLAnonymousClassExpressionImpl) classExpression;
-            this.aspectDelegate = new OWLAspectImplDelegate(this);
+        this.ceDelegate = (OWLAnonymousClassExpressionImpl) classExpression;
+        this.aspectDelegate = new OWLAspectImplDelegate(this);
 
-            Class poorInnocentClass = classExpression.getClass();
 
-            indexMethod = poorInnocentClass.getMethod("index");
-            compareObjectOfSameTypeMethod = poorInnocentClass.getMethod("compareObjectOfSameType", Object.class);
+        // We are using the crowbar (aka Java Reflection) in order to make it possible to use the delegate pattern on the
+        // OWLAnonymousClassExpressionImpl class, some of whose methods are protected.
+        // We look up the methods, make them accessible and call them using the reflection API.
+        // We could put this class into the package of its superclass in order to be allowed to call its protected methods,
+        // but this runs in an OSGI environment, and the superclass is part of a different bundle, so no luck here
+        // (keyword: split package).
+        // Note to future self: Please forgive me if you ever need to touch this code again
+        Class poorInnocentClass = classExpression.getClass();
 
-            Arrays.asList(indexMethod, compareObjectOfSameTypeMethod).forEach(method -> method.setAccessible(true));
+        indexMethod = getMethod(poorInnocentClass,"index");
+        compareObjectOfSameTypeMethod = getMethod(poorInnocentClass,"compareObjectOfSameType", OWLObject.class);
 
-        } catch (ClassCastException | NoSuchMethodException ex) {
-            ex.printStackTrace();
-        }
+        Arrays.asList(indexMethod, compareObjectOfSameTypeMethod).forEach(method -> method.setAccessible(true));
+
     }
 
     @Override
@@ -114,5 +121,63 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     @Override
     public void addAnonymousIndividualsToSet(@Nonnull Set<OWLAnonymousIndividual> anons) {
         ceDelegate.addAnonymousIndividualsToSet(anons);
+    }
+
+    private Method getMethod(Class clazz, String name, Class<?>... parameterTypes) {
+        NameParameterTypesTuple key = new NameParameterTypesTuple(clazz, name, parameterTypes);
+        Method result = methodCache.get(key);
+        if (result == null) {
+            result = lookupMethod(clazz, name, parameterTypes);
+            if (result != null) {
+                methodCache.put(key, result);
+                result.setAccessible(true);
+            }
+        }
+        return result;
+    }
+
+    private Method lookupMethod(Class clazz, String name, Class<?>... parameterTypes) {
+        if (clazz == Object.class)
+            return null;
+
+        try {
+            Method result = clazz.getDeclaredMethod(name, parameterTypes);
+            if (result == null) {
+                return lookupMethod(clazz.getSuperclass(), name, parameterTypes);
+            }
+            return result;
+        } catch (NoSuchMethodException e) {
+            return lookupMethod(clazz.getSuperclass(), name, parameterTypes);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private class NameParameterTypesTuple {
+
+        private Class clazz;
+        private String name;
+        private Class<?>[] parameterTypes;
+
+        public NameParameterTypesTuple(@Nonnull Class<?> clazz, @Nonnull String name, @Nonnull Class<?>[] parameterTypes) {
+            this.clazz = clazz;
+            this.name = name;
+            this.parameterTypes = parameterTypes;
+        }
+
+        @Override
+        public int hashCode() {
+            return 37 * (37 * (37 * 137 + clazz.hashCode()) + name.hashCode()) + parameterTypes.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof  NameParameterTypesTuple) {
+                NameParameterTypesTuple other = (NameParameterTypesTuple)obj;
+                return this.name.equals(other.name) && this.parameterTypes.equals(other.parameterTypes);
+            }
+            return false;
+        }
     }
 }
