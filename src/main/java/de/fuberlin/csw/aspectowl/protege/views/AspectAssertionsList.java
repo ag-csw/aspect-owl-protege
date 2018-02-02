@@ -132,7 +132,7 @@ public class AspectAssertionsList extends MList {
                 return owlObjectComparator.compare(a1, a2);
             });
             for (OWLAspectAssertionAxiom aspect : aspects){
-                data.add(new AspectAssertionsList.AspectAssertionsListItem(aspect));
+                data.add(new AspectAssertionsList.AspectAssertionsListItem(root.getOntology(), aspect));
             }
         }
 
@@ -185,6 +185,7 @@ public class AspectAssertionsList extends MList {
                 OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspect, Collections.EMPTY_SET);
                 editorKit.getModelManager().applyChange(new AddAxiom(ontology, aspectAssertionAxiom));
             }
+            refresh();
         }
     }
 
@@ -204,7 +205,8 @@ public class AspectAssertionsList extends MList {
 
         private OWLAspectAssertionAxiom aspectAssertionAxiom;
 
-        public AspectAssertionsListItem(OWLAspectAssertionAxiom aspectAssertionAxiom) {
+        public AspectAssertionsListItem(OWLOntology ontology, OWLAspectAssertionAxiom aspectAssertionAxiom) {
+            this.ontology = ontology;
             this.aspectAssertionAxiom = aspectAssertionAxiom;
         }
 
@@ -249,6 +251,7 @@ public class AspectAssertionsList extends MList {
 
         public boolean handleDelete() {
             editorKit.getModelManager().applyChange(new RemoveAxiom(ontology, aspectAssertionAxiom));
+            refresh();
             return true;
         }
 
