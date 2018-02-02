@@ -343,7 +343,7 @@
 						<configuration>
 							<executable>osascript</executable>
 							<arguments>
-								<argument>build/helpers/stop-protege.scpt</argument>
+								<argument>build/helpers/stop-protege.applescript</argument>
 							</arguments>
 							<successCodes>
 								<code>0</code>
