@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -167,17 +168,20 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
         }
 
         @Override
-        public int hashCode() {
-            return 37 * (37 * (37 * 137 + clazz.hashCode()) + name.hashCode()) + parameterTypes.hashCode();
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof NameParameterTypesTuple)) return false;
+            NameParameterTypesTuple that = (NameParameterTypesTuple) o;
+            return Objects.equals(clazz, that.clazz) &&
+                    Objects.equals(name, that.name) &&
+                    Arrays.equals(parameterTypes, that.parameterTypes);
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof  NameParameterTypesTuple) {
-                NameParameterTypesTuple other = (NameParameterTypesTuple)obj;
-                return this.name.equals(other.name) && this.parameterTypes.equals(other.parameterTypes);
-            }
-            return false;
+        public int hashCode() {
+            int result = Objects.hash(clazz, name);
+            result = 31 * result + Arrays.hashCode(parameterTypes);
+            return result;
         }
     }
 }

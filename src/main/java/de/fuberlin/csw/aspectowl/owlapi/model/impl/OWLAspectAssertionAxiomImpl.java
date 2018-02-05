@@ -9,6 +9,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLLogicalAxiomImplWithEntityAndAnonCachin
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAndAnonCaching implements OWLAspectAssertionAxiom {
@@ -96,15 +97,18 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof  OWLAspectAssertionAxiom))
-            return false;
-        OWLAspectAssertionAxiom other = (OWLAspectAssertionAxiom)obj;
-        return getAspect().equals(other.getAspect()) && getAxiom().equals(other.getAxiom());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OWLAspectAssertionAxiomImpl)) return false;
+        if (!super.equals(o)) return false;
+        OWLAspectAssertionAxiomImpl that = (OWLAspectAssertionAxiomImpl) o;
+        return Objects.equals(ontology, that.ontology) &&
+                Objects.equals(joinPointAxiom, that.joinPointAxiom) &&
+                Objects.equals(aspect, that.aspect);
     }
 
     @Override
     public int hashCode() {
-        return 37 * (37 * (37 * 137 + ontology.hashCode()) + joinPointAxiom.hashCode()) + aspect.hashCode();
+        return Objects.hash(super.hashCode(), ontology, joinPointAxiom, aspect);
     }
 }

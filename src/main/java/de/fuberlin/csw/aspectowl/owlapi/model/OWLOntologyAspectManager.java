@@ -128,16 +128,17 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof  OntologyAxiomTuple))
-                return false;
-            OntologyAxiomTuple other = (OntologyAxiomTuple)obj;
-            return this.ontology.equals(other.ontology) && this.axiom.equals(other.axiom);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            OntologyAxiomTuple that = (OntologyAxiomTuple) o;
+            return Objects.equals(ontology, that.ontology) &&
+                    Objects.equals(axiom, that.axiom);
         }
 
         @Override
         public int hashCode() {
-            return ontology.hashCode() * 37 + axiom.hashCode();
+            return Objects.hash(ontology, axiom);
         }
     }
 }
