@@ -232,11 +232,11 @@ public class AspectAssertionsList extends MList {
             int ret = uiHelper.showValidatingDialog("Axiom Aspect", editor.getEditorComponent(), null);
 
             if (ret == JOptionPane.OK_OPTION) {
-                OWLAspect newAspect = (OWLAspect) editor.getEditedObject();
-                if (newAspect != null && !newAspect.equals(originalAspect)){
+                OWLClassExpression newAspect =  editor.getEditedObject();
+                if (newAspect != null && !newAspect.equals(originalAspect)) {
                     ArrayList<OWLOntologyChange> changes = new ArrayList<>(2);
                     changes.add(new RemoveAxiom(ontology, aspectAssertionAxiom));
-                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), newAspect, aspectAssertionAxiom.getAnnotations())));
+                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspectManager.getAspect(ontology, getRoot().getAxiom(), newAspect), aspectAssertionAxiom.getAnnotations())));
 
 //                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
                     editorKit.getModelManager().applyChanges(changes);
