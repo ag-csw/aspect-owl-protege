@@ -70,18 +70,28 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
 
     @Override
     protected int compareObjectOfSameType(@Nonnull OWLObject object) {
-
-        return 0;
+        OWLAspectAssertionAxiomImpl otherAx = (OWLAspectAssertionAxiomImpl) object;
+        int diff = getAxiom().compareTo(otherAx.getAxiom());
+        if (diff != 0) {
+            return diff;
+        } else {
+            return getAspect().compareTo(otherAx.getAspect());
+        }
     }
 
     @Override
     public void accept(@Nonnull OWLObjectVisitor visitor) {
-
+        if (visitor instanceof OWLAspectAxiomVisitor) {
+            ((OWLAspectAxiomVisitor) visitor).visit(this);
+        }
     }
 
     @Nonnull
     @Override
     public <O> O accept(@Nonnull OWLObjectVisitorEx<O> visitor) {
+        if (visitor instanceof OWLAspectAxiomVisitorEx) {
+            return ((OWLAspectAxiomVisitorEx<O>) visitor).visit(this);
+        }
         return null;
     }
 }
