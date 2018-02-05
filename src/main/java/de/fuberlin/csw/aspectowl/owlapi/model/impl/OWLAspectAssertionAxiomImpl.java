@@ -94,4 +94,17 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof  OWLAspectAssertionAxiom))
+            return false;
+        OWLAspectAssertionAxiom other = (OWLAspectAssertionAxiom)obj;
+        return getAspect().equals(other.getAspect()) && getAxiom().equals(other.getAxiom());
+    }
+
+    @Override
+    public int hashCode() {
+        return 37 * (37 * (37 * 137 + ontology.hashCode()) + joinPointAxiom.hashCode()) + aspect.hashCode();
+    }
 }
