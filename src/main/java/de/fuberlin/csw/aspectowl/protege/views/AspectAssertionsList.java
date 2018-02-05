@@ -241,6 +241,7 @@ public class AspectAssertionsList extends MList {
 //                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
                     editorKit.getModelManager().applyChanges(changes);
                 }
+                refresh();
             }
         }
 

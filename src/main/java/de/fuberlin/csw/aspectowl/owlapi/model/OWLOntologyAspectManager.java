@@ -60,8 +60,8 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet());
     }
 
-    public void removeAspectAssertionAxiom(OWLOntology ontology, OWLAxiom jointPointAxiom, OWLAspectAssertionAxiom aspectAssertionAxiom) {
-        Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, jointPointAxiom))).orElse(Collections.emptySet()).remove(aspectAssertionAxiom);
+    public void removeAspectAssertionAxiom(OWLOntology ontology, OWLAspectAssertionAxiom aspectAssertionAxiom) {
+        Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, aspectAssertionAxiom.getAxiom()))).orElse(Collections.emptySet()).remove(aspectAssertionAxiom);
     }
 
     public boolean hasAssertedAspects(OWLOntology ontology, OWLAxiom joinPointAxiom) {
@@ -107,7 +107,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     public void visit(RemoveAxiom change) {
         OWLAxiom axiom = change.getAxiom();
         if (axiom instanceof OWLAspectAssertionAxiom) {
-            aspectsForObject.remove(new OntologyAxiomTuple(change.getOntology(), change.getAxiom()));
+            removeAspectAssertionAxiom(change.getOntology(), ((OWLAspectAssertionAxiom) axiom));
         }
     }
 
