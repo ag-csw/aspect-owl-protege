@@ -11,7 +11,6 @@ import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.ui.OWLClassExpressionComparator;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.editor.OWLClassDescriptionEditor;
-import org.protege.editor.owl.ui.editor.OWLObjectEditor;
 import org.protege.editor.owl.ui.renderer.OWLCellRenderer;
 import org.semanticweb.owlapi.model.*;
 
@@ -171,11 +170,13 @@ public class AspectAssertionsList extends MList {
     protected void handleAdd() {
         // don't need to check the section as only the direct imports can be added
         if (editor == null){
-            editor = editorKit.getWorkspace().getOWLComponentFactory().getOWLClassDescriptionEditor(null, AxiomType.EQUIVALENT_CLASSES);
+            editor = editorKit.getWorkspace().getOWLComponentFactory().getOWLClassDescriptionEditor(null, OWL_AXIOM_ASSERTION_AXIOM_TYPE);
         }
 
+        editor.setEditedObject(null);
+
         UIHelper uiHelper = new UIHelper(editorKit);
-        int ret = uiHelper.showValidatingDialog("Create Aspect", editor.getEditorComponent(), null);
+        int ret = uiHelper.showDialog("Create Aspect", editor.getEditorComponent(), null);
 
         if (ret == JOptionPane.OK_OPTION) {
             OWLClassExpression expression = editor.getEditedObject();
