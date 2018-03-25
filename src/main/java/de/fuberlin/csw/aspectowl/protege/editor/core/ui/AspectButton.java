@@ -2,6 +2,7 @@ package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import org.protege.editor.core.ui.list.MListButton;
+import org.protege.editor.owl.ui.renderer.OWLRendererPreferences;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 
@@ -41,16 +42,18 @@ public class AspectButton extends MListButton {
         int x = getBounds().x;
         int y = getBounds().y;
 
-//        Font font = g.getFont().deriveFont(Font.BOLD, OWLRendererPreferences.getInstance().getFontSize());
-        Font font = g.getFont().deriveFont(Font.BOLD, 12);
+        Font font = g.getFont().deriveFont(Font.BOLD, OWLRendererPreferences.getInstance().getFontSize());
+//        Font font = g.getFont().deriveFont(Font.BOLD, 12);
         g.setFont(font);
         FontMetrics fontMetrics = g.getFontMetrics(font);
         final Rectangle stringBounds = fontMetrics.getStringBounds(ASPECT_STRING, g).getBounds();
         int baseline = fontMetrics.getLeading() + fontMetrics.getAscent();
 
-        g.drawString(ASPECT_STRING, x + w / 2 - stringBounds.width / 2, y + (h - stringBounds.height) / 2 + baseline );
+        // thought about having different font colors for asserted and inferred axioms, but
+        // Protege's built-in buttons do not have that, so I won't add it
+//        g.setColor(ontology == null ? Color.RED : g.getColor());
 
-        g.setFont(font);
+        g.drawString(ASPECT_STRING, x + w / 2 - stringBounds.width / 2, y + (h - stringBounds.height) / 2 + baseline );
     }
 
     @Override
