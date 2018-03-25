@@ -19,6 +19,7 @@ import org.semanticweb.owlapi.util.*;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import java.io.IOException;
 import org.semanticweb.owlapi.io.OWLParserException;
+import de.fuberlin.csw.aspectowl.owlapi.model.*;
 
 @SuppressWarnings("all")
 public class AspectOWLFunctionalSyntaxParser {
