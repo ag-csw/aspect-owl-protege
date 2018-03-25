@@ -7,7 +7,7 @@ options {
     SUPPORT_CLASS_VISIBILITY_PUBLIC=false;
 }
 
-PARSER_BEGIN(OWLFunctionalSyntaxParser)
+PARSER_BEGIN(AspectOWLFunctionalSyntaxParser)
 
 package org.semanticweb.owlapi.functional.parser;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.semanticweb.owlapi.io.OWLParserException;
 
 @SuppressWarnings("all")
-public class OWLFunctionalSyntaxParser {
+public class AspectOWLFunctionalSyntaxParser {
     private OWLOntologyManager man;
     private OWLOntologyLoaderConfiguration configuration;
     private OWLOntology ontology;
@@ -94,7 +94,7 @@ public class OWLFunctionalSyntaxParser {
     }
 }
 
-PARSER_END(OWLFunctionalSyntaxParser)
+PARSER_END(AspectOWLFunctionalSyntaxParser)
 
 SKIP: {" " | "\n" | "\t" | "\r"}
 MORE: { <COMMENT_START: "#"> : IN_COMMENT }
@@ -1250,10 +1250,10 @@ SWRLDArgument DArg() :
 OWLAspect Aspect() :
 {
   	OWLAdvice advice;
-	Set<OWLAnnotation> annos = new HashSet<>();
+	Set<OWLAnnotation> annos = new HashSet<OWLAnnotation>();
 	OWLAnnotation anno;
 }
-{ (<ASPECT><OPENPAR> ((anno=Annotation(){annos.add(anno)})*) advice=Advice()<CLOSEPAR>) { return df.getOWLAspect(advice, annos); } }
+{ (<ASPECT><OPENPAR> ((anno=Annotation(){annos.add(anno);})*) advice=Advice()<CLOSEPAR>) { return df.getOWLAspect(advice, annos); } }
 
 OWLAspectAssertionAxiom AspectAssertion() :
 {
@@ -1261,14 +1261,21 @@ OWLAspectAssertionAxiom AspectAssertion() :
   	OWLAdvice advice;
 	Set<OWLAnnotation> axiomAnnos;
 }
-{ <ASPECTASSERTION><OPENPAR>axiomAnnos=AxiomAnnotationSet() joinPoint=JoinPoint() advice=advice()<CLOSEPAR> { return df.getOWLAspectAssertionAxiom(joinPoint, advice, axiomAnnos); } }
+{ <ASPECTASSERTION><OPENPAR>axiomAnnos=AxiomAnnotationSet() joinPoint=JoinPoint() advice=Advice()<CLOSEPAR> { return df.getOWLAspectAssertionAxiom(joinPoint, advice, axiomAnnos); } }
 
 Set<OWLAspect> AspectSet() :
 {
-	Set<OWLAspect> aspects = new HashSet<>();
+	Set<OWLAspect> aspects = new HashSet<OWLAspect>();
 	OWLAspect aspectAssertionAxiom;
 }
 { (aspectAssertionAxiom=Aspect(){ aspects.add(aspectAssertionAxiom); })* { return aspects; } }
+
+Set<OWLAspect> AxiomAspectSet() :
+{
+    Set<OWLAspect> aspects = new HashSet<OWLAspect>();
+    OWLAspect aspect;
+}
+{ (aspect=Aspect(){ aspects.add(aspect); })*{ return aspects; } }
 
 OWLJoinPoint JoinPoint() :
 {
@@ -1308,7 +1315,7 @@ OWLModulePointcut ModulePointcut() :
 Set<OWLEntity> Signature() :
 {
 	OWLEntity iri;
-	Set<OWLEntity> signature = new HashSet<>(); 
+	Set<OWLEntity> signature = new HashSet<OWLEntity>();
 }
 { (iri=EntityIRI(){ signature.add(iri); })* { return signature; } }
 
