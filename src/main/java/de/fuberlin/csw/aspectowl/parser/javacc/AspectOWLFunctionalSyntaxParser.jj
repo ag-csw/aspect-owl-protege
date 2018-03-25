@@ -9,7 +9,7 @@ options {
 
 PARSER_BEGIN(AspectOWLFunctionalSyntaxParser)
 
-package org.semanticweb.owlapi.functional.parser;
+package de.fuberlin.csw.aspectowl.parser.javacc;
 
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.*;

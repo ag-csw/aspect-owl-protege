@@ -30,8 +30,8 @@ public class AspectOrientedOntologyPreSaveChecker extends IOListener {
 	 * Checks whether there are aspects in the current ontology and invokes the
 	 * translation to aspect syntax.
 	 * 
-	 * This gets called BEFORE the format selection dialog is displayes, which
-	 * is a bit unfortunate, since we only need this of saving in OFN format.
+	 * This gets called BEFORE the format selection dialog is displays, which
+	 * is a bit unfortunate, since we only need this uf saving in OFN format.
 	 * 
 	 * Then again, we could ask the user if he/she wants to save in the aofn
 	 * format if aspects are present.
@@ -42,7 +42,8 @@ public class AspectOrientedOntologyPreSaveChecker extends IOListener {
 		
 		OWLOntology ontologyToSave = om.getOntology(event.getOntologyID());
 		
-		// search ontology for occurence of aspects and intercept normal saving
+		// TODO search ontology for occurence of aspects and intercept normal saving
+		// github issue #5 z
 	}
 
 	@Override
