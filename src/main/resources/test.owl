@@ -25,7 +25,18 @@ Declaration(NamedIndividual(:I3))
 
 EquivalentClasses(:A :B)
 
+# Class: :C (:C)
 
+EquivalentClasses(:C ObjectSomeValuesFrom(:r owl:Thing))
+
+
+############################
+#   Named Individuals
+############################
+
+# Individual: :I1 (:I1)
+
+ObjectPropertyAssertion(:r :I1 :I2)
 
 
 )
