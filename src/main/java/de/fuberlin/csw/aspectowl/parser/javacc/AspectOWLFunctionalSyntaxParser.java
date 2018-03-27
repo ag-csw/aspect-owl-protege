@@ -10,6 +10,7 @@ import org.semanticweb.owlapi.util.*;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import java.io.IOException;
 import org.semanticweb.owlapi.io.OWLParserException;
+import de.fuberlin.csw.aspectowl.owlapi.model.*;
 
 @SuppressWarnings("all")
 public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSyntaxParserConstants {
@@ -23,13 +24,14 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
     private boolean ignoreAnnotationsAndDeclarations = false;
     private Set<OWLAnnotation> currentAnnotations;
     protected RemappingIndividualProvider anonProvider;
+    private OWLOntologyAspectManager am;
 
     public void setUp(OWLOntology ontology, OWLOntologyLoaderConfiguration configuration) {
         this.man = ontology.getOWLOntologyManager();
         this.ontology = ontology;
         this.configuration = configuration;
         this.df = man.getOWLDataFactory();
-        anonProvider=new RemappingIndividualProvider(man.getOntologyConfigurator(), df);
+        anonProvider=new RemappingIndividualProvider(df);
         this.currentAnnotations = new HashSet<OWLAnnotation>();
         if(prefixMap == null) {
             prefixMap = new HashMap<String, String>();
@@ -40,6 +42,7 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
             prefixMap.put("xsd:", Namespaces.XSD.toString());
         }
         string2IRI = new HashMap<String, IRI>();
+        this.am = OWLOntologyAspectManager.instance();
     }
 
     public IRI getIRI(String s) {
@@ -73,7 +76,8 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
 
     protected void addAxiom(OWLAxiom ax) {
         if (!(ax instanceof OWLAnnotationAxiom) || configuration.isLoadAnnotationAxioms()) {
-            ontology.addAxiom(ax);
+            AddAxiom addAxiom = new AddAxiom(ontology, ax);
+            applyChange(addAxiom);
         }
     }
 
@@ -84,16 +88,19 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
         prefixMap.putAll(nsm.getPrefixName2PrefixMap());
     }
 
+    private void addAspects(OWLAxiom joinPointAxiom, Set<OWLAspect> aspects, Set<OWLAnnotation> annotations) {
+        for (OWLAspect aspect : aspects) {
+            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, joinPointAxiom, aspect, annotations);
+            am.addAspect(ontology, joinPointAxiom, aspectAssertionAxiom);
+        }
+    }
+
   final public FunctionalSyntaxDocumentFormat parse() throws ParseException, OWLParserException, UnloadableImportException {
     label_1:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case PREFIX:{
+      if (jj_2_1(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[0] = jj_gen;
+      } else {
         break label_1;
       }
       Prefix();
@@ -115,116 +122,47 @@ FunctionalSyntaxDocumentFormat format = new FunctionalSyntaxDocumentFormat();
     IRI versionIRI = null;
     jj_consume_token(ONTOLOGY);
     jj_consume_token(OPENPAR);
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_3(2)) {
       ontologyIRI = IRI();
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_2(2)) {
         versionIRI = IRI();
-        break;
-        }
-      default:
-        jj_la1[1] = jj_gen;
+      } else {
         ;
       }
-      break;
-      }
-    default:
-      jj_la1[2] = jj_gen;
+    } else {
       ;
     }
 OWLOntologyID id = new OWLOntologyID(ontologyIRI, versionIRI);
         applyChange(new SetOntologyID(ontology, id));
     label_2:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case IMPORT:
-      case ANNOTATION:
-      case SPARQLPOINTCUT:
-      case MODULEPOINTCUT:
-      case DLQUERYPOINTCUT:{
+      if (jj_2_4(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[3] = jj_gen;
+      } else {
         break label_2;
       }
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case IMPORT:{
+      if (jj_2_5(2)) {
         decl = ImportsDeclaration();
 applyChange(new AddImport(ontology, decl));
         man.makeLoadImportRequest(decl, configuration);
-        break;
-        }
-      case ANNOTATION:{
+      } else if (jj_2_6(2)) {
         anno = Annotation();
 applyChange(new AddOntologyAnnotation(ontology, anno));
         currentAnnotations.clear();
-        break;
-        }
-      case SPARQLPOINTCUT:
-      case MODULEPOINTCUT:
-      case DLQUERYPOINTCUT:{
+      } else if (jj_2_7(2)) {
         pointcut = Pointcut();
 applyChange(new AddOntologyPointcut(ontology, pointcut));
         currentAnnotations.clear();
-        break;
-        }
-      default:
-        jj_la1[4] = jj_gen;
+      } else {
         jj_consume_token(-1);
         throw new ParseException();
       }
     }
     label_3:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SUBCLASSOF:
-      case EQUIVALENTCLASSES:
-      case DISJOINTCLASSES:
-      case DISJOINTUNION:
-      case ANNOTATIONASSERTION:
-      case SUBANNOTATIONPROPERTYOF:
-      case ANNOTATIONPROPERTYDOMAIN:
-      case ANNOTATIONPROPERTYRANGE:
-      case HASKEY:
-      case DECLARATION:
-      case INVERSEOBJECTPROPERTIES:
-      case DATATYPEDEFINITION:
-      case SUBOBJECTPROPERTYOF:
-      case EQUIVALENTOBJECTPROPERTIES:
-      case DISJOINTOBJECTPROPERTIES:
-      case OBJECTPROPERTYDOMAIN:
-      case OBJECTPROPERTYRANGE:
-      case FUNCTIONALOBJECTPROPERTY:
-      case INVERSEFUNCTIONALOBJECTPROPERTY:
-      case REFLEXIVEOBJECTPROPERTY:
-      case IRREFLEXIVEOBJECTPROPERTY:
-      case SYMMETRICOBJECTPROPERTY:
-      case ASYMMETRICOBJECTPROPERTY:
-      case TRANSITIVEOBJECTPROPERTY:
-      case SUBDATAPROPERTYOF:
-      case EQUIVALENTDATAPROPERTIES:
-      case DISJOINTDATAPROPERTIES:
-      case DATAPROPERTYDOMAIN:
-      case DATAPROPERTYRANGE:
-      case FUNCTIONALDATAPROPERTY:
-      case SAMEINDIVIDUAL:
-      case DIFFERENTINDIVIDUALS:
-      case CLASSASSERTION:
-      case OBJECTPROPERTYASSERTION:
-      case NEGATIVEOBJECTPROPERTYASSERTION:
-      case DATAPROPERTYASSERTION:
-      case NEGATIVEDATAPROPERTYASSERTION:
-      case DLSAFERULE:{
+      if (jj_2_8(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[5] = jj_gen;
+      } else {
         break label_3;
       }
       ax = Axiom();
@@ -246,17 +184,11 @@ prefixMap.put(prefixName, iri.toString());
   }
 
   final public IRI IRI() throws ParseException {IRI iri;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:{
+    if (jj_2_9(2)) {
       iri = FullIRI();
-      break;
-      }
-    case PNAME_LN:{
+    } else if (jj_2_10(2)) {
       iri = AbbreviatedIRI();
-      break;
-      }
-    default:
-      jj_la1[6] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -289,82 +221,43 @@ prefixMap.put(prefixName, iri.toString());
 /////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLClassExpression ClassExpression() throws ParseException {OWLClassExpression desc;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_11(2)) {
       desc = ClassIRI();
-      break;
-      }
-    case OBJECTUNIONOF:{
+    } else if (jj_2_12(2)) {
       desc = ObjectUnionOf();
-      break;
-      }
-    case OBJECTINTERSECTIONOF:{
+    } else if (jj_2_13(2)) {
       desc = ObjectIntersectionOf();
-      break;
-      }
-    case OBJECTCOMPLEMENTOF:{
+    } else if (jj_2_14(2)) {
       desc = ObjectComplementOf();
-      break;
-      }
-    case OBJECTONEOF:{
+    } else if (jj_2_15(2)) {
       desc = ObjectOneOf();
-      break;
-      }
-    case OBJECTSOMEVALUESFROM:{
+    } else if (jj_2_16(2)) {
       desc = ObjectSomeValuesFrom();
-      break;
-      }
-    case OBJECTALLVALUESFROM:{
+    } else if (jj_2_17(2)) {
       desc = ObjectAllValuesFrom();
-      break;
-      }
-    case OBJECTHASVALUE:{
+    } else if (jj_2_18(2)) {
       desc = ObjectHasValue();
-      break;
-      }
-    case OBJECTHASSELF:{
+    } else if (jj_2_19(2)) {
       desc = ObjectSelf();
-      break;
-      }
-    case OBJECTMINCARDINALITY:{
+    } else if (jj_2_20(2)) {
       desc = ObjectMinCardinality();
-      break;
-      }
-    case OBJECTEXACTCARDINALITY:{
+    } else if (jj_2_21(2)) {
       desc = ObjectExactCardinality();
-      break;
-      }
-    case OBJECTMAXCARDINALITY:{
+    } else if (jj_2_22(2)) {
       desc = ObjectMaxCardinality();
-      break;
-      }
-    case DATASOMEVALUESFROM:{
+    } else if (jj_2_23(2)) {
       desc = DataSomeValuesFrom();
-      break;
-      }
-    case DATAALLVALUESFROM:{
+    } else if (jj_2_24(2)) {
       desc = DataAllValuesFrom();
-      break;
-      }
-    case DATAHASVALUE:{
+    } else if (jj_2_25(2)) {
       desc = DataHasValue();
-      break;
-      }
-    case DATAMINCARDINALITY:{
+    } else if (jj_2_26(2)) {
       desc = DataMinCardinality();
-      break;
-      }
-    case DATAEXACTCARDINALITY:{
+    } else if (jj_2_27(2)) {
       desc = DataExactCardinality();
-      break;
-      }
-    case DATAMAXCARDINALITY:{
+    } else if (jj_2_28(2)) {
       desc = DataMaxCardinality();
-      break;
-      }
-    default:
-      jj_la1[7] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -386,31 +279,9 @@ classExpressions.add(desc);
 classExpressions.add(desc);
     label_4:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case OBJECTONEOF:
-      case OBJECTUNIONOF:
-      case OBJECTHASVALUE:
-      case OBJECTINTERSECTIONOF:
-      case OBJECTCOMPLEMENTOF:
-      case OBJECTALLVALUESFROM:
-      case OBJECTSOMEVALUESFROM:
-      case OBJECTHASSELF:
-      case OBJECTMINCARDINALITY:
-      case OBJECTMAXCARDINALITY:
-      case OBJECTEXACTCARDINALITY:
-      case DATAALLVALUESFROM:
-      case DATASOMEVALUESFROM:
-      case DATAHASVALUE:
-      case DATAMINCARDINALITY:
-      case DATAMAXCARDINALITY:
-      case DATAEXACTCARDINALITY:
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_29(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[8] = jj_gen;
+      } else {
         break label_4;
       }
       desc = ClassExpression();
@@ -426,15 +297,9 @@ classExpressions.add(desc);
 individuals.add(ind);
     label_5:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:
-      case NODEID:{
+      if (jj_2_30(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[9] = jj_gen;
+      } else {
         break label_5;
       }
       ind = Individual();
@@ -529,31 +394,9 @@ individuals.add(ind);
     jj_consume_token(OPENPAR);
     cardinality = Cardinality();
     prop = ObjectPropertyExpression();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case OBJECTONEOF:
-    case OBJECTUNIONOF:
-    case OBJECTHASVALUE:
-    case OBJECTINTERSECTIONOF:
-    case OBJECTCOMPLEMENTOF:
-    case OBJECTALLVALUESFROM:
-    case OBJECTSOMEVALUESFROM:
-    case OBJECTHASSELF:
-    case OBJECTMINCARDINALITY:
-    case OBJECTMAXCARDINALITY:
-    case OBJECTEXACTCARDINALITY:
-    case DATAALLVALUESFROM:
-    case DATASOMEVALUESFROM:
-    case DATAHASVALUE:
-    case DATAMINCARDINALITY:
-    case DATAMAXCARDINALITY:
-    case DATAEXACTCARDINALITY:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_31(2)) {
       filler = ClassExpression();
-      break;
-      }
-    default:
-      jj_la1[10] = jj_gen;
+    } else {
       ;
     }
     jj_consume_token(CLOSEPAR);
@@ -571,31 +414,9 @@ if(filler == null) {
     jj_consume_token(OPENPAR);
     cardinality = Cardinality();
     prop = ObjectPropertyExpression();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case OBJECTONEOF:
-    case OBJECTUNIONOF:
-    case OBJECTHASVALUE:
-    case OBJECTINTERSECTIONOF:
-    case OBJECTCOMPLEMENTOF:
-    case OBJECTALLVALUESFROM:
-    case OBJECTSOMEVALUESFROM:
-    case OBJECTHASSELF:
-    case OBJECTMINCARDINALITY:
-    case OBJECTMAXCARDINALITY:
-    case OBJECTEXACTCARDINALITY:
-    case DATAALLVALUESFROM:
-    case DATASOMEVALUESFROM:
-    case DATAHASVALUE:
-    case DATAMINCARDINALITY:
-    case DATAMAXCARDINALITY:
-    case DATAEXACTCARDINALITY:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_32(2)) {
       filler = ClassExpression();
-      break;
-      }
-    default:
-      jj_la1[11] = jj_gen;
+    } else {
       ;
     }
     jj_consume_token(CLOSEPAR);
@@ -613,31 +434,9 @@ if(filler == null) {
     jj_consume_token(OPENPAR);
     cardinality = Cardinality();
     prop = ObjectPropertyExpression();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case OBJECTONEOF:
-    case OBJECTUNIONOF:
-    case OBJECTHASVALUE:
-    case OBJECTINTERSECTIONOF:
-    case OBJECTCOMPLEMENTOF:
-    case OBJECTALLVALUESFROM:
-    case OBJECTSOMEVALUESFROM:
-    case OBJECTHASSELF:
-    case OBJECTMINCARDINALITY:
-    case OBJECTMAXCARDINALITY:
-    case OBJECTEXACTCARDINALITY:
-    case DATAALLVALUESFROM:
-    case DATASOMEVALUESFROM:
-    case DATAHASVALUE:
-    case DATAMINCARDINALITY:
-    case DATAMAXCARDINALITY:
-    case DATAEXACTCARDINALITY:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_33(2)) {
       filler = ClassExpression();
-      break;
-      }
-    default:
-      jj_la1[12] = jj_gen;
+    } else {
       ;
     }
     jj_consume_token(CLOSEPAR);
@@ -688,19 +487,9 @@ if(filler == null) {
     jj_consume_token(OPENPAR);
     cardinality = Cardinality();
     prop = DataPropertyExpression();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case DATAONEOF:
-    case DATAUNIONOF:
-    case DATAINTERSECTIONOF:
-    case DATACOMPLEMENTOF:
-    case DATATYPERESTRICTION:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_34(2)) {
       rng = DataRange();
-      break;
-      }
-    default:
-      jj_la1[13] = jj_gen;
+    } else {
       ;
     }
     jj_consume_token(CLOSEPAR);
@@ -718,19 +507,9 @@ if(rng == null) {
     jj_consume_token(OPENPAR);
     cardinality = Cardinality();
     prop = DataPropertyExpression();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case DATAONEOF:
-    case DATAUNIONOF:
-    case DATAINTERSECTIONOF:
-    case DATACOMPLEMENTOF:
-    case DATATYPERESTRICTION:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_35(2)) {
       rng = DataRange();
-      break;
-      }
-    default:
-      jj_la1[14] = jj_gen;
+    } else {
       ;
     }
     jj_consume_token(CLOSEPAR);
@@ -748,19 +527,9 @@ if(rng == null) {
     jj_consume_token(OPENPAR);
     cardinality = Cardinality();
     prop = DataPropertyExpression();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case DATAONEOF:
-    case DATAUNIONOF:
-    case DATAINTERSECTIONOF:
-    case DATACOMPLEMENTOF:
-    case DATATYPERESTRICTION:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_36(2)) {
       rng = DataRange();
-      break;
-      }
-    default:
-      jj_la1[15] = jj_gen;
+    } else {
       ;
     }
     jj_consume_token(CLOSEPAR);
@@ -781,18 +550,11 @@ if(rng == null) {
   }
 
   final public OWLObjectPropertyExpression ObjectPropertyExpression() throws ParseException {OWLObjectPropertyExpression prop;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case OBJECTINVERSEOF:{
+    if (jj_2_37(2)) {
       prop = InverseObjectProperty();
-      break;
-      }
-    case FULLIRI:
-    case PNAME_LN:{
+    } else if (jj_2_38(2)) {
       prop = ObjectPropertyIRI();
-      break;
-      }
-    default:
-      jj_la1[16] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -907,39 +669,23 @@ if(rng == null) {
     datatype = DatatypeIRI();
     dr = DataRange();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDatatypeDefinitionAxiom(datatype, dr, axAnnos, aspects);}
-    throw new Error("Missing return statement in function");
+OWLDatatypeDefinitionAxiom result = df.getOWLDatatypeDefinitionAxiom(datatype, dr, axAnnos);
   }
 
   final public OWLDataRange DataRange() throws ParseException {OWLDataRange rng;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_39(2)) {
       rng = DatatypeIRI();
-      break;
-      }
-    case DATAONEOF:{
+    } else if (jj_2_40(2)) {
       rng = DataOneOf();
-      break;
-      }
-    case DATACOMPLEMENTOF:{
+    } else if (jj_2_41(2)) {
       rng = DataComplementOf();
-      break;
-      }
-    case DATATYPERESTRICTION:{
+    } else if (jj_2_42(2)) {
       rng = DataRangeRestriction();
-      break;
-      }
-    case DATAINTERSECTIONOF:{
+    } else if (jj_2_43(2)) {
       rng = DataIntersectionOf();
-      break;
-      }
-    case DATAUNIONOF:{
+    } else if (jj_2_44(2)) {
       rng = DataUnionOf();
-      break;
-      }
-    default:
-      jj_la1[17] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -965,13 +711,9 @@ if(rng == null) {
     while (true) {
       con = Literal();
 values.add(con);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case STRINGLITERAL:{
+      if (jj_2_45(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[18] = jj_gen;
+      } else {
         break label_6;
       }
     }
@@ -988,19 +730,9 @@ values.add(con);
     while (true) {
       dataRange = DataRange();
 ranges.add(dataRange);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case DATAONEOF:
-      case DATAUNIONOF:
-      case DATAINTERSECTIONOF:
-      case DATACOMPLEMENTOF:
-      case DATATYPERESTRICTION:
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_46(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[19] = jj_gen;
+      } else {
         break label_7;
       }
     }
@@ -1017,19 +749,9 @@ ranges.add(dataRange);
     while (true) {
       dataRange = DataRange();
 ranges.add(dataRange);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case DATAONEOF:
-      case DATAUNIONOF:
-      case DATAINTERSECTIONOF:
-      case DATACOMPLEMENTOF:
-      case DATATYPERESTRICTION:
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_47(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[20] = jj_gen;
+      } else {
         break label_8;
       }
     }
@@ -1049,14 +771,9 @@ ranges.add(dataRange);
     while (true) {
       fr = DataRangeFacetRestriction();
 frs.add(fr);
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_48(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[21] = jj_gen;
+      } else {
         break label_9;
       }
     }
@@ -1080,74 +797,25 @@ frs.add(fr);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLAxiom Axiom() throws ParseException {OWLAxiom ax;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SUBCLASSOF:
-    case EQUIVALENTCLASSES:
-    case DISJOINTCLASSES:
-    case DISJOINTUNION:{
+    if (jj_2_49(2)) {
       ax = ClassAxiom();
-      break;
-      }
-    case INVERSEOBJECTPROPERTIES:
-    case SUBOBJECTPROPERTYOF:
-    case EQUIVALENTOBJECTPROPERTIES:
-    case DISJOINTOBJECTPROPERTIES:
-    case OBJECTPROPERTYDOMAIN:
-    case OBJECTPROPERTYRANGE:
-    case FUNCTIONALOBJECTPROPERTY:
-    case INVERSEFUNCTIONALOBJECTPROPERTY:
-    case REFLEXIVEOBJECTPROPERTY:
-    case IRREFLEXIVEOBJECTPROPERTY:
-    case SYMMETRICOBJECTPROPERTY:
-    case ASYMMETRICOBJECTPROPERTY:
-    case TRANSITIVEOBJECTPROPERTY:{
+    } else if (jj_2_50(2)) {
       ax = ObjectPropertyAxiom();
-      break;
-      }
-    case SUBDATAPROPERTYOF:
-    case EQUIVALENTDATAPROPERTIES:
-    case DISJOINTDATAPROPERTIES:
-    case DATAPROPERTYDOMAIN:
-    case DATAPROPERTYRANGE:
-    case FUNCTIONALDATAPROPERTY:{
+    } else if (jj_2_51(2)) {
       ax = DataPropertyAxiom();
-      break;
-      }
-    case SAMEINDIVIDUAL:
-    case DIFFERENTINDIVIDUALS:
-    case CLASSASSERTION:
-    case OBJECTPROPERTYASSERTION:
-    case NEGATIVEOBJECTPROPERTYASSERTION:
-    case DATAPROPERTYASSERTION:
-    case NEGATIVEDATAPROPERTYASSERTION:{
+    } else if (jj_2_52(2)) {
       ax = IndividualAxiom();
-      break;
-      }
-    case DECLARATION:{
+    } else if (jj_2_53(2)) {
       ax = Declaration();
-      break;
-      }
-    case HASKEY:{
+    } else if (jj_2_54(2)) {
       ax = HasKey();
-      break;
-      }
-    case DATATYPEDEFINITION:{
+    } else if (jj_2_55(2)) {
       ax = DatatypeDefinitionAxiom();
-      break;
-      }
-    case ANNOTATIONASSERTION:
-    case SUBANNOTATIONPROPERTYOF:
-    case ANNOTATIONPROPERTYDOMAIN:
-    case ANNOTATIONPROPERTYRANGE:{
+    } else if (jj_2_56(2)) {
       ax = AnnotationAxiom();
-      break;
-      }
-    case DLSAFERULE:{
+    } else if (jj_2_57(2)) {
       ax = DLSafeRule();
-      break;
-      }
-    default:
-      jj_la1[22] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1162,25 +830,15 @@ OWLAxiom Axiom() throws ParseException {OWLAxiom ax;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SUBCLASSOF:{
+    if (jj_2_58(2)) {
       ax = SubClassOf();
-      break;
-      }
-    case EQUIVALENTCLASSES:{
+    } else if (jj_2_59(2)) {
       ax = EquivalentClasses();
-      break;
-      }
-    case DISJOINTCLASSES:{
+    } else if (jj_2_60(2)) {
       ax = DisjointClasses();
-      break;
-      }
-    case DISJOINTUNION:{
+    } else if (jj_2_61(2)) {
       ax = DisjointUnion();
-      break;
-      }
-    default:
-      jj_la1[23] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1199,8 +857,7 @@ OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
     subClass = ClassExpression();
     superClass = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLSubClassOfAxiom(subClass, superClass, axiomAnnos, aspects);}
-    throw new Error("Missing return statement in function");
+OWLClassAxiom result = df.getOWLSubClassOfAxiom(subClass, superClass, axiomAnnos);
   }
 
   final public OWLClassAxiom EquivalentClasses() throws ParseException {Set<OWLClassExpression> classExpressions;
@@ -1212,8 +869,7 @@ OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
     aspects = AxiomAspectSet();
     classExpressions = ClassExpressionSet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLEquivalentClassesAxiom(classExpressions, axiomAnnos, aspects);}
-    throw new Error("Missing return statement in function");
+OWLClassAxiom result = df.getOWLEquivalentClassesAxiom(classExpressions, axiomAnnos);
   }
 
   final public OWLClassAxiom DisjointClasses() throws ParseException {Set<OWLClassExpression> classExpressions;
@@ -1225,8 +881,7 @@ OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
     aspects = AxiomAspectSet();
     classExpressions = ClassExpressionSet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDisjointClassesAxiom(classExpressions, axiomAnnos, aspects);}
-    throw new Error("Missing return statement in function");
+OWLClassAxiom result = df.getOWLDisjointClassesAxiom(classExpressions, axiomAnnos);
   }
 
   final public OWLClassAxiom DisjointUnion() throws ParseException {OWLClass cls;
@@ -1240,8 +895,7 @@ OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
     cls = ClassIRI();
     classExpressions = ClassExpressionSet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDisjointUnionAxiom(cls, classExpressions, axiomAnnos, aspects);}
-    throw new Error("Missing return statement in function");
+OWLClassAxiom result = df.getOWLDisjointUnionAxiom(cls, classExpressions, axiomAnnos);
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1251,61 +905,33 @@ OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLPropertyAxiom ObjectPropertyAxiom() throws ParseException {OWLPropertyAxiom ax;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SUBOBJECTPROPERTYOF:{
+    if (jj_2_62(2)) {
       ax = SubObjectPropertyOf();
-      break;
-      }
-    case EQUIVALENTOBJECTPROPERTIES:{
+    } else if (jj_2_63(2)) {
       ax = EquivalentObjectProperties();
-      break;
-      }
-    case DISJOINTOBJECTPROPERTIES:{
+    } else if (jj_2_64(2)) {
       ax = DisjointObjectProperties();
-      break;
-      }
-    case OBJECTPROPERTYRANGE:{
+    } else if (jj_2_65(2)) {
       ax = ObjectPropertyRange();
-      break;
-      }
-    case OBJECTPROPERTYDOMAIN:{
+    } else if (jj_2_66(2)) {
       ax = ObjectPropertyDomain();
-      break;
-      }
-    case FUNCTIONALOBJECTPROPERTY:{
+    } else if (jj_2_67(2)) {
       ax = FunctionalObjectProperty();
-      break;
-      }
-    case INVERSEFUNCTIONALOBJECTPROPERTY:{
+    } else if (jj_2_68(2)) {
       ax = InverseFunctionalObjectProperty();
-      break;
-      }
-    case SYMMETRICOBJECTPROPERTY:{
+    } else if (jj_2_69(2)) {
       ax = SymmetricObjectProperty();
-      break;
-      }
-    case ASYMMETRICOBJECTPROPERTY:{
+    } else if (jj_2_70(2)) {
       ax = AsymmetricObjectProperty();
-      break;
-      }
-    case REFLEXIVEOBJECTPROPERTY:{
+    } else if (jj_2_71(2)) {
       ax = ReflexiveObjectProperty();
-      break;
-      }
-    case IRREFLEXIVEOBJECTPROPERTY:{
+    } else if (jj_2_72(2)) {
       ax = IrreflexiveObjectProperty();
-      break;
-      }
-    case TRANSITIVEOBJECTPROPERTY:{
+    } else if (jj_2_73(2)) {
       ax = TransitiveObjectProperty();
-      break;
-      }
-    case INVERSEOBJECTPROPERTIES:{
+    } else if (jj_2_74(2)) {
       ax = InverseObjectProperties();
-      break;
-      }
-    default:
-      jj_la1[24] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1321,15 +947,9 @@ OWLPropertyAxiom ObjectPropertyAxiom() throws ParseException {OWLPropertyAxiom a
 props.add(prop);
     label_10:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case OBJECTINVERSEOF:
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_75(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[25] = jj_gen;
+      } else {
         break label_10;
       }
       prop = ObjectPropertyExpression();
@@ -1344,34 +964,30 @@ props.add(prop);
     List<OWLObjectPropertyExpression> chain = null;
     OWLObjectPropertyExpression superProperty = null;
     Set<OWLAnnotation> axiomAnnos;
-        Set<OWLAspect> aspects;
+        Set<OWLAspect> axiomAspects;
     jj_consume_token(SUBOBJECTPROPERTYOF);
     jj_consume_token(OPENPAR);
     axiomAnnos = AxiomAnnotationSet();
     aspects = AxiomAspectSet();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case OBJECTINVERSEOF:
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_76(2)) {
       subProperty = ObjectPropertyExpression();
-      break;
-      }
-    case SUBOBJECTPROPERTYCHAIN:{
+    } else if (jj_2_77(2)) {
       chain = SubObjectPropertyChain();
-      break;
-      }
-    default:
-      jj_la1[26] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
     superProperty = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 if(subProperty != null) {
-            {if ("" != null) return df.getOWLSubObjectPropertyOfAxiom(subProperty, superProperty, axiomAnnos, aspects);}
+            OWLPropertyAxiom ax = df.getOWLSubObjectPropertyOfAxiom(subProperty, superProperty, axiomAnnos, axiomAspects);
+            addAspects(ax, aspects, axiomAnnos);
+            {if ("" != null) return ax;}
         }
         if(chain != null) {
-            {if ("" != null) return df.getOWLSubPropertyChainOfAxiom(chain, superProperty, axiomAnnos, aspects);}
+            OWLPropertyAxiom ax = df.getOWLSubPropertyChainOfAxiom(chain, superProperty, axiomAnnos);
+            addAspects(ax, aspects, axiomAnnos);
+            {if ("" != null) return ax;}
         }
         {if ("" != null) return null;}
     throw new Error("Missing return statement in function");
@@ -1386,7 +1002,9 @@ if(subProperty != null) {
     aspects = AxiomAspectSet();
     props = ObjectPropertySet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLEquivalentObjectPropertiesAxiom(props, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLEquivalentObjectPropertiesAxiom(props, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1399,7 +1017,9 @@ if(subProperty != null) {
     aspects = AxiomAspectSet();
     props = ObjectPropertySet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDisjointObjectPropertiesAxiom(props, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLDisjointObjectPropertiesAxiom(props, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1411,15 +1031,9 @@ props.add(prop);
 props.add(prop);
     label_11:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case OBJECTINVERSEOF:
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_78(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[27] = jj_gen;
+      } else {
         break label_11;
       }
       prop = ObjectPropertyExpression();
@@ -1440,7 +1054,9 @@ props.add(prop);
     prop = ObjectPropertyExpression();
     range = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLObjectPropertyRangeAxiom(prop, range, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLObjectPropertyRangeAxiom(prop, range, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1455,7 +1071,9 @@ props.add(prop);
     prop = ObjectPropertyExpression();
     desc = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLObjectPropertyDomainAxiom(prop, desc, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLObjectPropertyDomainAxiom(prop, desc, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1468,7 +1086,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLFunctionalObjectPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax =  df.getOWLFunctionalObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1483,7 +1103,9 @@ props.add(prop);
     propA = ObjectPropertyExpression();
     propB = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLInverseObjectPropertiesAxiom(propA, propB, axiomAnnos, aspects);}
+OWLPropertyAxiom ax =  df.getOWLInverseObjectPropertiesAxiom(propA, propB, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1496,7 +1118,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLInverseFunctionalObjectPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax =  df.getOWLInverseFunctionalObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1509,7 +1133,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLSymmetricObjectPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLSymmetricObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1522,7 +1148,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLAsymmetricObjectPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLAsymmetricObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1535,7 +1163,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLReflexiveObjectPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLReflexiveObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1548,7 +1178,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLIrreflexiveObjectPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLIrreflexiveObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1559,7 +1191,9 @@ props.add(prop);
     axiomAnnos = AxiomAnnotationSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLTransitiveObjectPropertyAxiom(prop, axiomAnnos);}
+OWLPropertyAxiom ax = df.getOWLTransitiveObjectPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1570,33 +1204,19 @@ props.add(prop);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLPropertyAxiom DataPropertyAxiom() throws ParseException {OWLPropertyAxiom ax;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SUBDATAPROPERTYOF:{
+    if (jj_2_79(2)) {
       ax = SubDataPropertyOf();
-      break;
-      }
-    case EQUIVALENTDATAPROPERTIES:{
+    } else if (jj_2_80(2)) {
       ax = EquivalentDataProperties();
-      break;
-      }
-    case DISJOINTDATAPROPERTIES:{
+    } else if (jj_2_81(2)) {
       ax = DisjointDataProperties();
-      break;
-      }
-    case DATAPROPERTYRANGE:{
+    } else if (jj_2_82(2)) {
       ax = DataPropertyRange();
-      break;
-      }
-    case DATAPROPERTYDOMAIN:{
+    } else if (jj_2_83(2)) {
       ax = DataPropertyDomain();
-      break;
-      }
-    case FUNCTIONALDATAPROPERTY:{
+    } else if (jj_2_84(2)) {
       ax = FunctionalDataProperty();
-      break;
-      }
-    default:
-      jj_la1[28] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1615,7 +1235,9 @@ OWLPropertyAxiom DataPropertyAxiom() throws ParseException {OWLPropertyAxiom ax;
     subProperty = DataPropertyExpression();
     superProperty = DataPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLSubDataPropertyOfAxiom(subProperty, superProperty, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLSubDataPropertyOfAxiom(subProperty, superProperty, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1626,7 +1248,9 @@ OWLPropertyAxiom DataPropertyAxiom() throws ParseException {OWLPropertyAxiom ax;
     axiomAnnos = AxiomAnnotationSet();
     props = DataPropertySet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLEquivalentDataPropertiesAxiom(props, axiomAnnos);}
+OWLPropertyAxiom ax = df.getOWLEquivalentDataPropertiesAxiom(props, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1639,7 +1263,9 @@ OWLPropertyAxiom DataPropertyAxiom() throws ParseException {OWLPropertyAxiom ax;
     aspects = AxiomAspectSet();
     props = DataPropertySet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDisjointDataPropertiesAxiom(props, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLDisjointDataPropertiesAxiom(props, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1651,14 +1277,9 @@ props.add(prop);
 props.add(prop);
     label_12:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_85(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[29] = jj_gen;
+      } else {
         break label_12;
       }
       prop = DataPropertyExpression();
@@ -1679,7 +1300,9 @@ props.add(prop);
     prop = DataPropertyExpression();
     domain = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDataPropertyDomainAxiom(prop, domain, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLDataPropertyDomainAxiom(prop, domain, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1694,7 +1317,9 @@ props.add(prop);
     prop = DataPropertyExpression();
     rng = DataRange();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDataPropertyRangeAxiom(prop, rng, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLDataPropertyRangeAxiom(prop, rng, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1707,7 +1332,9 @@ props.add(prop);
     aspects = AxiomAspectSet();
     prop = DataPropertyExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLFunctionalDataPropertyAxiom(prop, axiomAnnos, aspects);}
+OWLPropertyAxiom ax = df.getOWLFunctionalDataPropertyAxiom(prop, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1718,37 +1345,21 @@ props.add(prop);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLIndividualAxiom IndividualAxiom() throws ParseException {OWLIndividualAxiom ax;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SAMEINDIVIDUAL:{
+    if (jj_2_86(2)) {
       ax = SameIndividuals();
-      break;
-      }
-    case DIFFERENTINDIVIDUALS:{
+    } else if (jj_2_87(2)) {
       ax = DifferentIndividuals();
-      break;
-      }
-    case CLASSASSERTION:{
+    } else if (jj_2_88(2)) {
       ax = ClassAssertion();
-      break;
-      }
-    case OBJECTPROPERTYASSERTION:{
+    } else if (jj_2_89(2)) {
       ax = ObjectPropertyAssertion();
-      break;
-      }
-    case DATAPROPERTYASSERTION:{
+    } else if (jj_2_90(2)) {
       ax = DataPropertyAssertion();
-      break;
-      }
-    case NEGATIVEOBJECTPROPERTYASSERTION:{
+    } else if (jj_2_91(2)) {
       ax = NegativeObjectPropertyAssertion();
-      break;
-      }
-    case NEGATIVEDATAPROPERTYASSERTION:{
+    } else if (jj_2_92(2)) {
       ax = NegativeDataPropertyAssertion();
-      break;
-      }
-    default:
-      jj_la1[30] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1764,15 +1375,9 @@ individuals.add(ind);
 individuals.add(ind);
     label_13:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:
-      case NODEID:{
+      if (jj_2_93(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[31] = jj_gen;
+      } else {
         break label_13;
       }
       ind = Individual();
@@ -1791,7 +1396,9 @@ individuals.add(ind);
     aspects = AxiomAspectSet();
     individuals = IndividualSet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLSameIndividualAxiom(individuals, axiomAnnos, aspects);}
+OWLIndividualAxiom ax = df.getOWLSameIndividualAxiom(individuals, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1804,7 +1411,9 @@ individuals.add(ind);
     aspects = AxiomAspectSet();
     individuals = IndividualSet();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDifferentIndividualsAxiom(individuals, axiomAnnos, aspects);}
+OWLIndividualAxiom ax = df.getOWLDifferentIndividualsAxiom(individuals, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1819,7 +1428,9 @@ individuals.add(ind);
     desc = ClassExpression();
     ind = Individual();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLClassAssertionAxiom(desc, ind, axiomAnnos, aspects);}
+OWLIndividualAxiom ax = df.getOWLClassAssertionAxiom(desc, ind, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1836,7 +1447,9 @@ individuals.add(ind);
     subj = Individual();
     obj = Individual();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLObjectPropertyAssertionAxiom(prop, subj, obj, axiomAnnos, aspects);}
+OWLIndividualAxiom ax = df.getOWLObjectPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1853,7 +1466,9 @@ individuals.add(ind);
     subj = Individual();
     obj = Individual();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLNegativeObjectPropertyAssertionAxiom(prop, subj, obj, axiomAnnos, aspects);}
+OWLIndividualAxiom ax = df.getOWLNegativeObjectPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1870,7 +1485,9 @@ individuals.add(ind);
     subj = Individual();
     obj = Literal();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLDataPropertyAssertionAxiom(prop, subj, obj, axiomAnnos, aspects);}
+OWLIndividualAxiom ax = df.getOWLDataPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1885,7 +1502,9 @@ individuals.add(ind);
     subj = Individual();
     obj = Literal();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLNegativeDataPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);}
+OWLIndividualAxiom ax = df.getOWLNegativeDataPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1896,18 +1515,11 @@ individuals.add(ind);
   }
 
   final public OWLIndividual Individual() throws ParseException {OWLIndividual ind;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_94(2)) {
       ind = IndividualIRI();
-      break;
-      }
-    case NODEID:{
+    } else if (jj_2_95(2)) {
       ind = AnonymousIndividual();
-      break;
-      }
-    default:
-      jj_la1[32] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1928,25 +1540,15 @@ individuals.add(ind);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
 OWLAxiom AnnotationAxiom() throws ParseException {OWLAxiom axiom;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case ANNOTATIONASSERTION:{
+    if (jj_2_96(2)) {
       axiom = AnnotationAssertion();
-      break;
-      }
-    case ANNOTATIONPROPERTYDOMAIN:{
+    } else if (jj_2_97(2)) {
       axiom = AnnotationPropertyDomain();
-      break;
-      }
-    case ANNOTATIONPROPERTYRANGE:{
+    } else if (jj_2_98(2)) {
       axiom = AnnotationPropertyRange();
-      break;
-      }
-    case SUBANNOTATIONPROPERTYOF:{
+    } else if (jj_2_99(2)) {
       axiom = SubAnnotationPropertyOf();
-      break;
-      }
-    default:
-      jj_la1[33] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1962,13 +1564,9 @@ OWLAxiom AnnotationAxiom() throws ParseException {OWLAxiom axiom;
     jj_consume_token(OPENPAR);
     label_14:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ANNOTATION:{
+      if (jj_2_100(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[34] = jj_gen;
+      } else {
         break label_14;
       }
       anno = Annotation();
@@ -1982,18 +1580,11 @@ annos.add(anno);
   }
 
   final public OWLAnnotationSubject AnnotationSubject() throws ParseException {OWLAnnotationSubject subj;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_101(2)) {
       subj = IRI();
-      break;
-      }
-    case NODEID:{
+    } else if (jj_2_102(2)) {
       subj = AnonymousIndividual();
-      break;
-      }
-    default:
-      jj_la1[35] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2002,22 +1593,13 @@ annos.add(anno);
   }
 
   final public OWLAnnotationValue AnnotationValue() throws ParseException {OWLAnnotationValue value;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_103(2)) {
       value = IRI();
-      break;
-      }
-    case NODEID:{
+    } else if (jj_2_104(2)) {
       value = AnonymousIndividual();
-      break;
-      }
-    case STRINGLITERAL:{
+    } else if (jj_2_105(2)) {
       value = Literal();
-      break;
-      }
-    default:
-      jj_la1[36] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2029,13 +1611,9 @@ annos.add(anno);
     OWLAnnotation anno;
     label_15:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ANNOTATION:{
+      if (jj_2_106(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[37] = jj_gen;
+      } else {
         break label_15;
       }
       anno = Annotation();
@@ -2067,7 +1645,9 @@ annos.add(anno);
     subj = AnnotationSubject();
     val = AnnotationValue();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLAnnotationAssertionAxiom(prop, subj, val, axiomAnnos, aspects);}
+OWLAnnotationAssertionAxiom ax = df.getOWLAnnotationAssertionAxiom(prop, subj, val, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -2082,20 +1662,26 @@ annos.add(anno);
     subProp = AnnotationPropertyIRI();
     superProperty = AnnotationPropertyIRI();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLSubAnnotationPropertyOfAxiom(subProp, superProperty, axiomAnnos, aspects);}
+OWLSubAnnotationPropertyOfAxiom ax = df.getOWLSubAnnotationPropertyOfAxiom(subProp, superProperty, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
   final public OWLAnnotationPropertyDomainAxiom AnnotationPropertyDomain() throws ParseException {IRI domain;
     OWLAnnotationProperty prop;
     Set<OWLAnnotation> axiomAnnos;
+    Set<OWLAspect> aspects;
     jj_consume_token(ANNOTATIONPROPERTYDOMAIN);
     jj_consume_token(OPENPAR);
     axiomAnnos = AxiomAnnotationSet();
+    aspects = AxiomAspectSet();
     prop = AnnotationPropertyIRI();
     domain = IRI();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLAnnotationPropertyDomainAxiom(prop, domain, axiomAnnos);}
+OWLAnnotationPropertyDomainAxiom ax = df.getOWLAnnotationPropertyDomainAxiom(prop, domain, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -2110,7 +1696,9 @@ annos.add(anno);
     prop = AnnotationPropertyIRI();
     range = IRI();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLAnnotationPropertyRangeAxiom(prop, range, axiomAnnos, aspects);}
+OWLAnnotationPropertyRangeAxiom ax = df.getOWLAnnotationPropertyRangeAxiom(prop, range, axiomAnnos);
+    addAspects(ax, aspects, axiomAnnos);
+    {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
@@ -2127,15 +1715,9 @@ annos.add(anno);
     jj_consume_token(OPENPAR);
     label_16:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case OBJECTINVERSEOF:
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_107(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[38] = jj_gen;
+      } else {
         break label_16;
       }
       prop = ObjectPropertyExpression();
@@ -2145,14 +1727,9 @@ props.add(prop);
     jj_consume_token(OPENPAR);
     label_17:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_108(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[39] = jj_gen;
+      } else {
         break label_17;
       }
       prop = DataPropertyExpression();
@@ -2160,7 +1737,7 @@ props.add(prop);
     }
     jj_consume_token(CLOSEPAR);
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLHasKeyAxiom(ce, props, axiomAnnos, aspects);}
+{if ("" != null) return df.getOWLHasKeyAxiom(ce, props, axiomAnnos);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2175,38 +1752,24 @@ props.add(prop);
     aspects = AxiomAspectSet();
     entity = Entity();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return ignoreAnnotationsAndDeclarations? null: df.getOWLDeclarationAxiom(entity, axiomAnnos, aspects);}
+{if ("" != null) return ignoreAnnotationsAndDeclarations? null: df.getOWLDeclarationAxiom(entity, axiomAnnos);}
     throw new Error("Missing return statement in function");
   }
 
   final public OWLEntity Entity() throws ParseException {OWLEntity entity;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case CLASS:{
+    if (jj_2_109(2)) {
       entity = Class();
-      break;
-      }
-    case OBJECTPROP:{
+    } else if (jj_2_110(2)) {
       entity = ObjectProperty();
-      break;
-      }
-    case DATAPROP:{
+    } else if (jj_2_111(2)) {
       entity = DataProperty();
-      break;
-      }
-    case NAMEDINDIVIDUAL:{
+    } else if (jj_2_112(2)) {
       entity = NamedIndividual();
-      break;
-      }
-    case DATATYPE:{
+    } else if (jj_2_113(2)) {
       entity = Datatype();
-      break;
-      }
-    case ANNOTATIONPROPERTY:{
+    } else if (jj_2_114(2)) {
       entity = AnnotationProperty();
-      break;
-      }
-    default:
-      jj_la1[40] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2225,30 +1788,19 @@ OWLLiteral Literal() throws ParseException {boolean plain = true;
     OWLDatatype datatype = null;
     String lang = "";
     literal = QuotedString();
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case LANGIDENTIFIER:
-    case DATATYPEIDENTIFIER:{
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case DATATYPEIDENTIFIER:{
+    if (jj_2_117(2)) {
+      if (jj_2_115(2)) {
         jj_consume_token(DATATYPEIDENTIFIER);
 plain=false;
         datatype = DatatypeIRI();
-        break;
-        }
-      case LANGIDENTIFIER:{
+      } else if (jj_2_116(2)) {
         jj_consume_token(LANGIDENTIFIER);
         lang = LangTag();
-        break;
-        }
-      default:
-        jj_la1[41] = jj_gen;
+      } else {
         jj_consume_token(-1);
         throw new ParseException();
       }
-      break;
-      }
-    default:
-      jj_la1[42] = jj_gen;
+    } else {
       ;
     }
 if(plain) { {if ("" != null) return df.getOWLLiteral(literal, lang);} }
@@ -2292,19 +1844,9 @@ body=new LinkedHashSet<SWRLAtom>();
     jj_consume_token(OPENPAR);
     label_18:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case CLASSATOM:
-      case DATARANGEATOM:
-      case OBJECTPROPERTYATOM:
-      case DATAPROPERTYATOM:
-      case BUILTINATOM:
-      case SAMEINDIVIDUALATOM:
-      case DIFFERENTINDIVIDUALSATOM:{
+      if (jj_2_118(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[43] = jj_gen;
+      } else {
         break label_18;
       }
       atom = Atom();
@@ -2316,19 +1858,9 @@ head= new LinkedHashSet<SWRLAtom>();
     jj_consume_token(OPENPAR);
     label_19:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case CLASSATOM:
-      case DATARANGEATOM:
-      case OBJECTPROPERTYATOM:
-      case DATAPROPERTYATOM:
-      case BUILTINATOM:
-      case SAMEINDIVIDUALATOM:
-      case DIFFERENTINDIVIDUALSATOM:{
+      if (jj_2_119(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[44] = jj_gen;
+      } else {
         break label_19;
       }
       atom = Atom();
@@ -2336,42 +1868,26 @@ head.add(atom);
     }
     jj_consume_token(CLOSEPAR);
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getSWRLRule(body, head, annos, aspects);}
+{if ("" != null) return df.getSWRLRule(body, head, annos);}
     throw new Error("Missing return statement in function");
   }
 
   final public SWRLAtom Atom() throws ParseException {SWRLAtom a;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case CLASSATOM:{
+    if (jj_2_120(2)) {
       a = ClassAtom();
-      break;
-      }
-    case DATARANGEATOM:{
+    } else if (jj_2_121(2)) {
       a = DataRangeAtom();
-      break;
-      }
-    case OBJECTPROPERTYATOM:{
+    } else if (jj_2_122(2)) {
       a = ObjectPropertyAtom();
-      break;
-      }
-    case DATAPROPERTYATOM:{
+    } else if (jj_2_123(2)) {
       a = DataPropertyAtom();
-      break;
-      }
-    case BUILTINATOM:{
+    } else if (jj_2_124(2)) {
       a = BuiltInAtom();
-      break;
-      }
-    case SAMEINDIVIDUALATOM:{
+    } else if (jj_2_125(2)) {
       a = SameIndividualAtom();
-      break;
-      }
-    case DIFFERENTINDIVIDUALSATOM:{
+    } else if (jj_2_126(2)) {
       a = DifferentIndividualsAtom();
-      break;
-      }
-    default:
-      jj_la1[45] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2438,14 +1954,9 @@ args=new ArrayList<SWRLDArgument>();
 args.add(arg);
     label_20:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case STRINGLITERAL:
-      case VARIABLE:{
+      if (jj_2_127(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[46] = jj_gen;
+      } else {
         break label_20;
       }
       arg = DArg();
@@ -2481,23 +1992,16 @@ args.add(arg);
   final public SWRLIArgument IArg() throws ParseException {OWLNamedIndividual ind;
     SWRLIArgument arg;
     IRI iri;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case VARIABLE:{
+    if (jj_2_128(2)) {
       jj_consume_token(VARIABLE);
       jj_consume_token(OPENPAR);
       iri = IRI();
       jj_consume_token(CLOSEPAR);
 arg = df.getSWRLVariable(iri);
-      break;
-      }
-    case FULLIRI:
-    case PNAME_LN:{
+    } else if (jj_2_129(2)) {
       ind = IndividualIRI();
 arg = df.getSWRLIndividualArgument(ind);
-      break;
-      }
-    default:
-      jj_la1[47] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2508,22 +2012,16 @@ arg = df.getSWRLIndividualArgument(ind);
   final public SWRLDArgument DArg() throws ParseException {SWRLDArgument arg;
     OWLLiteral literal;
     IRI iri;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case VARIABLE:{
+    if (jj_2_130(2)) {
       jj_consume_token(VARIABLE);
       jj_consume_token(OPENPAR);
       iri = IRI();
       jj_consume_token(CLOSEPAR);
 arg = df.getSWRLVariable(iri);
-      break;
-      }
-    case STRINGLITERAL:{
+    } else if (jj_2_131(2)) {
       literal = Literal();
 arg = df.getSWRLLiteralArgument(literal);
-      break;
-      }
-    default:
-      jj_la1[48] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2544,13 +2042,9 @@ OWLAspect Aspect() throws ParseException {OWLAdvice advice;
     jj_consume_token(OPENPAR);
     label_21:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ANNOTATION:{
+      if (jj_2_132(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[49] = jj_gen;
+      } else {
         break label_21;
       }
       anno = Annotation();
@@ -2579,13 +2073,9 @@ annos.add(anno);
         OWLAspect aspectAssertionAxiom;
     label_22:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ASPECT:{
+      if (jj_2_133(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[50] = jj_gen;
+      } else {
         break label_22;
       }
       aspectAssertionAxiom = Aspect();
@@ -2599,13 +2089,9 @@ aspects.add(aspectAssertionAxiom);
     OWLAspect aspect;
     label_23:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case ASPECT:{
+      if (jj_2_134(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[51] = jj_gen;
+      } else {
         break label_23;
       }
       aspect = Aspect();
@@ -2616,18 +2102,11 @@ aspects.add(aspect);
   }
 
   final public OWLJoinPoint JoinPoint() throws ParseException {OWLJoinPoint joinPoint;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_135(2)) {
       joinPoint = IRI();
-      break;
-      }
-    case NODEID:{
+    } else if (jj_2_136(2)) {
       joinPoint = AnonymousIndividual();
-      break;
-      }
-    default:
-      jj_la1[52] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2642,25 +2121,17 @@ aspects.add(aspect);
   }
 
   final public OWLPointcut Pointcut() throws ParseException {OWLPointcut pointcut;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case SPARQLPOINTCUT:{
+    if (jj_2_137(2)) {
       pointcut = SPARQLPointcut();
-      break;
-      }
-    case MODULEPOINTCUT:{
+    } else if (jj_2_138(2)) {
       pointcut = ModulePointcut();
-      break;
-      }
-    case DLQUERYPOINTCUT:{
+    } else if (jj_2_139(2)) {
       pointcut = DLQueryPointcut();
-      break;
-      }
-    default:
-      jj_la1[53] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
-{if ("" != null) return joinPoint;}
+{if ("" != null) return pointcut;}
     throw new Error("Missing return statement in function");
   }
 
@@ -2694,14 +2165,9 @@ aspects.add(aspect);
         Set<OWLEntity> signature = new HashSet<OWLEntity>();
     label_24:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case FULLIRI:
-      case PNAME_LN:{
+      if (jj_2_140(2)) {
         ;
-        break;
-        }
-      default:
-        jj_la1[54] = jj_gen;
+      } else {
         break label_24;
       }
       iri = EntityIRI();
@@ -2712,29 +2178,19 @@ signature.add(iri);
   }
 
   final public OWLEntity EntityIRI() throws ParseException {OWLEntity iri;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case FULLIRI:
-    case PNAME_LN:{
+    if (jj_2_141(2)) {
       iri = ClassIRI();
-      break;
-      }{
+    } else if (jj_2_142(2)) {
       iri = ObjectPropertyIRI();
-      break;
-      }{
+    } else if (jj_2_143(2)) {
       iri = DataPropertyIRI();
-      break;
-      }{
+    } else if (jj_2_144(2)) {
       iri = IndividualIRI();
-      break;
-      }{
+    } else if (jj_2_145(2)) {
       iri = DatatypeIRI();
-      break;
-      }{
+    } else if (jj_2_146(2)) {
       iri = AnnotationPropertyIRI();
-      break;
-      }
-    default:
-      jj_la1[55] = jj_gen;
+    } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2742,17 +2198,3091 @@ signature.add(iri);
     throw new Error("Missing return statement in function");
   }
 
-  final public DLQueryPointcut DLQueryPointcut() throws ParseException {OWLAspect aspectAssertionAxiom;
+  final public DLQueryPointcut DLQueryPointcut() throws ParseException {OWLAspect aspect;
         OWLClassExpression dlQuery;
         Set<OWLAnnotation> annotations;
     jj_consume_token(DLQUERYPOINTCUT);
     jj_consume_token(OPENPAR);
     annotations = AxiomAnnotationSet();
-    aspectAssertionAxiom = Aspect();
+    aspect = Aspect();
     dlQuery = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new DLQueryPointcut(aspectAssertionAxiom, dlQuery, annotations);}
+{if ("" != null) return new DLQueryPointcut(aspect, dlQuery, annotations);}
     throw new Error("Missing return statement in function");
+  }
+
+  private boolean jj_2_1(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_1(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(0, xla); }
+  }
+
+  private boolean jj_2_2(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_2(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(1, xla); }
+  }
+
+  private boolean jj_2_3(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_3(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(2, xla); }
+  }
+
+  private boolean jj_2_4(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_4(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(3, xla); }
+  }
+
+  private boolean jj_2_5(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_5(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(4, xla); }
+  }
+
+  private boolean jj_2_6(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_6(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(5, xla); }
+  }
+
+  private boolean jj_2_7(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_7(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(6, xla); }
+  }
+
+  private boolean jj_2_8(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_8(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(7, xla); }
+  }
+
+  private boolean jj_2_9(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_9(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(8, xla); }
+  }
+
+  private boolean jj_2_10(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_10(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(9, xla); }
+  }
+
+  private boolean jj_2_11(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_11(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(10, xla); }
+  }
+
+  private boolean jj_2_12(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_12(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(11, xla); }
+  }
+
+  private boolean jj_2_13(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_13(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(12, xla); }
+  }
+
+  private boolean jj_2_14(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_14(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(13, xla); }
+  }
+
+  private boolean jj_2_15(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_15(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(14, xla); }
+  }
+
+  private boolean jj_2_16(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_16(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(15, xla); }
+  }
+
+  private boolean jj_2_17(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_17(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(16, xla); }
+  }
+
+  private boolean jj_2_18(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_18(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(17, xla); }
+  }
+
+  private boolean jj_2_19(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_19(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(18, xla); }
+  }
+
+  private boolean jj_2_20(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_20(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(19, xla); }
+  }
+
+  private boolean jj_2_21(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_21(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(20, xla); }
+  }
+
+  private boolean jj_2_22(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_22(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(21, xla); }
+  }
+
+  private boolean jj_2_23(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_23(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(22, xla); }
+  }
+
+  private boolean jj_2_24(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_24(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(23, xla); }
+  }
+
+  private boolean jj_2_25(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_25(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(24, xla); }
+  }
+
+  private boolean jj_2_26(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_26(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(25, xla); }
+  }
+
+  private boolean jj_2_27(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_27(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(26, xla); }
+  }
+
+  private boolean jj_2_28(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_28(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(27, xla); }
+  }
+
+  private boolean jj_2_29(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_29(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(28, xla); }
+  }
+
+  private boolean jj_2_30(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_30(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(29, xla); }
+  }
+
+  private boolean jj_2_31(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_31(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(30, xla); }
+  }
+
+  private boolean jj_2_32(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_32(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(31, xla); }
+  }
+
+  private boolean jj_2_33(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_33(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(32, xla); }
+  }
+
+  private boolean jj_2_34(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_34(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(33, xla); }
+  }
+
+  private boolean jj_2_35(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_35(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(34, xla); }
+  }
+
+  private boolean jj_2_36(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_36(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(35, xla); }
+  }
+
+  private boolean jj_2_37(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_37(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(36, xla); }
+  }
+
+  private boolean jj_2_38(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_38(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(37, xla); }
+  }
+
+  private boolean jj_2_39(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_39(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(38, xla); }
+  }
+
+  private boolean jj_2_40(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_40(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(39, xla); }
+  }
+
+  private boolean jj_2_41(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_41(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(40, xla); }
+  }
+
+  private boolean jj_2_42(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_42(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(41, xla); }
+  }
+
+  private boolean jj_2_43(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_43(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(42, xla); }
+  }
+
+  private boolean jj_2_44(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_44(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(43, xla); }
+  }
+
+  private boolean jj_2_45(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_45(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(44, xla); }
+  }
+
+  private boolean jj_2_46(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_46(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(45, xla); }
+  }
+
+  private boolean jj_2_47(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_47(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(46, xla); }
+  }
+
+  private boolean jj_2_48(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_48(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(47, xla); }
+  }
+
+  private boolean jj_2_49(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_49(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(48, xla); }
+  }
+
+  private boolean jj_2_50(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_50(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(49, xla); }
+  }
+
+  private boolean jj_2_51(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_51(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(50, xla); }
+  }
+
+  private boolean jj_2_52(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_52(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(51, xla); }
+  }
+
+  private boolean jj_2_53(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_53(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(52, xla); }
+  }
+
+  private boolean jj_2_54(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_54(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(53, xla); }
+  }
+
+  private boolean jj_2_55(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_55(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(54, xla); }
+  }
+
+  private boolean jj_2_56(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_56(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(55, xla); }
+  }
+
+  private boolean jj_2_57(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_57(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(56, xla); }
+  }
+
+  private boolean jj_2_58(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_58(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(57, xla); }
+  }
+
+  private boolean jj_2_59(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_59(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(58, xla); }
+  }
+
+  private boolean jj_2_60(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_60(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(59, xla); }
+  }
+
+  private boolean jj_2_61(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_61(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(60, xla); }
+  }
+
+  private boolean jj_2_62(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_62(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(61, xla); }
+  }
+
+  private boolean jj_2_63(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_63(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(62, xla); }
+  }
+
+  private boolean jj_2_64(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_64(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(63, xla); }
+  }
+
+  private boolean jj_2_65(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_65(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(64, xla); }
+  }
+
+  private boolean jj_2_66(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_66(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(65, xla); }
+  }
+
+  private boolean jj_2_67(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_67(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(66, xla); }
+  }
+
+  private boolean jj_2_68(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_68(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(67, xla); }
+  }
+
+  private boolean jj_2_69(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_69(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(68, xla); }
+  }
+
+  private boolean jj_2_70(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_70(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(69, xla); }
+  }
+
+  private boolean jj_2_71(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_71(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(70, xla); }
+  }
+
+  private boolean jj_2_72(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_72(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(71, xla); }
+  }
+
+  private boolean jj_2_73(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_73(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(72, xla); }
+  }
+
+  private boolean jj_2_74(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_74(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(73, xla); }
+  }
+
+  private boolean jj_2_75(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_75(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(74, xla); }
+  }
+
+  private boolean jj_2_76(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_76(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(75, xla); }
+  }
+
+  private boolean jj_2_77(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_77(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(76, xla); }
+  }
+
+  private boolean jj_2_78(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_78(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(77, xla); }
+  }
+
+  private boolean jj_2_79(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_79(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(78, xla); }
+  }
+
+  private boolean jj_2_80(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_80(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(79, xla); }
+  }
+
+  private boolean jj_2_81(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_81(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(80, xla); }
+  }
+
+  private boolean jj_2_82(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_82(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(81, xla); }
+  }
+
+  private boolean jj_2_83(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_83(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(82, xla); }
+  }
+
+  private boolean jj_2_84(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_84(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(83, xla); }
+  }
+
+  private boolean jj_2_85(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_85(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(84, xla); }
+  }
+
+  private boolean jj_2_86(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_86(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(85, xla); }
+  }
+
+  private boolean jj_2_87(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_87(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(86, xla); }
+  }
+
+  private boolean jj_2_88(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_88(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(87, xla); }
+  }
+
+  private boolean jj_2_89(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_89(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(88, xla); }
+  }
+
+  private boolean jj_2_90(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_90(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(89, xla); }
+  }
+
+  private boolean jj_2_91(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_91(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(90, xla); }
+  }
+
+  private boolean jj_2_92(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_92(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(91, xla); }
+  }
+
+  private boolean jj_2_93(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_93(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(92, xla); }
+  }
+
+  private boolean jj_2_94(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_94(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(93, xla); }
+  }
+
+  private boolean jj_2_95(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_95(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(94, xla); }
+  }
+
+  private boolean jj_2_96(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_96(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(95, xla); }
+  }
+
+  private boolean jj_2_97(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_97(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(96, xla); }
+  }
+
+  private boolean jj_2_98(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_98(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(97, xla); }
+  }
+
+  private boolean jj_2_99(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_99(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(98, xla); }
+  }
+
+  private boolean jj_2_100(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_100(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(99, xla); }
+  }
+
+  private boolean jj_2_101(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_101(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(100, xla); }
+  }
+
+  private boolean jj_2_102(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_102(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(101, xla); }
+  }
+
+  private boolean jj_2_103(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_103(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(102, xla); }
+  }
+
+  private boolean jj_2_104(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_104(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(103, xla); }
+  }
+
+  private boolean jj_2_105(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_105(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(104, xla); }
+  }
+
+  private boolean jj_2_106(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_106(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(105, xla); }
+  }
+
+  private boolean jj_2_107(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_107(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(106, xla); }
+  }
+
+  private boolean jj_2_108(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_108(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(107, xla); }
+  }
+
+  private boolean jj_2_109(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_109(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(108, xla); }
+  }
+
+  private boolean jj_2_110(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_110(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(109, xla); }
+  }
+
+  private boolean jj_2_111(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_111(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(110, xla); }
+  }
+
+  private boolean jj_2_112(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_112(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(111, xla); }
+  }
+
+  private boolean jj_2_113(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_113(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(112, xla); }
+  }
+
+  private boolean jj_2_114(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_114(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(113, xla); }
+  }
+
+  private boolean jj_2_115(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_115(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(114, xla); }
+  }
+
+  private boolean jj_2_116(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_116(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(115, xla); }
+  }
+
+  private boolean jj_2_117(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_117(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(116, xla); }
+  }
+
+  private boolean jj_2_118(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_118(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(117, xla); }
+  }
+
+  private boolean jj_2_119(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_119(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(118, xla); }
+  }
+
+  private boolean jj_2_120(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_120(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(119, xla); }
+  }
+
+  private boolean jj_2_121(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_121(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(120, xla); }
+  }
+
+  private boolean jj_2_122(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_122(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(121, xla); }
+  }
+
+  private boolean jj_2_123(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_123(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(122, xla); }
+  }
+
+  private boolean jj_2_124(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_124(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(123, xla); }
+  }
+
+  private boolean jj_2_125(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_125(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(124, xla); }
+  }
+
+  private boolean jj_2_126(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_126(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(125, xla); }
+  }
+
+  private boolean jj_2_127(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_127(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(126, xla); }
+  }
+
+  private boolean jj_2_128(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_128(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(127, xla); }
+  }
+
+  private boolean jj_2_129(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_129(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(128, xla); }
+  }
+
+  private boolean jj_2_130(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_130(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(129, xla); }
+  }
+
+  private boolean jj_2_131(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_131(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(130, xla); }
+  }
+
+  private boolean jj_2_132(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_132(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(131, xla); }
+  }
+
+  private boolean jj_2_133(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_133(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(132, xla); }
+  }
+
+  private boolean jj_2_134(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_134(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(133, xla); }
+  }
+
+  private boolean jj_2_135(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_135(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(134, xla); }
+  }
+
+  private boolean jj_2_136(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_136(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(135, xla); }
+  }
+
+  private boolean jj_2_137(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_137(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(136, xla); }
+  }
+
+  private boolean jj_2_138(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_138(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(137, xla); }
+  }
+
+  private boolean jj_2_139(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_139(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(138, xla); }
+  }
+
+  private boolean jj_2_140(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_140(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(139, xla); }
+  }
+
+  private boolean jj_2_141(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_141(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(140, xla); }
+  }
+
+  private boolean jj_2_142(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_142(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(141, xla); }
+  }
+
+  private boolean jj_2_143(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_143(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(142, xla); }
+  }
+
+  private boolean jj_2_144(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_144(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(143, xla); }
+  }
+
+  private boolean jj_2_145(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_145(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(144, xla); }
+  }
+
+  private boolean jj_2_146(int xla)
+ {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_146(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(145, xla); }
+  }
+
+  private boolean jj_3R_34()
+ {
+    if (jj_scan_token(OBJECTUNIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_96()
+ {
+    if (jj_3R_108()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_71()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_96()) {
+    jj_scanpos = xsp;
+    if (jj_3_97()) {
+    jj_scanpos = xsp;
+    if (jj_3_98()) {
+    jj_scanpos = xsp;
+    if (jj_3_99()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_144()
+ {
+    if (jj_3R_106()) return true;
+    return false;
+  }
+
+  private boolean jj_3_72()
+ {
+    if (jj_3R_87()) return true;
+    return false;
+  }
+
+  private boolean jj_3_12()
+ {
+    if (jj_3R_34()) return true;
+    return false;
+  }
+
+  private boolean jj_3_57()
+ {
+    if (jj_3R_72()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_55()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3_66()
+ {
+    if (jj_3R_81()) return true;
+    return false;
+  }
+
+  private boolean jj_3_63()
+ {
+    if (jj_3R_78()) return true;
+    return false;
+  }
+
+  private boolean jj_3_94()
+ {
+    if (jj_3R_106()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_52()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_94()) {
+    jj_scanpos = xsp;
+    if (jj_3_95()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_77()
+ {
+    if (jj_scan_token(SUBOBJECTPROPERTYOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_33()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_106()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3_61()
+ {
+    if (jj_3R_76()) return true;
+    return false;
+  }
+
+  private boolean jj_3_27()
+ {
+    if (jj_3R_49()) return true;
+    return false;
+  }
+
+  private boolean jj_3_23()
+ {
+    if (jj_3R_45()) return true;
+    return false;
+  }
+
+  private boolean jj_3_20()
+ {
+    if (jj_3R_42()) return true;
+    return false;
+  }
+
+  private boolean jj_3_16()
+ {
+    if (jj_3R_38()) return true;
+    return false;
+  }
+
+  private boolean jj_3_11()
+ {
+    if (jj_3R_33()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_51()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_11()) {
+    jj_scanpos = xsp;
+    if (jj_3_12()) {
+    jj_scanpos = xsp;
+    if (jj_3_13()) {
+    jj_scanpos = xsp;
+    if (jj_3_14()) {
+    jj_scanpos = xsp;
+    if (jj_3_15()) {
+    jj_scanpos = xsp;
+    if (jj_3_16()) {
+    jj_scanpos = xsp;
+    if (jj_3_17()) {
+    jj_scanpos = xsp;
+    if (jj_3_18()) {
+    jj_scanpos = xsp;
+    if (jj_3_19()) {
+    jj_scanpos = xsp;
+    if (jj_3_20()) {
+    jj_scanpos = xsp;
+    if (jj_3_21()) {
+    jj_scanpos = xsp;
+    if (jj_3_22()) {
+    jj_scanpos = xsp;
+    if (jj_3_23()) {
+    jj_scanpos = xsp;
+    if (jj_3_24()) {
+    jj_scanpos = xsp;
+    if (jj_3_25()) {
+    jj_scanpos = xsp;
+    if (jj_3_26()) {
+    jj_scanpos = xsp;
+    if (jj_3_27()) {
+    jj_scanpos = xsp;
+    if (jj_3_28()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_143()
+ {
+    if (jj_3R_133()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_105()
+ {
+    if (jj_scan_token(NEGATIVEDATAPROPERTYASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_52()
+ {
+    if (jj_3R_67()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_91()
+ {
+    if (jj_scan_token(SUBOBJECTPROPERTYCHAIN)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_56()
+ {
+    if (jj_3R_71()) return true;
+    return false;
+  }
+
+  private boolean jj_3_10()
+ {
+    if (jj_3R_32()) return true;
+    return false;
+  }
+
+  private boolean jj_3_93()
+ {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3_44()
+ {
+    if (jj_3R_61()) return true;
+    return false;
+  }
+
+  private boolean jj_3_71()
+ {
+    if (jj_3R_86()) return true;
+    return false;
+  }
+
+  private boolean jj_3_68()
+ {
+    if (jj_3R_83()) return true;
+    return false;
+  }
+
+  private boolean jj_3_65()
+ {
+    if (jj_3R_80()) return true;
+    return false;
+  }
+
+  private boolean jj_3_62()
+ {
+    if (jj_3R_77()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_65()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_62()) {
+    jj_scanpos = xsp;
+    if (jj_3_63()) {
+    jj_scanpos = xsp;
+    if (jj_3_64()) {
+    jj_scanpos = xsp;
+    if (jj_3_65()) {
+    jj_scanpos = xsp;
+    if (jj_3_66()) {
+    jj_scanpos = xsp;
+    if (jj_3_67()) {
+    jj_scanpos = xsp;
+    if (jj_3_68()) {
+    jj_scanpos = xsp;
+    if (jj_3_69()) {
+    jj_scanpos = xsp;
+    if (jj_3_70()) {
+    jj_scanpos = xsp;
+    if (jj_3_71()) {
+    jj_scanpos = xsp;
+    if (jj_3_72()) {
+    jj_scanpos = xsp;
+    if (jj_3_73()) {
+    jj_scanpos = xsp;
+    if (jj_3_74()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_139()
+ {
+    if (jj_3R_131()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_103()
+ {
+    if (jj_scan_token(DATAPROPERTYASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_32()
+ {
+    if (jj_scan_token(PNAME_LN)) return true;
+    return false;
+  }
+
+  private boolean jj_3_60()
+ {
+    if (jj_3R_75()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_31()
+ {
+    if (jj_scan_token(FULLIRI)) return true;
+    return false;
+  }
+
+  private boolean jj_3_9()
+ {
+    if (jj_3R_31()) return true;
+    return false;
+  }
+
+  private boolean jj_3_89()
+ {
+    if (jj_3R_102()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_26()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_9()) {
+    jj_scanpos = xsp;
+    if (jj_3_10()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_51()
+ {
+    if (jj_3R_66()) return true;
+    return false;
+  }
+
+  private boolean jj_3_142()
+ {
+    if (jj_3R_55()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_76()
+ {
+    if (jj_scan_token(DISJOINTUNION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_104()
+ {
+    if (jj_scan_token(NEGATIVEOBJECTPROPERTYASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_92()
+ {
+    if (jj_3R_105()) return true;
+    return false;
+  }
+
+  private boolean jj_3_2()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_25()
+ {
+    if (jj_scan_token(PREFIX)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_43()
+ {
+    if (jj_3R_60()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_131()
+ {
+    if (jj_scan_token(DLQUERYPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_75()
+ {
+    if (jj_scan_token(DISJOINTCLASSES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_55()
+ {
+    if (jj_3R_70()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_102()
+ {
+    if (jj_scan_token(OBJECTPROPERTYASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_59()
+ {
+    if (jj_3R_74()) return true;
+    return false;
+  }
+
+  private boolean jj_3_8()
+ {
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  private boolean jj_3_138()
+ {
+    if (jj_3R_130()) return true;
+    return false;
+  }
+
+  private boolean jj_3_141()
+ {
+    if (jj_3R_33()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_132()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_141()) {
+    jj_scanpos = xsp;
+    if (jj_3_142()) {
+    jj_scanpos = xsp;
+    if (jj_3_143()) {
+    jj_scanpos = xsp;
+    if (jj_3_144()) {
+    jj_scanpos = xsp;
+    if (jj_3_145()) {
+    jj_scanpos = xsp;
+    if (jj_3_146()) return true;
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_74()
+ {
+    if (jj_scan_token(EQUIVALENTCLASSES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_48()
+ {
+    if (jj_3R_63()) return true;
+    return false;
+  }
+
+  private boolean jj_3_88()
+ {
+    if (jj_3R_101()) return true;
+    return false;
+  }
+
+  private boolean jj_3_3()
+ {
+    if (jj_3R_26()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_2()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3_140()
+ {
+    if (jj_3R_132()) return true;
+    return false;
+  }
+
+  private boolean jj_3_54()
+ {
+    if (jj_3R_69()) return true;
+    return false;
+  }
+
+  private boolean jj_3_7()
+ {
+    if (jj_3R_29()) return true;
+    return false;
+  }
+
+  private boolean jj_3_131()
+ {
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_73()
+ {
+    if (jj_scan_token(SUBCLASSOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_50()
+ {
+    if (jj_3R_65()) return true;
+    return false;
+  }
+
+  private boolean jj_3_85()
+ {
+    if (jj_3R_98()) return true;
+    return false;
+  }
+
+  private boolean jj_3_129()
+ {
+    if (jj_3R_106()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_101()
+ {
+    if (jj_scan_token(CLASSASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_130()
+ {
+    if (jj_scan_token(MODULEPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_6()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_127()
+ {
+    if (jj_3R_127()) return true;
+    return false;
+  }
+
+  private boolean jj_3_58()
+ {
+    if (jj_3R_73()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_64()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_58()) {
+    jj_scanpos = xsp;
+    if (jj_3_59()) {
+    jj_scanpos = xsp;
+    if (jj_3_60()) {
+    jj_scanpos = xsp;
+    if (jj_3_61()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_4()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_5()) {
+    jj_scanpos = xsp;
+    if (jj_3_6()) {
+    jj_scanpos = xsp;
+    if (jj_3_7()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_5()
+ {
+    if (jj_3R_27()) return true;
+    return false;
+  }
+
+  private boolean jj_3_42()
+ {
+    if (jj_3R_59()) return true;
+    return false;
+  }
+
+  private boolean jj_3_136()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_129()
+ {
+    if (jj_scan_token(SPARQLPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_91()
+ {
+    if (jj_3R_104()) return true;
+    return false;
+  }
+
+  private boolean jj_3_118()
+ {
+    if (jj_3R_119()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_100()
+ {
+    if (jj_scan_token(DIFFERENTINDIVIDUALS)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_53()
+ {
+    if (jj_3R_68()) return true;
+    return false;
+  }
+
+  private boolean jj_3_49()
+ {
+    if (jj_3R_64()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_30()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_49()) {
+    jj_scanpos = xsp;
+    if (jj_3_50()) {
+    jj_scanpos = xsp;
+    if (jj_3_51()) {
+    jj_scanpos = xsp;
+    if (jj_3_52()) {
+    jj_scanpos = xsp;
+    if (jj_3_53()) {
+    jj_scanpos = xsp;
+    if (jj_3_54()) {
+    jj_scanpos = xsp;
+    if (jj_3_55()) {
+    jj_scanpos = xsp;
+    if (jj_3_56()) {
+    jj_scanpos = xsp;
+    if (jj_3_57()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_47()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3_87()
+ {
+    if (jj_3R_100()) return true;
+    return false;
+  }
+
+  private boolean jj_3_137()
+ {
+    if (jj_3R_129()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_29()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_137()) {
+    jj_scanpos = xsp;
+    if (jj_3_138()) {
+    jj_scanpos = xsp;
+    if (jj_3_139()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_126()
+ {
+    if (jj_3R_126()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_99()
+ {
+    if (jj_scan_token(SAMEINDIVIDUAL)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_108()
+ {
+    if (jj_3R_98()) return true;
+    return false;
+  }
+
+  private boolean jj_3_135()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_63()
+ {
+    if (jj_3R_26()) return true;
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_3R_25()) return true;
+    return false;
+  }
+
+  private boolean jj_3_46()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3_41()
+ {
+    if (jj_3R_58()) return true;
+    return false;
+  }
+
+  private boolean jj_3_134()
+ {
+    if (jj_3R_128()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_59()
+ {
+    if (jj_scan_token(DATATYPERESTRICTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_45()
+ {
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3_132()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_86()
+ {
+    if (jj_3R_99()) return true;
+    return false;
+  }
+
+  private boolean jj_3_90()
+ {
+    if (jj_3R_103()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_67()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_86()) {
+    jj_scanpos = xsp;
+    if (jj_3_87()) {
+    jj_scanpos = xsp;
+    if (jj_3_88()) {
+    jj_scanpos = xsp;
+    if (jj_3_89()) {
+    jj_scanpos = xsp;
+    if (jj_3_90()) {
+    jj_scanpos = xsp;
+    if (jj_3_91()) {
+    jj_scanpos = xsp;
+    if (jj_3_92()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_133()
+ {
+    if (jj_3R_128()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_60()
+ {
+    if (jj_scan_token(DATAINTERSECTIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_125()
+ {
+    if (jj_3R_125()) return true;
+    return false;
+  }
+
+  private boolean jj_3_40()
+ {
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_61()
+ {
+    if (jj_scan_token(DATAUNIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_128()
+ {
+    if (jj_scan_token(ASPECT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_97()
+ {
+    if (jj_scan_token(FUNCTIONALDATAPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_57()
+ {
+    if (jj_scan_token(DATAONEOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_124()
+ {
+    if (jj_3R_124()) return true;
+    return false;
+  }
+
+  private boolean jj_3_36()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_58()
+ {
+    if (jj_scan_token(DATACOMPLEMENTOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_39()
+ {
+    if (jj_3R_56()) return true;
+    return false;
+  }
+
+  private boolean jj_3_130()
+ {
+    if (jj_scan_token(VARIABLE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_127()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_130()) {
+    jj_scanpos = xsp;
+    if (jj_3_131()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_95()
+ {
+    if (jj_scan_token(DATAPROPERTYRANGE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_53()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_39()) {
+    jj_scanpos = xsp;
+    if (jj_3_40()) {
+    jj_scanpos = xsp;
+    if (jj_3_41()) {
+    jj_scanpos = xsp;
+    if (jj_3_42()) {
+    jj_scanpos = xsp;
+    if (jj_3_43()) {
+    jj_scanpos = xsp;
+    if (jj_3_44()) return true;
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_70()
+ {
+    if (jj_scan_token(DATATYPEDEFINITION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_114()
+ {
+    if (jj_3R_117()) return true;
+    return false;
+  }
+
+  private boolean jj_3_128()
+ {
+    if (jj_scan_token(VARIABLE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_35()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3_81()
+ {
+    if (jj_3R_94()) return true;
+    return false;
+  }
+
+  private boolean jj_3_123()
+ {
+    if (jj_3R_123()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_96()
+ {
+    if (jj_scan_token(DATAPROPERTYDOMAIN)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_84()
+ {
+    if (jj_3R_97()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_126()
+ {
+    if (jj_scan_token(DIFFERENTINDIVIDUALSATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_116()
+ {
+    if (jj_scan_token(LANGIDENTIFIER)) return true;
+    if (jj_3R_118()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_56()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_125()
+ {
+    if (jj_scan_token(SAMEINDIVIDUALATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_116()
+ {
+    if (jj_scan_token(DATATYPE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_34()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3_113()
+ {
+    if (jj_3R_116()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_107()
+ {
+    if (jj_scan_token(NODEID)) return true;
+    return false;
+  }
+
+  private boolean jj_3_107()
+ {
+    if (jj_3R_90()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_124()
+ {
+    if (jj_scan_token(BUILTINATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_115()
+ {
+    if (jj_scan_token(NAMEDINDIVIDUAL)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_38()
+ {
+    if (jj_3R_55()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_94()
+ {
+    if (jj_scan_token(DISJOINTDATAPROPERTIES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_122()
+ {
+    if (jj_3R_122()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_134()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_123()
+ {
+    if (jj_scan_token(DATAPROPERTYATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_117()
+ {
+    if (jj_scan_token(ANNOTATIONPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_80()
+ {
+    if (jj_3R_93()) return true;
+    return false;
+  }
+
+  private boolean jj_3_83()
+ {
+    if (jj_3R_96()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_114()
+ {
+    if (jj_scan_token(DATAPROP)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_122()
+ {
+    if (jj_scan_token(OBJECTPROPERTYATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_93()
+ {
+    if (jj_scan_token(EQUIVALENTDATAPROPERTIES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_133()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3_121()
+ {
+    if (jj_3R_121()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_98()
+ {
+    if (jj_3R_133()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_121()
+ {
+    if (jj_scan_token(DATARANGEATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_112()
+ {
+    if (jj_3R_115()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_113()
+ {
+    if (jj_scan_token(OBJECTPROP)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_92()
+ {
+    if (jj_scan_token(SUBDATAPROPERTYOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_33()
+ {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_120()
+ {
+    if (jj_scan_token(CLASSATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_54()
+ {
+    if (jj_scan_token(OBJECTINVERSEOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_37()
+ {
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_90()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_37()) {
+    jj_scanpos = xsp;
+    if (jj_3_38()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_79()
+ {
+    if (jj_3R_92()) return true;
+    return false;
+  }
+
+  private boolean jj_3_82()
+ {
+    if (jj_3R_95()) return true;
+    return false;
+  }
+
+  private boolean jj_3_120()
+ {
+    if (jj_3R_120()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_66()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_79()) {
+    jj_scanpos = xsp;
+    if (jj_3_80()) {
+    jj_scanpos = xsp;
+    if (jj_3_81()) {
+    jj_scanpos = xsp;
+    if (jj_3_82()) {
+    jj_scanpos = xsp;
+    if (jj_3_83()) {
+    jj_scanpos = xsp;
+    if (jj_3_84()) return true;
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_119()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_120()) {
+    jj_scanpos = xsp;
+    if (jj_3_121()) {
+    jj_scanpos = xsp;
+    if (jj_3_122()) {
+    jj_scanpos = xsp;
+    if (jj_3_123()) {
+    jj_scanpos = xsp;
+    if (jj_3_124()) {
+    jj_scanpos = xsp;
+    if (jj_3_125()) {
+    jj_scanpos = xsp;
+    if (jj_3_126()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_112()
+ {
+    if (jj_scan_token(CLASS)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_72()
+ {
+    if (jj_scan_token(DLSAFERULE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_32()
+ {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  private boolean jj_3_111()
+ {
+    if (jj_3R_114()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_50()
+ {
+    if (jj_scan_token(DATAMAXCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_115()
+ {
+    if (jj_scan_token(DATATYPEIDENTIFIER)) return true;
+    if (jj_3R_56()) return true;
+    return false;
+  }
+
+  private boolean jj_3_117()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_115()) {
+    jj_scanpos = xsp;
+    if (jj_3_116()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_88()
+ {
+    if (jj_scan_token(TRANSITIVEOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_118()
+ {
+    if (jj_scan_token(PN_LOCAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3_31()
+ {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_135()
+ {
+    if (jj_scan_token(STRINGLITERAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_87()
+ {
+    if (jj_scan_token(IRREFLEXIVEOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49()
+ {
+    if (jj_scan_token(DATAEXACTCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_78()
+ {
+    if (jj_3R_90()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_62()
+ {
+    if (jj_3R_135()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_117()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3_110()
+ {
+    if (jj_3R_113()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_86()
+ {
+    if (jj_scan_token(REFLEXIVEOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_48()
+ {
+    if (jj_scan_token(DATAMINCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_77()
+ {
+    if (jj_3R_91()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_85()
+ {
+    if (jj_scan_token(ASYMMETRICOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_109()
+ {
+    if (jj_3R_112()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_47()
+ {
+    if (jj_scan_token(DATAHASVALUE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_99()
+ {
+    if (jj_3R_111()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_68()
+ {
+    if (jj_scan_token(DECLARATION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_45()
+ {
+    if (jj_scan_token(DATASOMEVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_84()
+ {
+    if (jj_scan_token(SYMMETRICOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_29()
+ {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_69()
+ {
+    if (jj_scan_token(HASKEY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_46()
+ {
+    if (jj_scan_token(DATAALLVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_83()
+ {
+    if (jj_scan_token(INVERSEFUNCTIONALOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_44()
+ {
+    if (jj_scan_token(OBJECTMAXCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_110()
+ {
+    if (jj_scan_token(ANNOTATIONPROPERTYRANGE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_15()
+ {
+    if (jj_3R_37()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_89()
+ {
+    if (jj_scan_token(INVERSEOBJECTPROPERTIES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_76()
+ {
+    if (jj_3R_90()) return true;
+    return false;
+  }
+
+  private boolean jj_3_98()
+ {
+    if (jj_3R_110()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_109()
+ {
+    if (jj_scan_token(ANNOTATIONPROPERTYDOMAIN)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_43()
+ {
+    if (jj_scan_token(OBJECTEXACTCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_105()
+ {
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_82()
+ {
+    if (jj_scan_token(FUNCTIONALOBJECTPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_74()
+ {
+    if (jj_3R_89()) return true;
+    return false;
+  }
+
+  private boolean jj_3_19()
+ {
+    if (jj_3R_41()) return true;
+    return false;
+  }
+
+  private boolean jj_3_75()
+ {
+    if (jj_3R_90()) return true;
+    return false;
+  }
+
+  private boolean jj_3_26()
+ {
+    if (jj_3R_48()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_111()
+ {
+    if (jj_scan_token(SUBANNOTATIONPROPERTYOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_81()
+ {
+    if (jj_scan_token(OBJECTPROPERTYDOMAIN)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_42()
+ {
+    if (jj_scan_token(OBJECTMINCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_14()
+ {
+    if (jj_3R_36()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_108()
+ {
+    if (jj_scan_token(ANNOTATIONASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_146()
+ {
+    if (jj_3R_134()) return true;
+    return false;
+  }
+
+  private boolean jj_3_30()
+ {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3_22()
+ {
+    if (jj_3R_44()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_41()
+ {
+    if (jj_scan_token(OBJECTHASSELF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_80()
+ {
+    if (jj_scan_token(OBJECTPROPERTYRANGE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_18()
+ {
+    if (jj_3R_40()) return true;
+    return false;
+  }
+
+  private boolean jj_3_104()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_40()
+ {
+    if (jj_scan_token(OBJECTHASVALUE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_100()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_25()
+ {
+    if (jj_3R_47()) return true;
+    return false;
+  }
+
+  private boolean jj_3_70()
+ {
+    if (jj_3R_85()) return true;
+    return false;
+  }
+
+  private boolean jj_3_97()
+ {
+    if (jj_3R_109()) return true;
+    return false;
+  }
+
+  private boolean jj_3_102()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_27()
+ {
+    if (jj_scan_token(IMPORT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_73()
+ {
+    if (jj_3R_88()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_38()
+ {
+    if (jj_scan_token(OBJECTSOMEVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_106()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_64()
+ {
+    if (jj_3R_79()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_39()
+ {
+    if (jj_scan_token(OBJECTALLVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_145()
+ {
+    if (jj_3R_56()) return true;
+    return false;
+  }
+
+  private boolean jj_3_103()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3_13()
+ {
+    if (jj_3R_35()) return true;
+    return false;
+  }
+
+  private boolean jj_3_67()
+ {
+    if (jj_3R_82()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_79()
+ {
+    if (jj_scan_token(DISJOINTOBJECTPROPERTIES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_101()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_37()
+ {
+    if (jj_scan_token(OBJECTONEOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_28()
+ {
+    if (jj_scan_token(ANNOTATION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_36()
+ {
+    if (jj_scan_token(OBJECTCOMPLEMENTOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_28()
+ {
+    if (jj_3R_50()) return true;
+    return false;
+  }
+
+  private boolean jj_3_95()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3_21()
+ {
+    if (jj_3R_43()) return true;
+    return false;
+  }
+
+  private boolean jj_3_17()
+ {
+    if (jj_3R_39()) return true;
+    return false;
+  }
+
+  private boolean jj_3_24()
+ {
+    if (jj_3R_46()) return true;
+    return false;
+  }
+
+  private boolean jj_3_119()
+ {
+    if (jj_3R_119()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_35()
+ {
+    if (jj_scan_token(OBJECTINTERSECTIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_78()
+ {
+    if (jj_scan_token(EQUIVALENTOBJECTPROPERTIES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_69()
+ {
+    if (jj_3R_84()) return true;
+    return false;
   }
 
   /** Generated Token Manager. */
@@ -2763,8 +5293,10 @@ signature.add(iri);
   /** Next token. */
   public Token jj_nt;
   private int jj_ntk;
+  private Token jj_scanpos, jj_lastpos;
+  private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[56];
+  final private int[] jj_la1 = new int[0];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2778,20 +5310,23 @@ signature.add(iri);
       jj_la1_init_4();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x1010000,0x1010000,0xfce40000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x800,0x0,0x0,0x0,0xfce40000,0xe40000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3c000000,0x1000000,0x0,0x800,0x1000000,0x0,0x0,0x2000000,0x180000,0x180000,0x0,0x0,0x0,0x800,0x0,0x800,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x12000,0x0,0x7ffe0e00,0x7ffe0e00,0x0,0x7ffe0e00,0x7ffe0e00,0x7ffe0e00,0xc1c0,0xc1c0,0xc1c0,0x1000,0xc1c0,0x0,0xc1c0,0xc1c0,0x0,0x12000,0x0,0x2000,0x1000,0x80001000,0x1000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1000,0x0,0x3e,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x2000000,0x0,0x0,0x0,0x0,0x1ffffff,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffffff,0x0,0xfff,0x0,0x0,0x0,0x3f000,0x0,0x1fc0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_2 = new int[] {};
    }
    private static void jj_la1_init_3() {
-      jj_la1_3 = new int[] {0x0,0x9000000,0x9000000,0x0,0x0,0x10,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x9000000,0x0,0x9000000,0x9000000,0x9000000,0x10,0x0,0x0,0x9000000,0x9000000,0x9000000,0x0,0x9000000,0x0,0x9000000,0x9000000,0x0,0x0,0x9000000,0x9000000,0x0,0x9000000,0x9000000,0x0,0x0,0x0,0x3f80,0x3f80,0x3f80,0x4000,0x9004000,0x4000,0x0,0x0,0x0,0x9000000,0x0,0x9000000,0x9000000,};
+      jj_la1_3 = new int[] {};
    }
    private static void jj_la1_init_4() {
-      jj_la1_4 = new int[] {0x0,0x0,0x0,0x70,0x70,0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x4,0x4,0x1,0x70,0x0,0x0,};
+      jj_la1_4 = new int[] {};
    }
+  final private JJCalls[] jj_2_rtns = new JJCalls[146];
+  private boolean jj_rescan = false;
+  private int jj_gc = 0;
 
   /** Constructor with InputStream. */
   public AspectOWLFunctionalSyntaxParser(java.io.InputStream stream) {
@@ -2804,7 +5339,7 @@ signature.add(iri);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
+    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Reinitialise. */
@@ -2818,7 +5353,8 @@ signature.add(iri);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 0; i++) jj_la1[i] = -1;
+    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Constructor. */
@@ -2828,7 +5364,7 @@ signature.add(iri);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
+    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Reinitialise. */
@@ -2838,7 +5374,7 @@ signature.add(iri);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
+    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Constructor with generated Token Manager. */
@@ -2847,7 +5383,7 @@ signature.add(iri);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
+    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   /** Reinitialise. */
@@ -2856,7 +5392,7 @@ signature.add(iri);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
+    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -2866,11 +5402,45 @@ signature.add(iri);
     jj_ntk = -1;
     if (token.kind == kind) {
       jj_gen++;
+      if (++jj_gc > 100) {
+        jj_gc = 0;
+        for (int i = 0; i < jj_2_rtns.length; i++) {
+          JJCalls c = jj_2_rtns[i];
+          while (c != null) {
+            if (c.gen < jj_gen) c.first = null;
+            c = c.next;
+          }
+        }
+      }
       return token;
     }
     token = oldToken;
     jj_kind = kind;
     throw generateParseException();
+  }
+
+  @SuppressWarnings("serial")
+  static private final class LookaheadSuccess extends java.lang.Error { }
+  final private LookaheadSuccess jj_ls = new LookaheadSuccess();
+  private boolean jj_scan_token(int kind) {
+    if (jj_scanpos == jj_lastpos) {
+      jj_la--;
+      if (jj_scanpos.next == null) {
+        jj_lastpos = jj_scanpos = jj_scanpos.next = token_source.getNextToken();
+      } else {
+        jj_lastpos = jj_scanpos = jj_scanpos.next;
+      }
+    } else {
+      jj_scanpos = jj_scanpos.next;
+    }
+    if (jj_rescan) {
+      int i = 0; Token tok = token;
+      while (tok != null && tok != jj_scanpos) { i++; tok = tok.next; }
+      if (tok != null) jj_add_error_token(kind, i);
+    }
+    if (jj_scanpos.kind != kind) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) throw jj_ls;
+    return false;
   }
 
 
@@ -2903,6 +5473,33 @@ signature.add(iri);
   private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
   private int[] jj_expentry;
   private int jj_kind = -1;
+  private int[] jj_lasttokens = new int[100];
+  private int jj_endpos;
+
+  private void jj_add_error_token(int kind, int pos) {
+    if (pos >= 100) return;
+    if (pos == jj_endpos + 1) {
+      jj_lasttokens[jj_endpos++] = kind;
+    } else if (jj_endpos != 0) {
+      jj_expentry = new int[jj_endpos];
+      for (int i = 0; i < jj_endpos; i++) {
+        jj_expentry[i] = jj_lasttokens[i];
+      }
+      jj_entries_loop: for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
+        int[] oldentry = (int[])(it.next());
+        if (oldentry.length == jj_expentry.length) {
+          for (int i = 0; i < jj_expentry.length; i++) {
+            if (oldentry[i] != jj_expentry[i]) {
+              continue jj_entries_loop;
+            }
+          }
+          jj_expentries.add(jj_expentry);
+          break jj_entries_loop;
+        }
+      }
+      if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
+    }
+  }
 
   /** Generate ParseException. */
   public ParseException generateParseException() {
@@ -2912,7 +5509,7 @@ signature.add(iri);
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 56; i++) {
+    for (int i = 0; i < 0; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2940,6 +5537,9 @@ signature.add(iri);
         jj_expentries.add(jj_expentry);
       }
     }
+    jj_endpos = 0;
+    jj_rescan_token();
+    jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
       exptokseq[i] = jj_expentries.get(i);
@@ -2953,6 +5553,186 @@ signature.add(iri);
 
   /** Disable tracing. */
   final public void disable_tracing() {
+  }
+
+  private void jj_rescan_token() {
+    jj_rescan = true;
+    for (int i = 0; i < 146; i++) {
+    try {
+      JJCalls p = jj_2_rtns[i];
+      do {
+        if (p.gen > jj_gen) {
+          jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
+          switch (i) {
+            case 0: jj_3_1(); break;
+            case 1: jj_3_2(); break;
+            case 2: jj_3_3(); break;
+            case 3: jj_3_4(); break;
+            case 4: jj_3_5(); break;
+            case 5: jj_3_6(); break;
+            case 6: jj_3_7(); break;
+            case 7: jj_3_8(); break;
+            case 8: jj_3_9(); break;
+            case 9: jj_3_10(); break;
+            case 10: jj_3_11(); break;
+            case 11: jj_3_12(); break;
+            case 12: jj_3_13(); break;
+            case 13: jj_3_14(); break;
+            case 14: jj_3_15(); break;
+            case 15: jj_3_16(); break;
+            case 16: jj_3_17(); break;
+            case 17: jj_3_18(); break;
+            case 18: jj_3_19(); break;
+            case 19: jj_3_20(); break;
+            case 20: jj_3_21(); break;
+            case 21: jj_3_22(); break;
+            case 22: jj_3_23(); break;
+            case 23: jj_3_24(); break;
+            case 24: jj_3_25(); break;
+            case 25: jj_3_26(); break;
+            case 26: jj_3_27(); break;
+            case 27: jj_3_28(); break;
+            case 28: jj_3_29(); break;
+            case 29: jj_3_30(); break;
+            case 30: jj_3_31(); break;
+            case 31: jj_3_32(); break;
+            case 32: jj_3_33(); break;
+            case 33: jj_3_34(); break;
+            case 34: jj_3_35(); break;
+            case 35: jj_3_36(); break;
+            case 36: jj_3_37(); break;
+            case 37: jj_3_38(); break;
+            case 38: jj_3_39(); break;
+            case 39: jj_3_40(); break;
+            case 40: jj_3_41(); break;
+            case 41: jj_3_42(); break;
+            case 42: jj_3_43(); break;
+            case 43: jj_3_44(); break;
+            case 44: jj_3_45(); break;
+            case 45: jj_3_46(); break;
+            case 46: jj_3_47(); break;
+            case 47: jj_3_48(); break;
+            case 48: jj_3_49(); break;
+            case 49: jj_3_50(); break;
+            case 50: jj_3_51(); break;
+            case 51: jj_3_52(); break;
+            case 52: jj_3_53(); break;
+            case 53: jj_3_54(); break;
+            case 54: jj_3_55(); break;
+            case 55: jj_3_56(); break;
+            case 56: jj_3_57(); break;
+            case 57: jj_3_58(); break;
+            case 58: jj_3_59(); break;
+            case 59: jj_3_60(); break;
+            case 60: jj_3_61(); break;
+            case 61: jj_3_62(); break;
+            case 62: jj_3_63(); break;
+            case 63: jj_3_64(); break;
+            case 64: jj_3_65(); break;
+            case 65: jj_3_66(); break;
+            case 66: jj_3_67(); break;
+            case 67: jj_3_68(); break;
+            case 68: jj_3_69(); break;
+            case 69: jj_3_70(); break;
+            case 70: jj_3_71(); break;
+            case 71: jj_3_72(); break;
+            case 72: jj_3_73(); break;
+            case 73: jj_3_74(); break;
+            case 74: jj_3_75(); break;
+            case 75: jj_3_76(); break;
+            case 76: jj_3_77(); break;
+            case 77: jj_3_78(); break;
+            case 78: jj_3_79(); break;
+            case 79: jj_3_80(); break;
+            case 80: jj_3_81(); break;
+            case 81: jj_3_82(); break;
+            case 82: jj_3_83(); break;
+            case 83: jj_3_84(); break;
+            case 84: jj_3_85(); break;
+            case 85: jj_3_86(); break;
+            case 86: jj_3_87(); break;
+            case 87: jj_3_88(); break;
+            case 88: jj_3_89(); break;
+            case 89: jj_3_90(); break;
+            case 90: jj_3_91(); break;
+            case 91: jj_3_92(); break;
+            case 92: jj_3_93(); break;
+            case 93: jj_3_94(); break;
+            case 94: jj_3_95(); break;
+            case 95: jj_3_96(); break;
+            case 96: jj_3_97(); break;
+            case 97: jj_3_98(); break;
+            case 98: jj_3_99(); break;
+            case 99: jj_3_100(); break;
+            case 100: jj_3_101(); break;
+            case 101: jj_3_102(); break;
+            case 102: jj_3_103(); break;
+            case 103: jj_3_104(); break;
+            case 104: jj_3_105(); break;
+            case 105: jj_3_106(); break;
+            case 106: jj_3_107(); break;
+            case 107: jj_3_108(); break;
+            case 108: jj_3_109(); break;
+            case 109: jj_3_110(); break;
+            case 110: jj_3_111(); break;
+            case 111: jj_3_112(); break;
+            case 112: jj_3_113(); break;
+            case 113: jj_3_114(); break;
+            case 114: jj_3_115(); break;
+            case 115: jj_3_116(); break;
+            case 116: jj_3_117(); break;
+            case 117: jj_3_118(); break;
+            case 118: jj_3_119(); break;
+            case 119: jj_3_120(); break;
+            case 120: jj_3_121(); break;
+            case 121: jj_3_122(); break;
+            case 122: jj_3_123(); break;
+            case 123: jj_3_124(); break;
+            case 124: jj_3_125(); break;
+            case 125: jj_3_126(); break;
+            case 126: jj_3_127(); break;
+            case 127: jj_3_128(); break;
+            case 128: jj_3_129(); break;
+            case 129: jj_3_130(); break;
+            case 130: jj_3_131(); break;
+            case 131: jj_3_132(); break;
+            case 132: jj_3_133(); break;
+            case 133: jj_3_134(); break;
+            case 134: jj_3_135(); break;
+            case 135: jj_3_136(); break;
+            case 136: jj_3_137(); break;
+            case 137: jj_3_138(); break;
+            case 138: jj_3_139(); break;
+            case 139: jj_3_140(); break;
+            case 140: jj_3_141(); break;
+            case 141: jj_3_142(); break;
+            case 142: jj_3_143(); break;
+            case 143: jj_3_144(); break;
+            case 144: jj_3_145(); break;
+            case 145: jj_3_146(); break;
+          }
+        }
+        p = p.next;
+      } while (p != null);
+      } catch(LookaheadSuccess ls) { }
+    }
+    jj_rescan = false;
+  }
+
+  private void jj_save(int index, int xla) {
+    JJCalls p = jj_2_rtns[index];
+    while (p.gen > jj_gen) {
+      if (p.next == null) { p = p.next = new JJCalls(); break; }
+      p = p.next;
+    }
+    p.gen = jj_gen + xla - jj_la; p.first = token; p.arg = xla;
+  }
+
+  static final class JJCalls {
+    int gen;
+    Token first;
+    int arg;
+    JJCalls next;
   }
 
 }

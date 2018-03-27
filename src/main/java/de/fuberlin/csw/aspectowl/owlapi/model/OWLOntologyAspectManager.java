@@ -30,13 +30,26 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
 
     private ConcurrentHashMap<OntologyAxiomTuple, Set<OWLAspectAssertionAxiom>> aspectsForObject = CollectionFactory.createSyncMap();
 
-    public OWLAspect getAspect(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLClassExpression expr) {
+    /**
+     * Creates and returns a new OWLAspect constructed from the given ontology, join point and advice class expression.
+     * @param expr
+     * @return
+     */
+    public OWLAspect getAspect(OWLClassExpression expr) {
         if (expr.isAnonymous()) {
             return new OWLAnonymousAspectImpl((OWLAnonymousClassExpression)expr);
         }
         return new OWLNamedAspectImpl(((OWLClass) expr).getIRI());
     }
 
+    /**
+     * Creates and returns a new OWLAspectAssertionAxiom for the given ontology, joint point, aspect and annotations.
+     * @param ontology
+     * @param joinPointAxiom
+     * @param aspect
+     * @param annotations
+     * @return
+     */
     public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLAspect aspect, Set<OWLAnnotation> annotations) {
         return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect, annotations);
     }
@@ -86,6 +99,10 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
             aspectsForObject.put(key, aspects);
         }
         aspects.add(aspectAssertionAxiom);
+    }
+
+    public void addPointCut(OWLPointcut pointcut) {
+
     }
 
     @Override

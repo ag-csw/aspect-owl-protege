@@ -182,7 +182,7 @@ public class AspectAssertionsList extends MList {
             OWLClassExpression expression = editor.getEditedObject();
             if (expression != null) {
                 OWLOntology ontology = getRoot().getOntology();
-                OWLAspect aspect = aspectManager.getAspect(ontology, getRoot().getAxiom(), expression);
+                OWLAspect aspect = aspectManager.getAspect(expression);
                 OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspect, Collections.EMPTY_SET);
                 editorKit.getModelManager().applyChange(new AddAxiom(ontology, aspectAssertionAxiom));
             }
@@ -236,7 +236,7 @@ public class AspectAssertionsList extends MList {
                 if (newAspect != null && !newAspect.equals(originalAspect)) {
                     ArrayList<OWLOntologyChange> changes = new ArrayList<>(2);
                     changes.add(new RemoveAxiom(ontology, aspectAssertionAxiom));
-                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspectManager.getAspect(ontology, getRoot().getAxiom(), newAspect), aspectAssertionAxiom.getAnnotations())));
+                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspectManager.getAspect(newAspect), aspectAssertionAxiom.getAnnotations())));
 
 //                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
                     editorKit.getModelManager().applyChanges(changes);

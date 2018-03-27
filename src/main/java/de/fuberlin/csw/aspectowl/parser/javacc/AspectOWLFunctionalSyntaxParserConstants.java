@@ -237,35 +237,35 @@ interface AspectOWLFunctionalSyntaxParserConstants {
   /** RegularExpression Id. */
   int INT = 119;
   /** RegularExpression Id. */
-  int FULLIRI = 120;
+  int ASPECT = 120;
   /** RegularExpression Id. */
-  int PNAME_NS = 121;
+  int ASPECTASSERTION = 121;
   /** RegularExpression Id. */
-  int PN_LOCAL = 122;
+  int SPARQLPOINTCUT = 122;
   /** RegularExpression Id. */
-  int PNAME_LN = 123;
+  int MODULEPOINTCUT = 123;
   /** RegularExpression Id. */
-  int PN_PREFIX = 124;
+  int DLQUERYPOINTCUT = 124;
   /** RegularExpression Id. */
-  int PN_CHARS_BASE = 125;
+  int FULLIRI = 125;
   /** RegularExpression Id. */
-  int PN_CHARS = 126;
+  int PNAME_NS = 126;
   /** RegularExpression Id. */
-  int PN_CHARS_U = 127;
+  int PN_LOCAL = 127;
   /** RegularExpression Id. */
-  int NODEID = 128;
+  int PNAME_LN = 128;
   /** RegularExpression Id. */
-  int ERROR = 129;
+  int PN_PREFIX = 129;
   /** RegularExpression Id. */
-  int ASPECT = 130;
+  int PN_CHARS_BASE = 130;
   /** RegularExpression Id. */
-  int ASPECTASSERTION = 131;
+  int PN_CHARS = 131;
   /** RegularExpression Id. */
-  int SPARQLPOINTCUT = 132;
+  int PN_CHARS_U = 132;
   /** RegularExpression Id. */
-  int MODULEPOINTCUT = 133;
+  int NODEID = 133;
   /** RegularExpression Id. */
-  int DLQUERYPOINTCUT = 134;
+  int ERROR = 134;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -396,6 +396,11 @@ interface AspectOWLFunctionalSyntaxParserConstants {
     "\"MainClasses\"",
     "\"=\"",
     "<INT>",
+    "\"Aspect\"",
+    "\"AspectAssertion\"",
+    "\"SPARQLPointcut\"",
+    "\"ModulePointcut\"",
+    "\"DLQueryPointcut\"",
     "<FULLIRI>",
     "<PNAME_NS>",
     "<PN_LOCAL>",
@@ -406,11 +411,6 @@ interface AspectOWLFunctionalSyntaxParserConstants {
     "<PN_CHARS_U>",
     "<NODEID>",
     "<ERROR>",
-    "\"Aspect\"",
-    "\"AspectAssertion\"",
-    "\"SPARQLPointcut\"",
-    "\"ModulePointcut\"",
-    "\"DLQueryPointcut\"",
   };
 
 }
