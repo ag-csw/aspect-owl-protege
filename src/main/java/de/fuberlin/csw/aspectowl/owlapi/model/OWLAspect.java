@@ -12,7 +12,7 @@ import org.semanticweb.owlapi.model.*;
  * @author ralph
  *
  */
-public interface OWLAspect extends OWLClassExpression {
+public interface OWLAspect extends OWLClassExpression, HasAnnotations {
 	
 	/**
 	 * Returns the pointcut of this aspect, i.e. the set of axioms that are
@@ -23,5 +23,5 @@ public interface OWLAspect extends OWLClassExpression {
 
 	public Set<OWLObjectProperty> getAccessibilityRelations();
 	
-	
+	public OWLAspect getAspectWithoutAnnotations();
 }

@@ -1,4 +1,4 @@
-package de.fuberlin.csw.aspectowl.owlapi.model.impl;
+package de.fuberlin.csw.aspectowl.owlapi.model;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLPointcut;
 

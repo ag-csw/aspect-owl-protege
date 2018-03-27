@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * Is in package uk.ac.manchester.cs.owl.owlapi because it needs to access the index and compareObjectOfSameType
@@ -29,9 +30,9 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     private OWLAnonymousClassExpressionImpl ceDelegate;
     private OWLAspectImplDelegate aspectDelegate;
 
-    public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression) {
+    public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression, Set<OWLAnnotation> annotations) {
         this.ceDelegate = (OWLAnonymousClassExpressionImpl) classExpression;
-        this.aspectDelegate = new OWLAspectImplDelegate(this);
+        this.aspectDelegate = new OWLAspectImplDelegate(this, annotations);
 
 
         // We are using the crowbar (aka Java Reflection) in order to make it possible to use the delegate pattern on the
@@ -46,7 +47,7 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
         indexMethod = getMethod(poorInnocentClass,"index");
         compareObjectOfSameTypeMethod = getMethod(poorInnocentClass,"compareObjectOfSameType", OWLObject.class);
 
-        Arrays.asList(indexMethod, compareObjectOfSameTypeMethod).forEach(method -> method.setAccessible(true));
+        Stream.of(indexMethod, compareObjectOfSameTypeMethod).forEach(method -> method.setAccessible(true));
 
     }
 
@@ -153,6 +154,12 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Nonnull
+    @Override
+    public Set<OWLAnnotation> getAnnotations() {
+        return aspectDelegate.getAnnotations();
     }
 
     private class NameParameterTypesTuple {

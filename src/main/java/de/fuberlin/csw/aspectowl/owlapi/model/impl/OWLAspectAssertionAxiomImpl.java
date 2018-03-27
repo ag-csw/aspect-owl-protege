@@ -7,10 +7,9 @@ import org.semanticweb.owlapi.model.*;
 import uk.ac.manchester.cs.owl.owlapi.OWLLogicalAxiomImplWithEntityAndAnonCaching;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
+import static org.semanticweb.owlapi.util.CollectionFactory.emptySet;
 
 public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAndAnonCaching implements OWLAspectAssertionAxiom {
 
@@ -18,8 +17,8 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     private OWLAxiom joinPointAxiom;
     private OWLAspect  aspect;
 
-    public OWLAspectAssertionAxiomImpl(@Nonnull OWLOntology ontology, @Nonnull OWLAxiom joinPointAxiom, @Nonnull OWLAspect aspect, @Nonnull Collection<? extends OWLAnnotation> annotations) {
-        super(annotations);
+    public OWLAspectAssertionAxiomImpl(@Nonnull OWLOntology ontology, @Nonnull OWLAxiom joinPointAxiom, @Nonnull OWLAspect aspect) {
+        super(aspect.getAnnotations());
         this.ontology = ontology;
         this.joinPointAxiom = joinPointAxiom;
         this.aspect = aspect;
@@ -54,13 +53,14 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     @Nonnull
     @Override
     public OWLAxiom getAxiomWithoutAnnotations() {
-        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect, Collections.EMPTY_SET);
+        OWLAspect aspectWithoutAnnotations = aspect.getAspectWithoutAnnotations();
+        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspectWithoutAnnotations);
     }
 
     @Nonnull
     @Override
     public OWLAxiom getAnnotatedAxiom(@Nonnull Set<OWLAnnotation> annotations) {
-        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect, Sets.union(getAnnotations(), annotations));
+        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect);
     }
 
     @Nonnull
@@ -111,4 +111,5 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     public int hashCode() {
         return Objects.hash(super.hashCode(), ontology, joinPointAxiom, aspect);
     }
+
 }

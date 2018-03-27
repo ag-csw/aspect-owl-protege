@@ -33,13 +33,14 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     /**
      * Creates and returns a new OWLAspect constructed from the given ontology, join point and advice class expression.
      * @param expr
+     * @param annotations
      * @return
      */
-    public OWLAspect getAspect(OWLClassExpression expr) {
+    public OWLAspect getAspect(OWLClassExpression expr, Set<OWLAnnotation> annotations) {
         if (expr.isAnonymous()) {
-            return new OWLAnonymousAspectImpl((OWLAnonymousClassExpression)expr);
+            return new OWLAnonymousAspectImpl((OWLAnonymousClassExpression)expr, annotations);
         }
-        return new OWLNamedAspectImpl(((OWLClass) expr).getIRI());
+        return new OWLNamedAspectImpl(((OWLClass) expr).getIRI(), annotations);
     }
 
     /**

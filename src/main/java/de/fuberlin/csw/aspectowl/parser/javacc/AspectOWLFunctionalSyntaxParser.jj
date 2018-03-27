@@ -99,7 +99,7 @@ public class AspectOWLFunctionalSyntaxParser {
 
     private void addAspects(OWLAxiom joinPointAxiom, Set<OWLAspect> aspects) {
         for (OWLAspect aspect : aspects) {
-            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, joinPointAxiom, aspect, annotations);
+            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, joinPointAxiom, aspect);
             am.addAspect(ontology, joinPointAxiom, aspectAssertionAxiom);
         }
     }
@@ -1388,7 +1388,7 @@ OWLAspect Aspect() :
 	Set<OWLAnnotation> annos = new HashSet<OWLAnnotation>();
 	OWLAnnotation anno;
 }
-{ (<ASPECT><OPENPAR> ((anno=Annotation(){annos.add(anno);})*) advice=Advice()<CLOSEPAR>) { return am.OWLAspect getAspect(ontology, OWLAxiom joinPointAxiom, OWLClassExpression advice); } }
+{ (<ASPECT><OPENPAR> ((anno=Annotation(){annos.add(anno);})*) advice=Advice()<CLOSEPAR>) { return am.getAspect(advice); } }
 
 OWLAspectAssertionAxiom AspectAssertion() :
 {
@@ -1430,7 +1430,7 @@ OWLPointcut Pointcut() :
 }
 { (pointcut = SPARQLPointcut() | pointcut = ModulePointcut() | pointcut = DLQueryPointcut()) { return pointcut; } }
 
-SPARQLPointCut SPARQLPointcut() :
+SPARQLPointcut SPARQLPointcut() :
 {
 	OWLAspect aspectAssertionAxiom;
 	String query;
