@@ -17,7 +17,6 @@ public class AspectOrientedOWLFunctionalSyntaxParserFactory extends OWLParserFac
 	private static final long serialVersionUID = 2617848554167933720L;
 
 	/**
-	 * @param format
 	 */
 	public AspectOrientedOWLFunctionalSyntaxParserFactory() {
 		super(new AspectOrientedFunctionalSyntaxDocumentFormatFactory());

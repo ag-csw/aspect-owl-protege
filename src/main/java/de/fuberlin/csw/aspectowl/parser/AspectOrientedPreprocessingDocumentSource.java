@@ -32,6 +32,7 @@ import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
 /**
  * @author ralph
  */
+@Deprecated
 public class AspectOrientedPreprocessingDocumentSource implements OWLOntologyDocumentSource {
 	
 	private final OWLOntologyDocumentSource originalSource;
