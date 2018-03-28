@@ -28,7 +28,8 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return instance;
     }
 
-    private ConcurrentHashMap<OntologyAxiomTuple, Set<OWLAspectAssertionAxiom>> aspectsForObject = CollectionFactory.createSyncMap();
+    private ConcurrentHashMap<OntologyObjectTuple<OWLAxiom>, Set<OWLAspectAssertionAxiom>> aspectsForAxiom = CollectionFactory.createSyncMap();
+    private ConcurrentHashMap<OntologyObjectTuple<OWLEntity>, Set<OWLAspectAssertionAxiom>> aspectsForEntity = CollectionFactory.createSyncMap();
 
     /**
      * Creates and returns a new OWLAspect constructed from the given ontology, join point and advice class expression.
@@ -44,47 +45,60 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     }
 
     /**
-     * Creates and returns a new OWLAspectAssertionAxiom for the given ontology, joint point, aspect and annotations.
+     * Creates and returns a new OWLAspectAssertionAxiom for the given ontology, joint point, and aspect.
+     * (Needed for creating object aspects)
      * @param ontology
      * @param joinPointAxiom
      * @param aspect
-     * @param annotations
      * @return
      */
-    public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLAspect aspect, Set<OWLAnnotation> annotations) {
-        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect, annotations);
+    public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLAspect aspect) {
+        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect);
     }
 
     /**
-     * Returns a set containing all aspects asserted for the given axiom.
-     * @param potentialJoinPoint a potential join point consisting of an owl axiom
+     * (Needed for creating aspects on entities, from standalone aspect assertions).
+     * @param ontology
+     * @param joinPoint
+     * @param advice
+     * @param axiomAnnos
+     * @return
+     */
+    public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLJoinPoint joinPoint, OWLClassExpression advice, Set<OWLAnnotation> axiomAnnos) {
+        return null; // TODO
+    }
+
+
+    /**
+     * Returns a set containing all aspects asserted for the given object.
+     * @param potentialJoinPoint a potential join point consisting of an owl object
      * @return a stream containing all aspects asserted for the given join point
      */
     public Set<OWLAspect> getAssertedAspects(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
-        return Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet()).stream().map(axiom -> axiom.getAspect()).collect(Collectors.toSet());
+        return Optional.ofNullable(aspectsForAxiom.get(new OntologyObjectTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet()).stream().map(axiom -> axiom.getAspect()).collect(Collectors.toSet());
     }
 
     /**
-     * Returns a set containing all aspects asserted for the given axiom.
-     * @param ontology the contology containing the axiom declaration
-     * @param potentialJoinPoint a potential join point consisting of an owl axiom
+     * Returns a set containing all aspects asserted for the given object.
+     * @param ontology the contology containing the object declaration
+     * @param potentialJoinPoint a potential join point consisting of an owl object
      * @return a stream containing all aspects asserted for the given join point
      */
     public Set<OWLAspectAssertionAxiom> getAspectAssertionAxioms(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
-        return Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet());
+        return Optional.ofNullable(aspectsForAxiom.get(new OntologyObjectTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet());
     }
 
     public void removeAspectAssertionAxiom(OWLOntology ontology, OWLAspectAssertionAxiom aspectAssertionAxiom) {
-        Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, aspectAssertionAxiom.getAxiom()))).orElse(Collections.emptySet()).remove(aspectAssertionAxiom);
+        Optional.ofNullable(aspectsForAxiom.get(new OntologyObjectTuple(ontology, aspectAssertionAxiom.getAxiom()))).orElse(Collections.emptySet()).remove(aspectAssertionAxiom);
     }
 
     public boolean hasAssertedAspects(OWLOntology ontology, OWLAxiom joinPointAxiom) {
-        return !Optional.ofNullable(aspectsForObject.get(new OntologyAxiomTuple(ontology, joinPointAxiom))).orElse(Collections.emptySet()).isEmpty();
+        return !Optional.ofNullable(aspectsForAxiom.get(new OntologyObjectTuple(ontology, joinPointAxiom))).orElse(Collections.emptySet()).isEmpty();
     }
 
     /**
-     * Returns a stream of all inferred aspects for the given axiom.
-     * @param potentialJoinPoint a potential join point consisting of an owl axiom
+     * Returns a stream of all inferred aspects for the given object.
+     * @param potentialJoinPoint a potential join point consisting of an owl object
      * @return a stream containing all inferred aspects for the given join point
      */
     public Set<OWLAspect> getInferredAspects(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
@@ -93,11 +107,11 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     }
 
     public void addAspect(OWLOntology ontology, OWLAxiom joinPointAxiom, OWLAspectAssertionAxiom aspectAssertionAxiom) {
-        OntologyAxiomTuple key = new OntologyAxiomTuple(ontology, joinPointAxiom);
-        Set<OWLAspectAssertionAxiom> aspects = aspectsForObject.get(key);
+        OntologyObjectTuple<OWLAxiom> key = new OntologyObjectTuple<>(ontology, joinPointAxiom);
+        Set<OWLAspectAssertionAxiom> aspects = aspectsForAxiom.get(key);
         if (aspects == null) {
             aspects = new HashSet<>();
-            aspectsForObject.put(key, aspects);
+            aspectsForAxiom.put(key, aspects);
         }
         aspects.add(aspectAssertionAxiom);
     }
@@ -132,31 +146,31 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     @Override
     public void visit(RemoveOntologyAnnotation change) {
         change.getOntology();
-        aspectsForObject.remove(change.getAnnotation());
+        aspectsForAxiom.remove(change.getAnnotation());
     }
 
-    private class OntologyAxiomTuple {
+    private class OntologyObjectTuple<O extends OWLObject> {
 
         private OWLOntology ontology;
-        private OWLAxiom axiom;
+        private O object;
 
-        public OntologyAxiomTuple(@Nonnull OWLOntology ontology, @Nonnull OWLAxiom axiom) {
+        public OntologyObjectTuple(@Nonnull OWLOntology ontology, @Nonnull O object) {
             this.ontology = ontology;
-            this.axiom = axiom;
+            this.object = object;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            OntologyAxiomTuple that = (OntologyAxiomTuple) o;
+            OntologyObjectTuple<O> that = (OntologyObjectTuple<O>) o;
             return Objects.equals(ontology, that.ontology) &&
-                    Objects.equals(axiom, that.axiom);
+                    Objects.equals(object, that.object);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(ontology, axiom);
+            return Objects.hash(ontology, object);
         }
     }
 }

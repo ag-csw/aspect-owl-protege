@@ -1,6 +1,7 @@
 package de.fuberlin.csw.aspectowl.owlapi.model.impl;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAnonymousAspect;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.OWLObjectTypeIndexProvider;
 import uk.ac.manchester.cs.owl.owlapi.OWLAnonymousClassExpressionImpl;
@@ -9,6 +10,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,6 +61,11 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     @Override
     public Set<OWLObjectProperty> getAccessibilityRelations() {
         return aspectDelegate.getAccessibilityRelations();
+    }
+
+    @Override
+    public OWLAspect getAspectWithoutAnnotations() {
+        return new OWLAnonymousAspectImpl(ceDelegate, Collections.EMPTY_SET);
     }
 
     @Nonnull

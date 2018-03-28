@@ -1,17 +1,47 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
-import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
-import de.fuberlin.csw.aspectowl.owlapi.model.OWLPointcut;
 import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 
+import java.util.Objects;
 import java.util.Set;
 
-public class DLQueryPointcut implements OWLPointcut {
+public class DLQueryPointcut extends OWLPointcut {
 
-    // TODO interface might need changes
-    public DLQueryPointcut(OWLAspect aspect,
-            OWLClassExpression dlQuery,
-            Set<OWLAnnotation> annotations) {
+    private OWLClassExpression dlQuery;
+
+    public DLQueryPointcut(OWLClassExpression dlQuery, Set<OWLAnnotation> annotations) {
+        super(annotations);
+        this.dlQuery = dlQuery;
+    }
+
+    public OWLClassExpression getDlQuery() {
+        return dlQuery;
+    }
+
+    @Override
+    public Set<OWLAxiom> getAssertedAxiomsInPointcut() {
+        //TODO implement DL Query
+        return null;
+    }
+
+    @Override
+    public Set<OWLAxiom> getInferredAxiomsInPointcut() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DLQueryPointcut)) return false;
+        DLQueryPointcut that = (DLQueryPointcut) o;
+        return Objects.equals(dlQuery, that.dlQuery);
+    }
+
+    @Override
+    public int hashCode() {
+        return 23 * super.hashCode() + Objects.hash(dlQuery);
     }
 }

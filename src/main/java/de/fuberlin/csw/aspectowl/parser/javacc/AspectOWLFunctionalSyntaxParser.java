@@ -90,7 +90,7 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
 
     private void addAspects(OWLAxiom joinPointAxiom, Set<OWLAspect> aspects) {
         for (OWLAspect aspect : aspects) {
-            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, joinPointAxiom, aspect, annotations);
+            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, joinPointAxiom, aspect);
             am.addAspect(ontology, joinPointAxiom, aspectAssertionAxiom);
         }
     }
@@ -120,6 +120,7 @@ FunctionalSyntaxDocumentFormat format = new FunctionalSyntaxDocumentFormat();
     OWLImportsDeclaration decl;
     int count = 0;
     IRI versionIRI = null;
+    OWLPointcut pointcut;
     jj_consume_token(ONTOLOGY);
     jj_consume_token(OPENPAR);
     if (jj_2_3(2)) {
@@ -151,7 +152,7 @@ applyChange(new AddOntologyAnnotation(ontology, anno));
         currentAnnotations.clear();
       } else if (jj_2_7(2)) {
         pointcut = Pointcut();
-applyChange(new AddOntologyPointcut(ontology, pointcut));
+applyChange(new AddPointcut(ontology, pointcut));
         currentAnnotations.clear();
       } else {
         jj_consume_token(-1);
@@ -669,7 +670,10 @@ if(rng == null) {
     datatype = DatatypeIRI();
     dr = DataRange();
     jj_consume_token(CLOSEPAR);
-OWLDatatypeDefinitionAxiom result = df.getOWLDatatypeDefinitionAxiom(datatype, dr, axAnnos);
+OWLDatatypeDefinitionAxiom ax = df.getOWLDatatypeDefinitionAxiom(datatype, dr, axAnnos);
+    addAspects(ax, aspects);
+    {if ("" != null) return ax;}
+    throw new Error("Missing return statement in function");
   }
 
   final public OWLDataRange DataRange() throws ParseException {OWLDataRange rng;
@@ -857,7 +861,10 @@ OWLClassAxiom ClassAxiom() throws ParseException {OWLClassAxiom ax;
     subClass = ClassExpression();
     superClass = ClassExpression();
     jj_consume_token(CLOSEPAR);
-OWLClassAxiom result = df.getOWLSubClassOfAxiom(subClass, superClass, axiomAnnos);
+OWLClassAxiom ax = df.getOWLSubClassOfAxiom(subClass, superClass, axiomAnnos);
+    addAspects(ax, aspects);
+    {if ("" != null) return ax;}
+    throw new Error("Missing return statement in function");
   }
 
   final public OWLClassAxiom EquivalentClasses() throws ParseException {Set<OWLClassExpression> classExpressions;
@@ -869,7 +876,10 @@ OWLClassAxiom result = df.getOWLSubClassOfAxiom(subClass, superClass, axiomAnnos
     aspects = AxiomAspectSet();
     classExpressions = ClassExpressionSet();
     jj_consume_token(CLOSEPAR);
-OWLClassAxiom result = df.getOWLEquivalentClassesAxiom(classExpressions, axiomAnnos);
+OWLClassAxiom ax = df.getOWLEquivalentClassesAxiom(classExpressions, axiomAnnos);
+    addAspects(ax, aspects);
+    {if ("" != null) return ax;}
+    throw new Error("Missing return statement in function");
   }
 
   final public OWLClassAxiom DisjointClasses() throws ParseException {Set<OWLClassExpression> classExpressions;
@@ -881,7 +891,10 @@ OWLClassAxiom result = df.getOWLEquivalentClassesAxiom(classExpressions, axiomAn
     aspects = AxiomAspectSet();
     classExpressions = ClassExpressionSet();
     jj_consume_token(CLOSEPAR);
-OWLClassAxiom result = df.getOWLDisjointClassesAxiom(classExpressions, axiomAnnos);
+OWLClassAxiom ax = df.getOWLDisjointClassesAxiom(classExpressions, axiomAnnos);
+    addAspects(ax, aspects);
+    {if ("" != null) return ax;}
+    throw new Error("Missing return statement in function");
   }
 
   final public OWLClassAxiom DisjointUnion() throws ParseException {OWLClass cls;
@@ -895,7 +908,10 @@ OWLClassAxiom result = df.getOWLDisjointClassesAxiom(classExpressions, axiomAnno
     cls = ClassIRI();
     classExpressions = ClassExpressionSet();
     jj_consume_token(CLOSEPAR);
-OWLClassAxiom result = df.getOWLDisjointUnionAxiom(cls, classExpressions, axiomAnnos);
+OWLClassAxiom ax = df.getOWLDisjointUnionAxiom(cls, classExpressions, axiomAnnos);
+    addAspects(ax, aspects);
+    {if ("" != null) return ax;}
+    throw new Error("Missing return statement in function");
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -964,7 +980,7 @@ props.add(prop);
     List<OWLObjectPropertyExpression> chain = null;
     OWLObjectPropertyExpression superProperty = null;
     Set<OWLAnnotation> axiomAnnos;
-        Set<OWLAspect> axiomAspects;
+        Set<OWLAspect> aspects;
     jj_consume_token(SUBOBJECTPROPERTYOF);
     jj_consume_token(OPENPAR);
     axiomAnnos = AxiomAnnotationSet();
@@ -980,13 +996,13 @@ props.add(prop);
     superProperty = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 if(subProperty != null) {
-            OWLPropertyAxiom ax = df.getOWLSubObjectPropertyOfAxiom(subProperty, superProperty, axiomAnnos, axiomAspects);
-            addAspects(ax, aspects, axiomAnnos);
+            OWLPropertyAxiom ax = df.getOWLSubObjectPropertyOfAxiom(subProperty, superProperty, axiomAnnos);
+            addAspects(ax, aspects);
             {if ("" != null) return ax;}
         }
         if(chain != null) {
-            OWLPropertyAxiom ax = df.getOWLSubPropertyChainOfAxiom(chain, superProperty, axiomAnnos);
-            addAspects(ax, aspects, axiomAnnos);
+            OWLPropertyAxiom ax = df.getOWLSubPropertyChainOfAxiom(chain, superProperty);
+            addAspects(ax, aspects);
             {if ("" != null) return ax;}
         }
         {if ("" != null) return null;}
@@ -1003,7 +1019,7 @@ if(subProperty != null) {
     props = ObjectPropertySet();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLEquivalentObjectPropertiesAxiom(props, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1018,7 +1034,7 @@ OWLPropertyAxiom ax = df.getOWLEquivalentObjectPropertiesAxiom(props, axiomAnnos
     props = ObjectPropertySet();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLDisjointObjectPropertiesAxiom(props, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1055,7 +1071,7 @@ props.add(prop);
     range = ClassExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLObjectPropertyRangeAxiom(prop, range, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1072,7 +1088,7 @@ OWLPropertyAxiom ax = df.getOWLObjectPropertyRangeAxiom(prop, range, axiomAnnos)
     desc = ClassExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLObjectPropertyDomainAxiom(prop, desc, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1087,7 +1103,7 @@ OWLPropertyAxiom ax = df.getOWLObjectPropertyDomainAxiom(prop, desc, axiomAnnos)
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax =  df.getOWLFunctionalObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1104,7 +1120,7 @@ OWLPropertyAxiom ax =  df.getOWLFunctionalObjectPropertyAxiom(prop, axiomAnnos);
     propB = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax =  df.getOWLInverseObjectPropertiesAxiom(propA, propB, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1119,7 +1135,7 @@ OWLPropertyAxiom ax =  df.getOWLInverseObjectPropertiesAxiom(propA, propB, axiom
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax =  df.getOWLInverseFunctionalObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1134,7 +1150,7 @@ OWLPropertyAxiom ax =  df.getOWLInverseFunctionalObjectPropertyAxiom(prop, axiom
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLSymmetricObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1149,7 +1165,7 @@ OWLPropertyAxiom ax = df.getOWLSymmetricObjectPropertyAxiom(prop, axiomAnnos);
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLAsymmetricObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1164,7 +1180,7 @@ OWLPropertyAxiom ax = df.getOWLAsymmetricObjectPropertyAxiom(prop, axiomAnnos);
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLReflexiveObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1179,20 +1195,22 @@ OWLPropertyAxiom ax = df.getOWLReflexiveObjectPropertyAxiom(prop, axiomAnnos);
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLIrreflexiveObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
   final public OWLPropertyAxiom TransitiveObjectProperty() throws ParseException {OWLObjectPropertyExpression prop;
     Set<OWLAnnotation> axiomAnnos;
+    Set<OWLAspect> aspects;
     jj_consume_token(TRANSITIVEOBJECTPROPERTY);
     jj_consume_token(OPENPAR);
     axiomAnnos = AxiomAnnotationSet();
+    aspects = AxiomAspectSet();
     prop = ObjectPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLTransitiveObjectPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1236,20 +1254,22 @@ OWLPropertyAxiom DataPropertyAxiom() throws ParseException {OWLPropertyAxiom ax;
     superProperty = DataPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLSubDataPropertyOfAxiom(subProperty, superProperty, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
 
   final public OWLPropertyAxiom EquivalentDataProperties() throws ParseException {Set<OWLDataPropertyExpression> props;
     Set<OWLAnnotation> axiomAnnos;
+    Set<OWLAspect> aspects;
     jj_consume_token(EQUIVALENTDATAPROPERTIES);
     jj_consume_token(OPENPAR);
     axiomAnnos = AxiomAnnotationSet();
+    aspects = AxiomAspectSet();
     props = DataPropertySet();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLEquivalentDataPropertiesAxiom(props, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1264,7 +1284,7 @@ OWLPropertyAxiom ax = df.getOWLEquivalentDataPropertiesAxiom(props, axiomAnnos);
     props = DataPropertySet();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLDisjointDataPropertiesAxiom(props, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1301,7 +1321,7 @@ props.add(prop);
     domain = ClassExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLDataPropertyDomainAxiom(prop, domain, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1318,7 +1338,7 @@ OWLPropertyAxiom ax = df.getOWLDataPropertyDomainAxiom(prop, domain, axiomAnnos)
     rng = DataRange();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLDataPropertyRangeAxiom(prop, rng, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1333,7 +1353,7 @@ OWLPropertyAxiom ax = df.getOWLDataPropertyRangeAxiom(prop, rng, axiomAnnos);
     prop = DataPropertyExpression();
     jj_consume_token(CLOSEPAR);
 OWLPropertyAxiom ax = df.getOWLFunctionalDataPropertyAxiom(prop, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1397,7 +1417,7 @@ individuals.add(ind);
     individuals = IndividualSet();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLSameIndividualAxiom(individuals, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1412,7 +1432,7 @@ OWLIndividualAxiom ax = df.getOWLSameIndividualAxiom(individuals, axiomAnnos);
     individuals = IndividualSet();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLDifferentIndividualsAxiom(individuals, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1429,7 +1449,7 @@ OWLIndividualAxiom ax = df.getOWLDifferentIndividualsAxiom(individuals, axiomAnn
     ind = Individual();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLClassAssertionAxiom(desc, ind, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1448,7 +1468,7 @@ OWLIndividualAxiom ax = df.getOWLClassAssertionAxiom(desc, ind, axiomAnnos);
     obj = Individual();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLObjectPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1467,7 +1487,7 @@ OWLIndividualAxiom ax = df.getOWLObjectPropertyAssertionAxiom(prop, subj, obj, a
     obj = Individual();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLNegativeObjectPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1486,7 +1506,7 @@ OWLIndividualAxiom ax = df.getOWLNegativeObjectPropertyAssertionAxiom(prop, subj
     obj = Literal();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLDataPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1495,15 +1515,17 @@ OWLIndividualAxiom ax = df.getOWLDataPropertyAssertionAxiom(prop, subj, obj, axi
     OWLDataPropertyExpression prop;
     OWLLiteral obj;
     Set<OWLAnnotation> axiomAnnos;
+    Set<OWLAspect> aspects;
     jj_consume_token(NEGATIVEDATAPROPERTYASSERTION);
     jj_consume_token(OPENPAR);
     axiomAnnos = AxiomAnnotationSet();
+    aspects = AxiomAspectSet();
     prop = DataPropertyExpression();
     subj = Individual();
     obj = Literal();
     jj_consume_token(CLOSEPAR);
 OWLIndividualAxiom ax = df.getOWLNegativeDataPropertyAssertionAxiom(prop, subj, obj, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1646,7 +1668,7 @@ annos.add(anno);
     val = AnnotationValue();
     jj_consume_token(CLOSEPAR);
 OWLAnnotationAssertionAxiom ax = df.getOWLAnnotationAssertionAxiom(prop, subj, val, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1663,7 +1685,7 @@ OWLAnnotationAssertionAxiom ax = df.getOWLAnnotationAssertionAxiom(prop, subj, v
     superProperty = AnnotationPropertyIRI();
     jj_consume_token(CLOSEPAR);
 OWLSubAnnotationPropertyOfAxiom ax = df.getOWLSubAnnotationPropertyOfAxiom(subProp, superProperty, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1680,7 +1702,7 @@ OWLSubAnnotationPropertyOfAxiom ax = df.getOWLSubAnnotationPropertyOfAxiom(subPr
     domain = IRI();
     jj_consume_token(CLOSEPAR);
 OWLAnnotationPropertyDomainAxiom ax = df.getOWLAnnotationPropertyDomainAxiom(prop, domain, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1697,7 +1719,7 @@ OWLAnnotationPropertyDomainAxiom ax = df.getOWLAnnotationPropertyDomainAxiom(pro
     range = IRI();
     jj_consume_token(CLOSEPAR);
 OWLAnnotationPropertyRangeAxiom ax = df.getOWLAnnotationPropertyRangeAxiom(prop, range, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -1738,7 +1760,7 @@ props.add(prop);
     jj_consume_token(CLOSEPAR);
     jj_consume_token(CLOSEPAR);
 OWLHasKeyAxiom ax = df.getOWLHasKeyAxiom(ce, props, axiomAnnos);
-    addAspects(ax, aspects, axiomAnnos);
+    addAspects(ax, aspects);
     {if ("" != null) return ax;}
     throw new Error("Missing return statement in function");
   }
@@ -2037,7 +2059,7 @@ arg = df.getSWRLLiteralArgument(literal);
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   final public 
-OWLAspect Aspect() throws ParseException {OWLAdvice advice;
+OWLAspect Aspect() throws ParseException {OWLClassExpression advice;
         Set<OWLAnnotation> annos = new HashSet<OWLAnnotation>();
         OWLAnnotation anno;
     jj_consume_token(ASPECT);
@@ -2054,12 +2076,12 @@ annos.add(anno);
     }
     advice = Advice();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return am.getAspect(advice);}
+{if ("" != null) return am.getAspect(advice, annos);}
     throw new Error("Missing return statement in function");
   }
 
   final public OWLAspectAssertionAxiom AspectAssertion() throws ParseException {OWLJoinPoint joinPoint;
-        OWLAdvice advice;
+        OWLClassExpression advice;
         Set<OWLAnnotation> axiomAnnos;
     jj_consume_token(ASPECTASSERTION);
     jj_consume_token(OPENPAR);
@@ -2067,7 +2089,7 @@ annos.add(anno);
     joinPoint = JoinPoint();
     advice = Advice();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return df.getOWLAspectAssertionAxiom(joinPoint, advice, axiomAnnos);}
+{if ("" != null) return am.getAspectAssertionAxiom(ontology, joinPoint, advice, axiomAnnos);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2103,16 +2125,16 @@ aspects.add(aspect);
     throw new Error("Missing return statement in function");
   }
 
-  final public OWLJoinPoint JoinPoint() throws ParseException {OWLJoinPoint joinPoint;
+  final public OWLJoinPoint JoinPoint() throws ParseException {OWLAnnotationSubject subject;
     if (jj_2_135(2)) {
-      joinPoint = IRI();
+      subject = IRI();
     } else if (jj_2_136(2)) {
-      joinPoint = AnonymousIndividual();
+      subject = AnonymousIndividual();
     } else {
       jj_consume_token(-1);
       throw new ParseException();
     }
-{if ("" != null) return joinPoint;}
+if (subject instanceof IRI) {if ("" != null) return new OWLJoinPoint((IRI)subject);} {if ("" != null) return new OWLJoinPoint((OWLAnonymousIndividual)subject);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2146,7 +2168,7 @@ aspects.add(aspect);
     aspectAssertionAxiom = Aspect();
     query = QuotedString();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new SPARQLPointcut(aspectAssertionAxiom, query, annotations);}
+{if ("" != null) return new SPARQLPointcut(query, annotations);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2159,7 +2181,7 @@ aspects.add(aspect);
     aspectAssertionAxiom = Aspect();
     signature = Signature();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new OWLModulePointcut(aspectAssertionAxiom, query, annotations);}
+{if ("" != null) return new OWLModulePointcut(signature, annotations);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2209,7 +2231,7 @@ signature.add(iri);
     aspect = Aspect();
     dlQuery = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new DLQueryPointcut(aspect, dlQuery, annotations);}
+{if ("" != null) return new DLQueryPointcut(dlQuery, annotations);}
     throw new Error("Missing return statement in function");
   }
 
@@ -3381,45 +3403,10 @@ signature.add(iri);
     finally { jj_save(145, xla); }
   }
 
-  private boolean jj_3R_34()
+  private boolean jj_3R_105()
  {
-    if (jj_scan_token(OBJECTUNIONOF)) return true;
+    if (jj_scan_token(NEGATIVEDATAPROPERTYASSERTION)) return true;
     if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_96()
- {
-    if (jj_3R_108()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_71()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_96()) {
-    jj_scanpos = xsp;
-    if (jj_3_97()) {
-    jj_scanpos = xsp;
-    if (jj_3_98()) {
-    jj_scanpos = xsp;
-    if (jj_3_99()) return true;
-    }
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3_72()
- {
-    if (jj_3R_87()) return true;
-    return false;
-  }
-
-  private boolean jj_3_12()
- {
-    if (jj_3R_34()) return true;
     return false;
   }
 
@@ -3429,45 +3416,40 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_55()
+  private boolean jj_3_12()
  {
-    if (jj_3R_26()) return true;
+    if (jj_3R_34()) return true;
     return false;
   }
 
-  private boolean jj_3_66()
+  private boolean jj_3R_91()
  {
-    if (jj_3R_81()) return true;
-    return false;
-  }
-
-  private boolean jj_3_63()
- {
-    if (jj_3R_78()) return true;
-    return false;
-  }
-
-  private boolean jj_3_94()
- {
-    if (jj_3R_106()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_52()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_94()) {
-    jj_scanpos = xsp;
-    if (jj_3_95()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_77()
- {
-    if (jj_scan_token(SUBOBJECTPROPERTYOF)) return true;
+    if (jj_scan_token(SUBOBJECTPROPERTYCHAIN)) return true;
     if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_93()
+ {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3_139()
+ {
+    if (jj_3R_131()) return true;
+    return false;
+  }
+
+  private boolean jj_3_71()
+ {
+    if (jj_3R_86()) return true;
+    return false;
+  }
+
+  private boolean jj_3_61()
+ {
+    if (jj_3R_76()) return true;
     return false;
   }
 
@@ -3477,15 +3459,72 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_106()
+  private boolean jj_3_68()
  {
-    if (jj_3R_26()) return true;
+    if (jj_3R_83()) return true;
     return false;
   }
 
-  private boolean jj_3_61()
+  private boolean jj_3R_103()
  {
-    if (jj_3R_76()) return true;
+    if (jj_scan_token(DATAPROPERTYASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_65()
+ {
+    if (jj_3R_80()) return true;
+    return false;
+  }
+
+  private boolean jj_3_62()
+ {
+    if (jj_3R_77()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_65()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_62()) {
+    jj_scanpos = xsp;
+    if (jj_3_63()) {
+    jj_scanpos = xsp;
+    if (jj_3_64()) {
+    jj_scanpos = xsp;
+    if (jj_3_65()) {
+    jj_scanpos = xsp;
+    if (jj_3_66()) {
+    jj_scanpos = xsp;
+    if (jj_3_67()) {
+    jj_scanpos = xsp;
+    if (jj_3_68()) {
+    jj_scanpos = xsp;
+    if (jj_3_69()) {
+    jj_scanpos = xsp;
+    if (jj_3_70()) {
+    jj_scanpos = xsp;
+    if (jj_3_71()) {
+    jj_scanpos = xsp;
+    if (jj_3_72()) {
+    jj_scanpos = xsp;
+    if (jj_3_73()) {
+    jj_scanpos = xsp;
+    if (jj_3_74()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
     return false;
   }
 
@@ -3501,15 +3540,15 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_143()
- {
-    if (jj_3R_133()) return true;
-    return false;
-  }
-
   private boolean jj_3_20()
  {
     if (jj_3R_42()) return true;
+    return false;
+  }
+
+  private boolean jj_3_52()
+ {
+    if (jj_3R_67()) return true;
     return false;
   }
 
@@ -3584,23 +3623,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_105()
+  private boolean jj_3_142()
  {
-    if (jj_scan_token(NEGATIVEDATAPROPERTYASSERTION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_52()
- {
-    if (jj_3R_67()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_91()
- {
-    if (jj_scan_token(SUBOBJECTPROPERTYCHAIN)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_55()) return true;
     return false;
   }
 
@@ -3610,162 +3635,15 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_10()
- {
-    if (jj_3R_32()) return true;
-    return false;
-  }
-
-  private boolean jj_3_93()
- {
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
-  private boolean jj_3_44()
- {
-    if (jj_3R_61()) return true;
-    return false;
-  }
-
-  private boolean jj_3_139()
- {
-    if (jj_3R_131()) return true;
-    return false;
-  }
-
-  private boolean jj_3_71()
- {
-    if (jj_3R_86()) return true;
-    return false;
-  }
-
-  private boolean jj_3_68()
- {
-    if (jj_3R_83()) return true;
-    return false;
-  }
-
-  private boolean jj_3_65()
- {
-    if (jj_3R_80()) return true;
-    return false;
-  }
-
-  private boolean jj_3_62()
- {
-    if (jj_3R_77()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_65()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_62()) {
-    jj_scanpos = xsp;
-    if (jj_3_63()) {
-    jj_scanpos = xsp;
-    if (jj_3_64()) {
-    jj_scanpos = xsp;
-    if (jj_3_65()) {
-    jj_scanpos = xsp;
-    if (jj_3_66()) {
-    jj_scanpos = xsp;
-    if (jj_3_67()) {
-    jj_scanpos = xsp;
-    if (jj_3_68()) {
-    jj_scanpos = xsp;
-    if (jj_3_69()) {
-    jj_scanpos = xsp;
-    if (jj_3_70()) {
-    jj_scanpos = xsp;
-    if (jj_3_71()) {
-    jj_scanpos = xsp;
-    if (jj_3_72()) {
-    jj_scanpos = xsp;
-    if (jj_3_73()) {
-    jj_scanpos = xsp;
-    if (jj_3_74()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_103()
- {
-    if (jj_scan_token(DATAPROPERTYASSERTION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_32()
- {
-    if (jj_scan_token(PNAME_LN)) return true;
-    return false;
-  }
-
-  private boolean jj_3_60()
- {
-    if (jj_3R_75()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_31()
- {
-    if (jj_scan_token(FULLIRI)) return true;
-    return false;
-  }
-
-  private boolean jj_3_142()
- {
-    if (jj_3R_55()) return true;
-    return false;
-  }
-
-  private boolean jj_3_9()
- {
-    if (jj_3R_31()) return true;
-    return false;
-  }
-
   private boolean jj_3_89()
  {
     if (jj_3R_102()) return true;
     return false;
   }
 
-  private boolean jj_3R_26()
+  private boolean jj_3_44()
  {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_9()) {
-    jj_scanpos = xsp;
-    if (jj_3_10()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3_51()
- {
-    if (jj_3R_66()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_76()
- {
-    if (jj_scan_token(DISJOINTUNION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_61()) return true;
     return false;
   }
 
@@ -3782,9 +3660,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_2()
+  private boolean jj_3_10()
  {
-    if (jj_3R_26()) return true;
+    if (jj_3R_32()) return true;
     return false;
   }
 
@@ -3795,29 +3673,22 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_25()
+  private boolean jj_3R_76()
  {
-    if (jj_scan_token(PREFIX)) return true;
+    if (jj_scan_token(DISJOINTUNION)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
-  private boolean jj_3_43()
+  private boolean jj_3_60()
  {
-    if (jj_3R_60()) return true;
+    if (jj_3R_75()) return true;
     return false;
   }
 
-  private boolean jj_3R_75()
+  private boolean jj_3R_32()
  {
-    if (jj_scan_token(DISJOINTCLASSES)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_55()
- {
-    if (jj_3R_70()) return true;
+    if (jj_scan_token(PNAME_LN)) return true;
     return false;
   }
 
@@ -3863,15 +3734,114 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_59()
+  private boolean jj_3R_31()
  {
-    if (jj_3R_74()) return true;
+    if (jj_scan_token(FULLIRI)) return true;
     return false;
   }
 
-  private boolean jj_3_8()
+  private boolean jj_3_51()
  {
-    if (jj_3R_30()) return true;
+    if (jj_3R_66()) return true;
+    return false;
+  }
+
+  private boolean jj_3_140()
+ {
+    if (jj_3R_132()) return true;
+    return false;
+  }
+
+  private boolean jj_3_9()
+ {
+    if (jj_3R_31()) return true;
+    return false;
+  }
+
+  private boolean jj_3_88()
+ {
+    if (jj_3R_101()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_75()
+ {
+    if (jj_scan_token(DISJOINTCLASSES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_26()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_9()) {
+    jj_scanpos = xsp;
+    if (jj_3_10()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_131()
+ {
+    if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3_129()
+ {
+    if (jj_3R_106()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_130()
+ {
+    if (jj_scan_token(MODULEPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_127()
+ {
+    if (jj_3R_127()) return true;
+    return false;
+  }
+
+  private boolean jj_3_2()
+ {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3_43()
+ {
+    if (jj_3R_60()) return true;
+    return false;
+  }
+
+  private boolean jj_3_85()
+ {
+    if (jj_3R_98()) return true;
+    return false;
+  }
+
+  private boolean jj_3_55()
+ {
+    if (jj_3R_70()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_101()
+ {
+    if (jj_scan_token(CLASSASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_25()
+ {
+    if (jj_scan_token(PREFIX)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -3882,27 +3852,86 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_59()
+ {
+    if (jj_3R_74()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_129()
+ {
+    if (jj_scan_token(SPARQLPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_48()
  {
     if (jj_3R_63()) return true;
     return false;
   }
 
-  private boolean jj_3_88()
+  private boolean jj_3_118()
  {
-    if (jj_3R_101()) return true;
+    if (jj_3R_119()) return true;
     return false;
   }
 
-  private boolean jj_3_140()
+  private boolean jj_3_136()
  {
-    if (jj_3R_132()) return true;
+    if (jj_3R_107()) return true;
     return false;
   }
 
-  private boolean jj_3_131()
+  private boolean jj_3_8()
  {
-    if (jj_3R_62()) return true;
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  private boolean jj_3_91()
+ {
+    if (jj_3R_104()) return true;
+    return false;
+  }
+
+  private boolean jj_3_54()
+ {
+    if (jj_3R_69()) return true;
+    return false;
+  }
+
+  private boolean jj_3_137()
+ {
+    if (jj_3R_129()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_100()
+ {
+    if (jj_scan_token(DIFFERENTINDIVIDUALS)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_29()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_137()) {
+    jj_scanpos = xsp;
+    if (jj_3_138()) {
+    jj_scanpos = xsp;
+    if (jj_3_139()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_73()
+ {
+    if (jj_scan_token(SUBCLASSOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -3915,9 +3944,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_54()
+  private boolean jj_3_50()
  {
-    if (jj_3R_69()) return true;
+    if (jj_3R_65()) return true;
     return false;
   }
 
@@ -3927,54 +3956,15 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_129()
+  private boolean jj_3_87()
  {
-    if (jj_3R_106()) return true;
+    if (jj_3R_100()) return true;
     return false;
   }
 
-  private boolean jj_3R_73()
+  private boolean jj_3_126()
  {
-    if (jj_scan_token(SUBCLASSOF)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_130()
- {
-    if (jj_scan_token(MODULEPOINTCUT)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_50()
- {
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
-  private boolean jj_3_85()
- {
-    if (jj_3R_98()) return true;
-    return false;
-  }
-
-  private boolean jj_3_127()
- {
-    if (jj_3R_127()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_101()
- {
-    if (jj_scan_token(CLASSASSERTION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_6()
- {
-    if (jj_3R_28()) return true;
+    if (jj_3R_126()) return true;
     return false;
   }
 
@@ -4001,16 +3991,34 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_136()
+  private boolean jj_3_6()
  {
-    if (jj_3R_107()) return true;
+    if (jj_3R_28()) return true;
     return false;
   }
 
-  private boolean jj_3R_129()
+  private boolean jj_3_135()
  {
-    if (jj_scan_token(SPARQLPOINTCUT)) return true;
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_99()
+ {
+    if (jj_scan_token(SAMEINDIVIDUAL)) return true;
     if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_42()
+ {
+    if (jj_3R_59()) return true;
+    return false;
+  }
+
+  private boolean jj_3_108()
+ {
+    if (jj_3R_98()) return true;
     return false;
   }
 
@@ -4034,28 +4042,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_118()
+  private boolean jj_3_134()
  {
-    if (jj_3R_119()) return true;
-    return false;
-  }
-
-  private boolean jj_3_42()
- {
-    if (jj_3R_59()) return true;
-    return false;
-  }
-
-  private boolean jj_3_91()
- {
-    if (jj_3R_104()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_100()
- {
-    if (jj_scan_token(DIFFERENTINDIVIDUALS)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_128()) return true;
     return false;
   }
 
@@ -4065,23 +4054,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_137()
+  private boolean jj_3_132()
  {
-    if (jj_3R_129()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_29()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_137()) {
-    jj_scanpos = xsp;
-    if (jj_3_138()) {
-    jj_scanpos = xsp;
-    if (jj_3_139()) return true;
-    }
-    }
+    if (jj_3R_28()) return true;
     return false;
   }
 
@@ -4126,87 +4101,6 @@ signature.add(iri);
   private boolean jj_3_47()
  {
     if (jj_3R_53()) return true;
-    return false;
-  }
-
-  private boolean jj_3_87()
- {
-    if (jj_3R_100()) return true;
-    return false;
-  }
-
-  private boolean jj_3_126()
- {
-    if (jj_3R_126()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_99()
- {
-    if (jj_scan_token(SAMEINDIVIDUAL)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_135()
- {
-    if (jj_3R_26()) return true;
-    return false;
-  }
-
-  private boolean jj_3_108()
- {
-    if (jj_3R_98()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_63()
- {
-    if (jj_3R_26()) return true;
-    if (jj_3R_62()) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
- {
-    if (jj_3R_25()) return true;
-    return false;
-  }
-
-  private boolean jj_3_46()
- {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  private boolean jj_3_134()
- {
-    if (jj_3R_128()) return true;
-    return false;
-  }
-
-  private boolean jj_3_41()
- {
-    if (jj_3R_58()) return true;
-    return false;
-  }
-
-  private boolean jj_3_132()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_59()
- {
-    if (jj_scan_token(DATATYPERESTRICTION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_45()
- {
-    if (jj_3R_62()) return true;
     return false;
   }
 
@@ -4260,23 +4154,22 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_60()
+  private boolean jj_3R_63()
  {
-    if (jj_scan_token(DATAINTERSECTIONOF)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_26()) return true;
+    if (jj_3R_62()) return true;
     return false;
   }
 
-  private boolean jj_3_40()
+  private boolean jj_3_46()
  {
-    if (jj_3R_57()) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 
-  private boolean jj_3R_61()
+  private boolean jj_3_41()
  {
-    if (jj_scan_token(DATAUNIONOF)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_58()) return true;
     return false;
   }
 
@@ -4284,6 +4177,25 @@ signature.add(iri);
  {
     if (jj_scan_token(ASPECT)) return true;
     if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_3R_25()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_59()
+ {
+    if (jj_scan_token(DATATYPERESTRICTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_45()
+ {
+    if (jj_3R_62()) return true;
     return false;
   }
 
@@ -4300,16 +4212,10 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_57()
+  private boolean jj_3R_60()
  {
-    if (jj_scan_token(DATAONEOF)) return true;
+    if (jj_scan_token(DATAINTERSECTIONOF)) return true;
     if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_36()
- {
-    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -4331,10 +4237,95 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_40()
+ {
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_61()
+ {
+    if (jj_scan_token(DATAUNIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_95()
+ {
+    if (jj_scan_token(DATAPROPERTYRANGE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_114()
+ {
+    if (jj_3R_117()) return true;
+    return false;
+  }
+
+  private boolean jj_3_128()
+ {
+    if (jj_scan_token(VARIABLE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_57()
+ {
+    if (jj_scan_token(DATAONEOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_123()
+ {
+    if (jj_3R_123()) return true;
+    return false;
+  }
+
+  private boolean jj_3_81()
+ {
+    if (jj_3R_94()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_126()
+ {
+    if (jj_scan_token(DIFFERENTINDIVIDUALSATOM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_96()
+ {
+    if (jj_scan_token(DATAPROPERTYDOMAIN)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3R_58()
  {
     if (jj_scan_token(DATACOMPLEMENTOF)) return true;
     if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_116()
+ {
+    if (jj_scan_token(LANGIDENTIFIER)) return true;
+    if (jj_3R_118()) return true;
+    return false;
+  }
+
+  private boolean jj_3_36()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3_84()
+ {
+    if (jj_3R_97()) return true;
     return false;
   }
 
@@ -4344,9 +4335,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_95()
+  private boolean jj_3R_125()
  {
-    if (jj_scan_token(DATAPROPERTYRANGE)) return true;
+    if (jj_scan_token(SAMEINDIVIDUALATOM)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -4374,94 +4365,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_114()
- {
-    if (jj_3R_117()) return true;
-    return false;
-  }
-
-  private boolean jj_3_128()
- {
-    if (jj_scan_token(VARIABLE)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_70()
- {
-    if (jj_scan_token(DATATYPEDEFINITION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_123()
- {
-    if (jj_3R_123()) return true;
-    return false;
-  }
-
-  private boolean jj_3_35()
- {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  private boolean jj_3_81()
- {
-    if (jj_3R_94()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_126()
- {
-    if (jj_scan_token(DIFFERENTINDIVIDUALSATOM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_96()
- {
-    if (jj_scan_token(DATAPROPERTYDOMAIN)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_84()
- {
-    if (jj_3R_97()) return true;
-    return false;
-  }
-
-  private boolean jj_3_116()
- {
-    if (jj_scan_token(LANGIDENTIFIER)) return true;
-    if (jj_3R_118()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_125()
- {
-    if (jj_scan_token(SAMEINDIVIDUALATOM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_56()
- {
-    if (jj_3R_26()) return true;
-    return false;
-  }
-
   private boolean jj_3_113()
  {
     if (jj_3R_116()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_116()
- {
-    if (jj_scan_token(DATATYPE)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4472,15 +4378,10 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_34()
+  private boolean jj_3R_70()
  {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_107()
- {
-    if (jj_scan_token(NODEID)) return true;
+    if (jj_scan_token(DATATYPEDEFINITION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4496,16 +4397,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_115()
+  private boolean jj_3_35()
  {
-    if (jj_scan_token(NAMEDINDIVIDUAL)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_38()
- {
-    if (jj_3R_55()) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -4523,15 +4417,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_134()
+  private boolean jj_3R_122()
  {
-    if (jj_3R_26()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_117()
- {
-    if (jj_scan_token(ANNOTATIONPROPERTY)) return true;
+    if (jj_scan_token(OBJECTPROPERTYATOM)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -4548,17 +4436,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_122()
+  private boolean jj_3R_56()
  {
-    if (jj_scan_token(OBJECTPROPERTYATOM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_114()
- {
-    if (jj_scan_token(DATAPROP)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_26()) return true;
     return false;
   }
 
@@ -4569,15 +4449,22 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3R_116()
+ {
+    if (jj_scan_token(DATATYPE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_121()
  {
     if (jj_3R_121()) return true;
     return false;
   }
 
-  private boolean jj_3R_133()
+  private boolean jj_3_34()
  {
-    if (jj_3R_26()) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -4594,22 +4481,28 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_98()
+  private boolean jj_3R_107()
  {
-    if (jj_3R_133()) return true;
+    if (jj_scan_token(NODEID)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_115()
+ {
+    if (jj_scan_token(NAMEDINDIVIDUAL)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_38()
+ {
+    if (jj_3R_55()) return true;
     return false;
   }
 
   private boolean jj_3R_120()
  {
     if (jj_scan_token(CLASSATOM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_113()
- {
-    if (jj_scan_token(OBJECTPROP)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -4621,16 +4514,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_33()
+  private boolean jj_3R_134()
  {
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_54()
- {
-    if (jj_scan_token(OBJECTINVERSEOF)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_26()) return true;
     return false;
   }
 
@@ -4666,20 +4552,24 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_37()
+  private boolean jj_3R_117()
  {
-    if (jj_3R_54()) return true;
+    if (jj_scan_token(ANNOTATIONPROPERTY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_90()
+  private boolean jj_3R_114()
  {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_37()) {
-    jj_scanpos = xsp;
-    if (jj_3_38()) return true;
-    }
+    if (jj_scan_token(DATAPROP)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_72()
+ {
+    if (jj_scan_token(DLSAFERULE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4718,23 +4608,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_72()
+  private boolean jj_3R_133()
  {
-    if (jj_scan_token(DLSAFERULE)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_112()
- {
-    if (jj_scan_token(CLASS)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_32()
- {
-    if (jj_3R_51()) return true;
+    if (jj_3R_26()) return true;
     return false;
   }
 
@@ -4762,16 +4638,35 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_50()
+  private boolean jj_3R_98()
  {
-    if (jj_scan_token(DATAMAXCARDINALITY)) return true;
+    if (jj_3R_133()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_113()
+ {
+    if (jj_scan_token(OBJECTPROP)) return true;
     if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_33()
+ {
+    if (jj_3R_51()) return true;
     return false;
   }
 
   private boolean jj_3R_118()
  {
     if (jj_scan_token(PN_LOCAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_54()
+ {
+    if (jj_scan_token(OBJECTINVERSEOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4782,13 +4677,37 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_37()
+ {
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
   private boolean jj_3R_135()
  {
     if (jj_scan_token(STRINGLITERAL)) return true;
     return false;
   }
 
-  private boolean jj_3_31()
+  private boolean jj_3R_90()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_37()) {
+    jj_scanpos = xsp;
+    if (jj_3_38()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_112()
+ {
+    if (jj_scan_token(CLASS)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_32()
  {
     if (jj_3R_51()) return true;
     return false;
@@ -4797,13 +4716,6 @@ signature.add(iri);
   private boolean jj_3R_87()
  {
     if (jj_scan_token(IRREFLEXIVEOBJECTPROPERTY)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_49()
- {
-    if (jj_scan_token(DATAEXACTCARDINALITY)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -4817,15 +4729,22 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_78()
- {
-    if (jj_3R_90()) return true;
-    return false;
-  }
-
   private boolean jj_3_110()
  {
     if (jj_3R_113()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_50()
+ {
+    if (jj_scan_token(DATAMAXCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_78()
+ {
+    if (jj_3R_90()) return true;
     return false;
   }
 
@@ -4836,10 +4755,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_48()
+  private boolean jj_3_31()
  {
-    if (jj_scan_token(DATAMINCARDINALITY)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -4852,6 +4770,13 @@ signature.add(iri);
   private boolean jj_3_109()
  {
     if (jj_3R_112()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49()
+ {
+    if (jj_scan_token(DATAEXACTCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4869,23 +4794,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_47()
- {
-    if (jj_scan_token(DATAHASVALUE)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
   private boolean jj_3_99()
  {
     if (jj_3R_111()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_45()
- {
-    if (jj_scan_token(DATASOMEVALUESFROM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4896,9 +4807,10 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_29()
+  private boolean jj_3R_48()
  {
-    if (jj_3R_51()) return true;
+    if (jj_scan_token(DATAMINCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
@@ -4909,9 +4821,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_46()
+  private boolean jj_3R_47()
  {
-    if (jj_scan_token(DATAALLVALUESFROM)) return true;
+    if (jj_scan_token(DATAHASVALUE)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -4923,13 +4835,6 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_44()
- {
-    if (jj_scan_token(OBJECTMAXCARDINALITY)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
   private boolean jj_3R_110()
  {
     if (jj_scan_token(ANNOTATIONPROPERTYRANGE)) return true;
@@ -4937,9 +4842,16 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_15()
+  private boolean jj_3R_45()
  {
-    if (jj_3R_37()) return true;
+    if (jj_scan_token(DATASOMEVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_29()
+ {
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -4956,6 +4868,13 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3R_46()
+ {
+    if (jj_scan_token(DATAALLVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_98()
  {
     if (jj_3R_110()) return true;
@@ -4965,13 +4884,6 @@ signature.add(iri);
   private boolean jj_3R_109()
  {
     if (jj_scan_token(ANNOTATIONPROPERTYDOMAIN)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_43()
- {
-    if (jj_scan_token(OBJECTEXACTCARDINALITY)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -4989,27 +4901,22 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3R_44()
+ {
+    if (jj_scan_token(OBJECTMAXCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_74()
  {
     if (jj_3R_89()) return true;
     return false;
   }
 
-  private boolean jj_3_19()
- {
-    if (jj_3R_41()) return true;
-    return false;
-  }
-
   private boolean jj_3_75()
  {
     if (jj_3R_90()) return true;
-    return false;
-  }
-
-  private boolean jj_3_26()
- {
-    if (jj_3R_48()) return true;
     return false;
   }
 
@@ -5020,9 +4927,91 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_15()
+ {
+    if (jj_3R_37()) return true;
+    return false;
+  }
+
   private boolean jj_3R_81()
  {
     if (jj_scan_token(OBJECTPROPERTYDOMAIN)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_146()
+ {
+    if (jj_3R_134()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_43()
+ {
+    if (jj_scan_token(OBJECTEXACTCARDINALITY)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_108()
+ {
+    if (jj_scan_token(ANNOTATIONASSERTION)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_19()
+ {
+    if (jj_3R_41()) return true;
+    return false;
+  }
+
+  private boolean jj_3_104()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3_100()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_80()
+ {
+    if (jj_scan_token(OBJECTPROPERTYRANGE)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_26()
+ {
+    if (jj_3R_48()) return true;
+    return false;
+  }
+
+  private boolean jj_3_97()
+ {
+    if (jj_3R_109()) return true;
+    return false;
+  }
+
+  private boolean jj_3_70()
+ {
+    if (jj_3R_85()) return true;
+    return false;
+  }
+
+  private boolean jj_3_102()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_27()
+ {
+    if (jj_scan_token(IMPORT)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -5034,22 +5023,39 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_106()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_73()
+ {
+    if (jj_3R_88()) return true;
+    return false;
+  }
+
+  private boolean jj_3_145()
+ {
+    if (jj_3R_56()) return true;
+    return false;
+  }
+
   private boolean jj_3_14()
  {
     if (jj_3R_36()) return true;
     return false;
   }
 
-  private boolean jj_3_146()
+  private boolean jj_3_64()
  {
-    if (jj_3R_134()) return true;
+    if (jj_3R_79()) return true;
     return false;
   }
 
-  private boolean jj_3R_108()
+  private boolean jj_3_103()
  {
-    if (jj_scan_token(ANNOTATIONASSERTION)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_26()) return true;
     return false;
   }
 
@@ -5072,116 +5078,9 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_80()
- {
-    if (jj_scan_token(OBJECTPROPERTYRANGE)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_18()
- {
-    if (jj_3R_40()) return true;
-    return false;
-  }
-
-  private boolean jj_3_104()
- {
-    if (jj_3R_107()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_40()
- {
-    if (jj_scan_token(OBJECTHASVALUE)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_100()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_25()
- {
-    if (jj_3R_47()) return true;
-    return false;
-  }
-
-  private boolean jj_3_70()
- {
-    if (jj_3R_85()) return true;
-    return false;
-  }
-
-  private boolean jj_3_97()
- {
-    if (jj_3R_109()) return true;
-    return false;
-  }
-
-  private boolean jj_3_102()
- {
-    if (jj_3R_107()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_27()
- {
-    if (jj_scan_token(IMPORT)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_73()
- {
-    if (jj_3R_88()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_38()
- {
-    if (jj_scan_token(OBJECTSOMEVALUESFROM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_106()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_145()
- {
-    if (jj_3R_56()) return true;
-    return false;
-  }
-
-  private boolean jj_3_64()
- {
-    if (jj_3R_79()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_39()
- {
-    if (jj_scan_token(OBJECTALLVALUESFROM)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_103()
+  private boolean jj_3_101()
  {
     if (jj_3R_26()) return true;
-    return false;
-  }
-
-  private boolean jj_3_13()
- {
-    if (jj_3R_35()) return true;
     return false;
   }
 
@@ -5198,15 +5097,15 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_101()
+  private boolean jj_3_18()
  {
-    if (jj_3R_26()) return true;
+    if (jj_3R_40()) return true;
     return false;
   }
 
-  private boolean jj_3R_37()
+  private boolean jj_3R_40()
  {
-    if (jj_scan_token(OBJECTONEOF)) return true;
+    if (jj_scan_token(OBJECTHASVALUE)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -5218,9 +5117,102 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_25()
+ {
+    if (jj_3R_47()) return true;
+    return false;
+  }
+
   private boolean jj_3_119()
  {
     if (jj_3R_119()) return true;
+    return false;
+  }
+
+  private boolean jj_3_95()
+ {
+    if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_38()
+ {
+    if (jj_scan_token(OBJECTSOMEVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_144()
+ {
+    if (jj_3R_106()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_78()
+ {
+    if (jj_scan_token(EQUIVALENTOBJECTPROPERTIES)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_96()
+ {
+    if (jj_3R_108()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_71()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_96()) {
+    jj_scanpos = xsp;
+    if (jj_3_97()) {
+    jj_scanpos = xsp;
+    if (jj_3_98()) {
+    jj_scanpos = xsp;
+    if (jj_3_99()) return true;
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3_69()
+ {
+    if (jj_3R_84()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_39()
+ {
+    if (jj_scan_token(OBJECTALLVALUESFROM)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_13()
+ {
+    if (jj_3R_35()) return true;
+    return false;
+  }
+
+  private boolean jj_3_72()
+ {
+    if (jj_3R_87()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_37()
+ {
+    if (jj_scan_token(OBJECTONEOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_55()
+ {
+    if (jj_3R_26()) return true;
     return false;
   }
 
@@ -5237,9 +5229,32 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_95()
+  private boolean jj_3_66()
  {
-    if (jj_3R_107()) return true;
+    if (jj_3R_81()) return true;
+    return false;
+  }
+
+  private boolean jj_3_63()
+ {
+    if (jj_3R_78()) return true;
+    return false;
+  }
+
+  private boolean jj_3_94()
+ {
+    if (jj_3R_106()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_52()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_94()) {
+    jj_scanpos = xsp;
+    if (jj_3_95()) return true;
+    }
     return false;
   }
 
@@ -5268,22 +5283,29 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3R_78()
+  private boolean jj_3R_106()
  {
-    if (jj_scan_token(EQUIVALENTOBJECTPROPERTIES)) return true;
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_77()
+ {
+    if (jj_scan_token(SUBOBJECTPROPERTYOF)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
-  private boolean jj_3_144()
+  private boolean jj_3R_34()
  {
-    if (jj_3R_106()) return true;
+    if (jj_scan_token(OBJECTUNIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
 
-  private boolean jj_3_69()
+  private boolean jj_3_143()
  {
-    if (jj_3R_84()) return true;
+    if (jj_3R_133()) return true;
     return false;
   }
 

@@ -1,11 +1,13 @@
 package de.fuberlin.csw.aspectowl.owlapi.model.impl;
 
 import com.google.common.collect.Sets;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLNamedAspect;
 import org.semanticweb.owlapi.model.*;
 import uk.ac.manchester.cs.owl.owlapi.OWLClassImpl;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.Set;
 
 public class OWLNamedAspectImpl extends OWLClassImpl implements OWLNamedAspect {
@@ -29,6 +31,11 @@ public class OWLNamedAspectImpl extends OWLClassImpl implements OWLNamedAspect {
     @Override
     public Set<OWLObjectProperty> getAccessibilityRelations() {
         return Sets.union(delegate.getAccessibilityRelations(), getObjectPropertiesInSignature());
+    }
+
+    @Override
+    public OWLAspect getAspectWithoutAnnotations() {
+        return new OWLNamedAspectImpl(getIRI(), Collections.EMPTY_SET);
     }
 
     @Nonnull
