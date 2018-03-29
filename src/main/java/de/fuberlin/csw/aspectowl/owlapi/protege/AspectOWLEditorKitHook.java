@@ -3,10 +3,8 @@
  */
 package de.fuberlin.csw.aspectowl.owlapi.protege;
 
-import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
-import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
 import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
@@ -20,15 +18,11 @@ import org.protege.editor.core.plugin.PluginUtilities;
 import org.protege.editor.core.ui.list.MListButton;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
-import org.protege.editor.owl.model.event.EventType;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
-import org.semanticweb.owlapi.io.OWLParserFactory;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.util.PriorityCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +86,6 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		mm.addOntologyChangeListener(OWLOntologyAspectManager.instance());
 
 		OWLOntologyManager om = mm.getOWLOntologyManager();
-
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
 	}
 
@@ -166,7 +159,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 					ctClass.addMethod(ctMethod);
 				}
 
-				ctMethod.insertAt(90,"loadingManager.getOntologyParsers().add(new de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory());");
+				ctMethod.insertAt(90,"de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addAspectOWLParser(loadingManager);");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();
@@ -256,6 +249,10 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		additionalButtons.add(button);
 
 		return additionalButtons;
+	}
+
+	public static void addAspectOWLParser(OWLOntologyManager man) {
+		man.getOntologyParsers().add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 	}
 
 

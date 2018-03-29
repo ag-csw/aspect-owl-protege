@@ -286,7 +286,8 @@
 						<Export-Package>
 							de.fuberlin.csw.aspectowl.protege,
 							de.fuberlin.csw.aspectowl.owlapi.protege,
-							de.fuberlin.csw.aspectowl.protege.editor.core.ui
+							de.fuberlin.csw.aspectowl.protege.editor.core.ui,
+							de.fuberlin.csw.aspectowl.parser
 						</Export-Package>
 						<Include-Resource>plugin.xml, {maven-resources}, {maven-dependencies}</Include-Resource>
 						<Embed-Dependency>
