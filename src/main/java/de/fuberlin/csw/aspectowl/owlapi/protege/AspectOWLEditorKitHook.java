@@ -93,9 +93,6 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		OWLOntologyManager om = mm.getOWLOntologyManager();
 
-		PriorityCollection<OWLParserFactory> parsers = om.getOntologyParsers();
-		parsers.add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
-		
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
 	}
 
@@ -138,6 +135,38 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				}
 
 				ctMethod.insertAfter("if (value instanceof org.protege.editor.owl.ui.frame.OWLFrameSectionRow) return de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getButtonsWithAspectButton($_, (org.protege.editor.owl.ui.frame.OWLFrameSectionRow)value);");
+
+				byte[] bytes = ctClass.toBytecode();
+				ctClass.detach();
+				wovenClass.setBytes(bytes);
+
+				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+			} catch (Throwable t) {
+//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+			}
+		} else if (className.equals("org.protege.editor.owl.model.io.OntologyLoader")) {
+
+			ClassPool pool = ClassPool.getDefault();
+			pool.appendSystemPath();
+			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
+
+			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
+
+
+			try {
+				CtClass ctClass = pool.getCtClass(className);
+
+				CtMethod ctMethod = ctClass.getMethod("loadOntologyInternal", "(Ljava/net/URI;)Ljava/util/Optional;"); // throws NotFoundException if method does not exist
+
+				CtClass declaringClass = ctMethod.getDeclaringClass();
+
+				if (declaringClass != ctClass) {
+					ctMethod = CtNewMethod.copy(ctMethod, ctClass, null);
+					ctClass.addMethod(ctMethod);
+				}
+
+				ctMethod.insertAt(90,"loadingManager.getOntologyParsers().add(new de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory());");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();

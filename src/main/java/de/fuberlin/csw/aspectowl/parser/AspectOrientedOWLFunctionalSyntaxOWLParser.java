@@ -3,7 +3,6 @@
  */
 package de.fuberlin.csw.aspectowl.parser;
 
-import com.hp.hpl.jena.sparql.lang.arq.TokenMgrError;
 import org.semanticweb.owlapi.io.AbstractOWLParser;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.io.OWLParserException;
