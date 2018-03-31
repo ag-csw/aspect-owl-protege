@@ -54,11 +54,6 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     }
 
     @Override
-    public Set<OWLAxiom> getPointcut() {
-        return aspectDelegate.getPointcut();
-    }
-
-    @Override
     public Set<OWLObjectProperty> getAccessibilityRelations() {
         return aspectDelegate.getAccessibilityRelations();
     }

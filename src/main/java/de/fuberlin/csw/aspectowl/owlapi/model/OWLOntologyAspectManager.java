@@ -30,6 +30,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
 
     private ConcurrentHashMap<OntologyObjectTuple<OWLAxiom>, Set<OWLAspectAssertionAxiom>> aspectsForAxiom = CollectionFactory.createSyncMap();
     private ConcurrentHashMap<OntologyObjectTuple<OWLEntity>, Set<OWLAspectAssertionAxiom>> aspectsForEntity = CollectionFactory.createSyncMap();
+    private ConcurrentHashMap<OntologyObjectTuple<OWLEntity>, Set<OWLAspectAssertionAxiom>> aspectsForJointPoint = CollectionFactory.createSyncMap();
 
     /**
      * Creates and returns a new OWLAspect constructed from the given ontology, join point and advice class expression.
@@ -60,12 +61,11 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      * (Needed for creating aspects on entities, from standalone aspect assertions).
      * @param ontology
      * @param joinPoint
-     * @param advice
      * @param axiomAnnos
      * @return
      */
-    public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLJoinPoint joinPoint, OWLClassExpression advice, Set<OWLAnnotation> axiomAnnos) {
-        return null; // TODO
+    public OWLAspectAssertionAxiom getAspectAssertionAxiom(OWLOntology ontology, OWLJoinPoint joinPoint, OWLAspect aspect, Set<OWLAnnotation> axiomAnnos) {
+        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect);
     }
 
 
@@ -85,7 +85,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      * @return a stream containing all aspects asserted for the given join point
      */
     public Set<OWLAspectAssertionAxiom> getAspectAssertionAxioms(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
-        return Optional.ofNullable(aspectsForAxiom.get(new OntologyObjectTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet());
+        return CollectionFactory.getCopyOnRequestSet(Optional.ofNullable(aspectsForAxiom.get(new OntologyObjectTuple(ontology, potentialJoinPoint))).orElse(Collections.emptySet()));
     }
 
     public void removeAspectAssertionAxiom(OWLOntology ontology, OWLAspectAssertionAxiom aspectAssertionAxiom) {

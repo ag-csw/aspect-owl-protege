@@ -13,13 +13,6 @@ import org.semanticweb.owlapi.model.*;
  *
  */
 public interface OWLAspect extends OWLClassExpression, HasAnnotations {
-	
-	/**
-	 * Returns the pointcut of this aspect, i.e. the set of axioms that are
-	 * segregated under this aspect.
-	 * @return
-	 */
-	public Set<OWLAxiom> getPointcut();
 
 	public Set<OWLObjectProperty> getAccessibilityRelations();
 	

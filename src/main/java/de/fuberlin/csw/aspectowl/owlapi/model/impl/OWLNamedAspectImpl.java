@@ -24,11 +24,6 @@ public class OWLNamedAspectImpl extends OWLClassImpl implements OWLNamedAspect {
     }
 
     @Override
-    public Set<OWLAxiom> getPointcut() {
-        return delegate.getPointcut();
-    }
-
-    @Override
     public Set<OWLObjectProperty> getAccessibilityRelations() {
         return Sets.union(delegate.getAccessibilityRelations(), getObjectPropertiesInSignature());
     }

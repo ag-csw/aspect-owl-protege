@@ -1420,14 +1420,9 @@ OWLAspectAssertionAxiom AspectAssertion() :
   	OWLClassExpression advice;
 	Set<OWLAnnotation> axiomAnnos;
 }
-{ <ASPECTASSERTION><OPENPAR>axiomAnnos=AxiomAnnotationSet() joinPoint=JoinPoint() advice=Advice()<CLOSEPAR> { return am.getAspectAssertionAxiom(ontology, joinPoint, advice, axiomAnnos); } }
-
-Set<OWLAspect> AspectSet() :
-{
-	Set<OWLAspect> aspects = new HashSet<OWLAspect>();
-	OWLAspect aspectAssertionAxiom;
-}
-{ (aspectAssertionAxiom=Aspect(){ aspects.add(aspectAssertionAxiom); })* { return aspects; } }
+{ <ASPECTASSERTION><OPENPAR>axiomAnnos=AxiomAnnotationSet() joinPoint=JoinPoint() advice=Advice()<CLOSEPAR> {
+    return am.getAspectAssertionAxiom(ontology, joinPoint, advice, axiomAnnos);
+} }
 
 Set<OWLAspect> AxiomAspectSet() :
 {

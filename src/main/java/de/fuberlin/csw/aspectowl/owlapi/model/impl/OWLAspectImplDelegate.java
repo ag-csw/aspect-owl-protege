@@ -23,8 +23,6 @@ public class OWLAspectImplDelegate {
 
 	private HashSet<OWLObjectProperty> accessibilityRelations = new HashSet<>();
 
-	private HashSet<OWLAxiom> assertedJoinPoints = new HashSet<>();
-
 	@Nonnull
 	private final List<OWLAnnotation> annotations;
 
@@ -38,13 +36,6 @@ public class OWLAspectImplDelegate {
 	}
 
 	private static final long serialVersionUID = 4829969668138075822L;
-
-	/**
-	 * @see de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect#getPointcut()
-	 */
-	public Set<OWLAxiom> getPointcut() {
-		return assertedJoinPoints;
-	}
 
 	public Set<OWLObjectProperty> getAccessibilityRelations() {
 		return Sets.union(accessibilityRelations, aspect.getObjectPropertiesInSignature());
