@@ -5,10 +5,12 @@ package de.fuberlin.csw.aspectowl.owlapi.protege;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
+import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFormat;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
 import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionPanel;
+import de.fuberlin.csw.aspectowl.renderer.AspectOWLFunctionalSyntaxStorerFactory;
 import javassist.*;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
@@ -21,6 +23,7 @@ import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.slf4j.Logger;
@@ -86,7 +89,11 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		mm.addOntologyChangeListener(OWLOntologyAspectManager.instance());
 
 		OWLOntologyManager om = mm.getOWLOntologyManager();
+
+		om.getOntologyStorers().add(new AspectOWLFunctionalSyntaxStorerFactory());
+
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
+
 	}
 
 	/* (non-Javadoc)
@@ -140,6 +147,11 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 			}
 		} else if (className.equals("org.protege.editor.owl.model.io.OntologyLoader")) {
 
+			// Each time an ontology is loaded, Protege creates a new OWLOntologyManager. This ontology manager is used
+			// for the loading process. After the ontology (and potential imports) are loaded, the ontologies are copied
+			// to the main ontology manager (the one stored in the single OWLModelManager instance). Then, the loading
+			// OWLOntologyManger is discarded. Anyway, we need to add our ParserFactory to each loading ontology manager.
+
 			ClassPool pool = ClassPool.getDefault();
 			pool.appendSystemPath();
 			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
@@ -169,6 +181,38 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 			} catch (Throwable t) {
 //				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+			}
+		} else if (className.equals("org.protege.editor.owl.ui.OntologyFormatPanel")) {
+
+			ClassPool pool = ClassPool.getDefault();
+			pool.appendSystemPath();
+			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
+
+			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
+
+
+			try {
+				CtClass ctClass = pool.getCtClass(className);
+
+				CtConstructor ctConstructor = ctClass.getConstructor("()V");
+
+				CtClass declaringClass = ctConstructor.getDeclaringClass();
+
+				if (declaringClass != ctClass) {
+					ctConstructor = CtNewConstructor.copy(ctConstructor, ctClass, null);
+					ctClass.addConstructor(ctConstructor);
+				}
+
+				ctConstructor.insertAt(39, "de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addOntologyFormat(formats);");
+
+				byte[] bytes = ctClass.toBytecode();
+				ctClass.detach();
+				wovenClass.setBytes(bytes);
+
+				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+			} catch (Throwable t) {
+				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
 			}
 		} else if (className.equals("org.protege.editor.owl.ui.view.dataproperty.OWLDataPropertyCharacteristicsViewComponent")) {
 			ClassPool pool = ClassPool.getDefault();
@@ -255,6 +299,8 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		man.getOntologyParsers().add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 	}
 
-
+	public static void addOntologyFormat(List<OWLDocumentFormat> formats) {
+		formats.add(new AspectOrientedFunctionalSyntaxDocumentFormat());
+	}
 
 }

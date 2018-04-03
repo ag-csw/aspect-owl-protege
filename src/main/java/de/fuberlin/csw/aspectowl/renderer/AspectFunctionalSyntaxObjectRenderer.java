@@ -3,10 +3,7 @@ package de.fuberlin.csw.aspectowl.renderer;
 import de.fuberlin.csw.aspectowl.owlapi.model.*;
 import de.fuberlin.csw.aspectowl.owlapi.vocab.AspectOWLVocabulary;
 import org.semanticweb.owlapi.functional.renderer.FunctionalSyntaxObjectRenderer;
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLRuntimeException;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.vocab.OWLXMLVocabulary;
 
@@ -16,7 +13,7 @@ import java.io.Writer;
 import java.util.List;
 
 
-public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObjectRenderer implements OWLAspectVisitor, OWLAspectAxiomVisitor {
+public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObjectRenderer implements OWLAspectAxiomVisitor {
 
     private OWLOntologyAspectManager am;
     private Writer writer;
@@ -33,14 +30,13 @@ public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObject
 
     @Override
     protected void writeAxiomStart(@Nonnull OWLXMLVocabulary v, @Nonnull OWLAxiom axiom) {
-        super.writeAxiomStart(v, axiom);
+        super.writeAxiomStart(v, axiom); // writes axiom name and annotations (and a whitespace at the end)
         writeAspects(axiom);
     }
 
     protected void writeAspects(@Nonnull OWLAxiom ax) {
         for (OWLAspect aspect: getSortedAspects(ax)) {
-            aspect.accept(this);
-            writeSpace();
+            writeAspect(aspect);
         }
     }
 
@@ -49,16 +45,18 @@ public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObject
         return CollectionFactory.sortOptionally(am.getAssertedAspects(ont, ax));
     }
 
-    @Override
-    public void visit(@Nonnull OWLAspect aspect) {
+    private void writeAspect(@Nonnull OWLAspect aspect) {
         write(AspectOWLVocabulary.ASPECT);
         writeOpenBracket();
+
         for (OWLAnnotation anno : CollectionFactory.getCopyOnRequestSet(aspect.getAnnotations())) {
             anno.accept(this);
             writeSpace();
         }
 
         aspect.accept(this);
+
+        writeCloseBracket();
         writeSpace();
     }
 
