@@ -1,6 +1,5 @@
 package de.fuberlin.csw.aspectowl.owlapi.model.impl;
 
-import com.google.common.collect.Sets;
 import de.fuberlin.csw.aspectowl.owlapi.model.*;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionsList;
 import org.semanticweb.owlapi.model.*;
@@ -9,18 +8,16 @@ import uk.ac.manchester.cs.owl.owlapi.OWLLogicalAxiomImplWithEntityAndAnonCachin
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static org.semanticweb.owlapi.util.CollectionFactory.emptySet;
-
 public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAndAnonCaching implements OWLAspectAssertionAxiom {
 
     private OWLOntology ontology;
-    private OWLAxiom joinPointAxiom;
+    private OWLPointcut pointcut;
     private OWLAspect  aspect;
 
-    public OWLAspectAssertionAxiomImpl(@Nonnull OWLOntology ontology, @Nonnull OWLAxiom joinPointAxiom, @Nonnull OWLAspect aspect) {
+    public OWLAspectAssertionAxiomImpl(@Nonnull OWLOntology ontology, @Nonnull OWLPointcut pointcut, @Nonnull OWLAspect aspect) {
         super(aspect.getAnnotations());
         this.ontology = ontology;
-        this.joinPointAxiom = joinPointAxiom;
+        this.pointcut = pointcut;
         this.aspect = aspect;
     }
 
@@ -30,8 +27,8 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     }
 
     @Override
-    public OWLAxiom getAxiom() {
-        return joinPointAxiom;
+    public OWLPointcut getPointcut() {
+        return pointcut;
     }
 
     @Override
@@ -54,13 +51,13 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     @Override
     public OWLAxiom getAxiomWithoutAnnotations() {
         OWLAspect aspectWithoutAnnotations = aspect.getAspectWithoutAnnotations();
-        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspectWithoutAnnotations);
+        return new OWLAspectAssertionAxiomImpl(ontology, pointcut, aspectWithoutAnnotations);
     }
 
     @Nonnull
     @Override
     public OWLAxiom getAnnotatedAxiom(@Nonnull Set<OWLAnnotation> annotations) {
-        return new OWLAspectAssertionAxiomImpl(ontology, joinPointAxiom, aspect);
+        return new OWLAspectAssertionAxiomImpl(ontology, pointcut, aspect);
     }
 
     @Nonnull
@@ -72,7 +69,7 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     @Override
     protected int compareObjectOfSameType(@Nonnull OWLObject object) {
         OWLAspectAssertionAxiomImpl otherAx = (OWLAspectAssertionAxiomImpl) object;
-        int diff = getAxiom().compareTo(otherAx.getAxiom());
+        int diff = getPointcut().compareTo(otherAx.getPointcut());
         if (diff != 0) {
             return diff;
         } else {
@@ -103,13 +100,13 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
         if (!super.equals(o)) return false;
         OWLAspectAssertionAxiomImpl that = (OWLAspectAssertionAxiomImpl) o;
         return Objects.equals(ontology, that.ontology) &&
-                Objects.equals(joinPointAxiom, that.joinPointAxiom) &&
+                Objects.equals(pointcut, that.pointcut) &&
                 Objects.equals(aspect, that.aspect);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), ontology, joinPointAxiom, aspect);
+        return Objects.hash(super.hashCode(), ontology, pointcut, aspect);
     }
 
 }

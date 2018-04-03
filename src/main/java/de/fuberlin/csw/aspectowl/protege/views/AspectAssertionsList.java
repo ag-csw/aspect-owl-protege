@@ -2,6 +2,7 @@ package de.fuberlin.csw.aspectowl.protege.views;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLJoinPointAxiomPointcut;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
 import org.protege.editor.core.ui.list.MList;
@@ -182,7 +183,7 @@ public class AspectAssertionsList extends MList {
                 OWLOntology ontology = getRoot().getOntology();
                 Set <OWLAnnotation> annotations = Collections.EMPTY_SET; // TODO add annotation editor to UI, github issue #8
                 OWLAspect aspect = aspectManager.getAspect(expression, annotations);
-                OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspect);
+                OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, new OWLJoinPointAxiomPointcut(getRoot().getAxiom()), aspect);
                 editorKit.getModelManager().applyChange(new AddAxiom(ontology, aspectAssertionAxiom));
             }
             refresh();
@@ -236,7 +237,7 @@ public class AspectAssertionsList extends MList {
                     ArrayList<OWLOntologyChange> changes = new ArrayList<>(2);
                     changes.add(new RemoveAxiom(ontology, aspectAssertionAxiom));
                     Set <OWLAnnotation> annotations = Collections.EMPTY_SET; // TODO add annotation editor to UI, github issue #8
-                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, getRoot().getAxiom(), aspectManager.getAspect(newAspect, annotations))));
+                    changes.add(new AddAxiom(ontology, aspectManager.getAspectAssertionAxiom(ontology, new OWLJoinPointAxiomPointcut(getRoot().getAxiom()), aspectManager.getAspect(newAspect, annotations))));
 
 //                    List<OWLOntologyChange> changes = getReplaceChanges(aspectAssertionAxiom.getAspect(), newAspect);
                     editorKit.getModelManager().applyChanges(changes);

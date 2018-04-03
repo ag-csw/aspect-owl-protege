@@ -7,12 +7,11 @@ import org.semanticweb.owlapi.model.OWLClassExpression;
 import java.util.Objects;
 import java.util.Set;
 
-public class DLQueryPointcut extends OWLPointcut {
+public class DLQueryPointcut extends OWLAxiomPointcut {
 
     private OWLClassExpression dlQuery;
 
-    public DLQueryPointcut(OWLClassExpression dlQuery, Set<OWLAnnotation> annotations) {
-        super(annotations);
+    public DLQueryPointcut(OWLClassExpression dlQuery) {
         this.dlQuery = dlQuery;
     }
 

@@ -6,12 +6,11 @@ import org.semanticweb.owlapi.model.OWLAxiom;
 import java.util.Objects;
 import java.util.Set;
 
-public class SPARQLPointcut extends OWLPointcut {
+public class SPARQLPointcut extends OWLAxiomPointcut {
 
     private String query;
 
-    public SPARQLPointcut(String query, Set<OWLAnnotation> annotations) {
-        super(annotations);
+    public SPARQLPointcut(String query) {
         this.query = query;
     }
 

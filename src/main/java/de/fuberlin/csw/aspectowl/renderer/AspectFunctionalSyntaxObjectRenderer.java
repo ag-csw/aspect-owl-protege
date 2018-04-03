@@ -58,7 +58,7 @@ public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObject
             writeSpace();
         }
 
-        aspect.getAdvice().accept(this);
+        aspect.accept(this);
         writeSpace();
     }
 

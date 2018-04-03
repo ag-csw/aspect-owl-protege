@@ -90,8 +90,8 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
 
     private void addAspects(OWLAxiom joinPointAxiom, Set<OWLAspect> aspects) {
         for (OWLAspect aspect : aspects) {
-            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, joinPointAxiom, aspect);
-            am.addAspect(ontology, joinPointAxiom, aspectAssertionAxiom);
+            OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, new OWLJoinPointAxiomPointcut(joinPointAxiom), aspect);
+            am.addAspect(ontology, aspectAssertionAxiom);
         }
     }
 
@@ -2089,7 +2089,8 @@ annos.add(anno);
     joinPoint = JoinPoint();
     advice = Advice();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return am.getAspectAssertionAxiom(ontology, joinPoint, advice, axiomAnnos);}
+OWLAspect aspect = am.getAspect(advice, axiomAnnos);
+    {if ("" != null) return am.getAspectAssertionAxiom(ontology, new OWLEntityPointcut(joinPoint), aspect);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2118,7 +2119,7 @@ aspects.add(aspect);
       jj_consume_token(-1);
       throw new ParseException();
     }
-if (subject instanceof IRI) {if ("" != null) return new OWLJoinPoint((IRI)subject);} {if ("" != null) return new OWLJoinPoint((OWLAnonymousIndividual)subject);}
+{if ("" != null) return new OWLJoinPoint(subject);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2145,14 +2146,15 @@ if (subject instanceof IRI) {if ("" != null) return new OWLJoinPoint((IRI)subjec
 
   final public SPARQLPointcut SPARQLPointcut() throws ParseException {OWLAspect aspectAssertionAxiom;
         String query;
-        Set<OWLAnnotation> annotations;
+        Set<OWLAnnotation> annotations; // TODO we actually do not need annotations on the pointcuts, since we already have annotations on the aspects
+
     jj_consume_token(SPARQLPOINTCUT);
     jj_consume_token(OPENPAR);
     annotations = AxiomAnnotationSet();
     aspectAssertionAxiom = Aspect();
     query = QuotedString();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new SPARQLPointcut(query, annotations);}
+{if ("" != null) return new SPARQLPointcut(query);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2165,7 +2167,7 @@ if (subject instanceof IRI) {if ("" != null) return new OWLJoinPoint((IRI)subjec
     aspectAssertionAxiom = Aspect();
     signature = Signature();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new OWLModulePointcut(signature, annotations);}
+{if ("" != null) return new OWLModulePointcut(signature);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2215,7 +2217,7 @@ signature.add(iri);
     aspect = Aspect();
     dlQuery = ClassExpression();
     jj_consume_token(CLOSEPAR);
-{if ("" != null) return new DLQueryPointcut(dlQuery, annotations);}
+{if ("" != null) return new DLQueryPointcut(dlQuery);}
     throw new Error("Missing return statement in function");
   }
 
@@ -3379,6 +3381,12 @@ signature.add(iri);
     finally { jj_save(144, xla); }
   }
 
+  private boolean jj_3_142()
+ {
+    if (jj_3R_132()) return true;
+    return false;
+  }
+
   private boolean jj_3R_104()
  {
     if (jj_scan_token(NEGATIVEDATAPROPERTYASSERTION)) return true;
@@ -3395,12 +3403,6 @@ signature.add(iri);
   private boolean jj_3_12()
  {
     if (jj_3R_33()) return true;
-    return false;
-  }
-
-  private boolean jj_3_142()
- {
-    if (jj_3R_132()) return true;
     return false;
   }
 
@@ -3426,6 +3428,12 @@ signature.add(iri);
   private boolean jj_3_61()
  {
     if (jj_3R_75()) return true;
+    return false;
+  }
+
+  private boolean jj_3_138()
+ {
+    if (jj_3R_130()) return true;
     return false;
   }
 
@@ -3501,12 +3509,6 @@ signature.add(iri);
     }
     }
     }
-    return false;
-  }
-
-  private boolean jj_3_138()
- {
-    if (jj_3R_130()) return true;
     return false;
   }
 
@@ -3617,6 +3619,12 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_141()
+ {
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
   private boolean jj_3_44()
  {
     if (jj_3R_60()) return true;
@@ -3636,12 +3644,6 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_141()
- {
-    if (jj_3R_54()) return true;
-    return false;
-  }
-
   private boolean jj_3_10()
  {
     if (jj_3R_31()) return true;
@@ -3655,16 +3657,16 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_60()
- {
-    if (jj_3R_74()) return true;
-    return false;
-  }
-
   private boolean jj_3R_130()
  {
     if (jj_scan_token(DLQUERYPOINTCUT)) return true;
     if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_60()
+ {
+    if (jj_3R_74()) return true;
     return false;
   }
 
@@ -3684,24 +3686,6 @@ signature.add(iri);
   private boolean jj_3R_30()
  {
     if (jj_scan_token(FULLIRI)) return true;
-    return false;
-  }
-
-  private boolean jj_3_51()
- {
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
-  private boolean jj_3_9()
- {
-    if (jj_3R_30()) return true;
-    return false;
-  }
-
-  private boolean jj_3_88()
- {
-    if (jj_3R_100()) return true;
     return false;
   }
 
@@ -3740,6 +3724,24 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_51()
+ {
+    if (jj_3R_65()) return true;
+    return false;
+  }
+
+  private boolean jj_3_9()
+ {
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  private boolean jj_3_88()
+ {
+    if (jj_3R_100()) return true;
+    return false;
+  }
+
   private boolean jj_3R_74()
  {
     if (jj_scan_token(DISJOINTCLASSES)) return true;
@@ -3764,15 +3766,15 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_129()
- {
-    if (jj_3R_105()) return true;
-    return false;
-  }
-
   private boolean jj_3_139()
  {
     if (jj_3R_131()) return true;
+    return false;
+  }
+
+  private boolean jj_3_129()
+ {
+    if (jj_3R_105()) return true;
     return false;
   }
 
@@ -3806,6 +3808,13 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3R_129()
+ {
+    if (jj_scan_token(MODULEPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3R_100()
  {
     if (jj_scan_token(CLASSASSERTION)) return true;
@@ -3823,13 +3832,6 @@ signature.add(iri);
   private boolean jj_3R_73()
  {
     if (jj_scan_token(EQUIVALENTCLASSES)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_129()
- {
-    if (jj_scan_token(MODULEPOINTCUT)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }
@@ -3852,22 +3854,28 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3R_128()
+ {
+    if (jj_scan_token(SPARQLPOINTCUT)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_8()
  {
     if (jj_3R_29()) return true;
     return false;
   }
 
-  private boolean jj_3_91()
+  private boolean jj_3_135()
  {
-    if (jj_3R_103()) return true;
+    if (jj_3R_106()) return true;
     return false;
   }
 
-  private boolean jj_3R_128()
+  private boolean jj_3_91()
  {
-    if (jj_scan_token(SPARQLPOINTCUT)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
+    if (jj_3R_103()) return true;
     return false;
   }
 
@@ -3881,12 +3889,6 @@ signature.add(iri);
  {
     if (jj_scan_token(DIFFERENTINDIVIDUALS)) return true;
     if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_135()
- {
-    if (jj_3R_106()) return true;
     return false;
   }
 
@@ -3912,24 +3914,6 @@ signature.add(iri);
     return false;
   }
 
-  private boolean jj_3_7()
- {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  private boolean jj_3_87()
- {
-    if (jj_3R_99()) return true;
-    return false;
-  }
-
-  private boolean jj_3_126()
- {
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
   private boolean jj_3_136()
  {
     if (jj_3R_128()) return true;
@@ -3947,6 +3931,24 @@ signature.add(iri);
     if (jj_3_138()) return true;
     }
     }
+    return false;
+  }
+
+  private boolean jj_3_7()
+ {
+    if (jj_3R_28()) return true;
+    return false;
+  }
+
+  private boolean jj_3_87()
+ {
+    if (jj_3R_99()) return true;
+    return false;
+  }
+
+  private boolean jj_3_126()
+ {
+    if (jj_3R_125()) return true;
     return false;
   }
 
@@ -3998,6 +4000,12 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_134()
+ {
+    if (jj_3R_25()) return true;
+    return false;
+  }
+
   private boolean jj_3_4()
  {
     Token xsp;
@@ -4021,12 +4029,6 @@ signature.add(iri);
   private boolean jj_3_53()
  {
     if (jj_3R_67()) return true;
-    return false;
-  }
-
-  private boolean jj_3_134()
- {
-    if (jj_3R_25()) return true;
     return false;
   }
 
@@ -5017,6 +5019,12 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_144()
+ {
+    if (jj_3R_55()) return true;
+    return false;
+  }
+
   private boolean jj_3_64()
  {
     if (jj_3R_78()) return true;
@@ -5026,12 +5034,6 @@ signature.add(iri);
   private boolean jj_3_103()
  {
     if (jj_3R_25()) return true;
-    return false;
-  }
-
-  private boolean jj_3_144()
- {
-    if (jj_3R_55()) return true;
     return false;
   }
 
@@ -5154,16 +5156,16 @@ signature.add(iri);
     return false;
   }
 
+  private boolean jj_3_143()
+ {
+    if (jj_3R_105()) return true;
+    return false;
+  }
+
   private boolean jj_3R_38()
  {
     if (jj_scan_token(OBJECTALLVALUESFROM)) return true;
     if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_143()
- {
-    if (jj_3R_105()) return true;
     return false;
   }
 

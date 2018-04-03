@@ -16,11 +16,7 @@ public class OWLJoinPoint {
     // Anyhow, it is very convenient from a programmer's perspective, so I shamelessly do it like that aaaand period.
     private OWLAnnotationSubject subject;
 
-    public OWLJoinPoint(IRI subject) {
-        this.subject = subject;
-    }
-
-    public OWLJoinPoint(OWLAnonymousIndividual subject) {
+    public OWLJoinPoint(OWLAnnotationSubject subject) {
         this.subject = subject;
     }
 

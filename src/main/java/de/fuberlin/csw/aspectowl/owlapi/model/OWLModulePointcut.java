@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class OWLModulePointcut extends OWLPointcut {
+public class OWLModulePointcut extends OWLAxiomPointcut {
 
     private final List<OWLEntity> signature;
 
-    public OWLModulePointcut(Set<OWLEntity> signature, Set<OWLAnnotation> annos) {
-        super(annos);
+    public OWLModulePointcut(Set<OWLEntity> signature) {
         this.signature = CollectionFactory.sortOptionally(signature);
     }
 
@@ -46,4 +45,5 @@ public class OWLModulePointcut extends OWLPointcut {
     public int hashCode() {
         return 17 * super.hashCode() + Objects.hash(signature);
     }
+
 }
