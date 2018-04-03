@@ -4,6 +4,7 @@ import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.util.CollectionFactory;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class OWLJoinPointAxiomPointcut extends OWLAxiomPointcut {
@@ -23,5 +24,19 @@ public class OWLJoinPointAxiomPointcut extends OWLAxiomPointcut {
     public Set<OWLAxiom> getInferredAxiomsInPointcut() {
         // TODO
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OWLJoinPointAxiomPointcut)) return false;
+        OWLJoinPointAxiomPointcut that = (OWLJoinPointAxiomPointcut) o;
+        return Objects.equals(joinPointAxiom, that.joinPointAxiom);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(joinPointAxiom);
     }
 }

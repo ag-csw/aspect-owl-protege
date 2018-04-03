@@ -24,21 +24,7 @@ public abstract class OWLAxiomPointcut implements OWLPointcut<OWLAxiom> {
     public abstract Set<OWLAxiom> getInferredAxiomsInPointcut();
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj.getClass() == this.getClass())) {
-            return false;
-        }
-        return ((OWLAxiomPointcut) obj).getAssertedAxiomsInPointcut().equals(getAssertedAxiomsInPointcut());
-    }
-
-    @Override
-    public int compareTo(OWLPointcut<OWLAxiom> o) {
+    public int compareTo(OWLPointcut o) {
         // TODO
         return 0;
     }

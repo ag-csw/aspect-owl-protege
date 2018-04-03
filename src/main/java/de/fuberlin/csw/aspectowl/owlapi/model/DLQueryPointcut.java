@@ -1,6 +1,5 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
-import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 

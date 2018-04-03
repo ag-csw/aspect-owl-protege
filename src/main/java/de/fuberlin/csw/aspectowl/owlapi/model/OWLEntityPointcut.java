@@ -4,6 +4,8 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationSubject;
 import org.semanticweb.owlapi.model.OWLAnonymousIndividual;
 
+import java.util.Objects;
+
 public class OWLEntityPointcut implements OWLPointcut<OWLAnnotationSubject> {
     private OWLJoinPoint entity;
 
@@ -34,5 +36,15 @@ public class OWLEntityPointcut implements OWLPointcut<OWLAnnotationSubject> {
         }
         // entity pointcuts come last
         return -1;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entity);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof OWLEntityPointcut && this.entity.equals(((OWLEntityPointcut) obj).getJoinPointEntity());
     }
 }
