@@ -9,6 +9,7 @@ import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFo
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
 import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
+import de.fuberlin.csw.aspectowl.protege.editor.core.ui.OWLAspectIcon;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionPanel;
 import de.fuberlin.csw.aspectowl.renderer.AspectOWLFunctionalSyntaxStorerFactory;
 import javassist.*;
@@ -23,18 +24,16 @@ import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLDocumentFormat;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.protege.editor.owl.ui.renderer.OWLClassIcon;
+import org.protege.editor.owl.ui.renderer.OWLIconProviderImpl;
+import org.protege.editor.owl.ui.renderer.context.DefinedClassChecker;
+import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author ralph
@@ -48,6 +47,15 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	private final HashSet<String> axiomTypeClasses = new HashSet<>();
 
 	private static OWLEditorKit editorKit;
+
+	private static final OWLOntologyAspectManager am = OWLOntologyAspectManager.instance();
+
+	private static DefinedClassChecker definedClassChecker;
+
+	private static final Icon primitiveAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.PRIMITIVE);
+
+	private static final Icon definedAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.DEFINED);
+
 
 	/**
 	 * 
@@ -65,6 +73,18 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	@Override
 	protected void setup(EditorKit editorKit) {
 		AspectOWLEditorKitHook.editorKit = ((OWLEditorKit)editorKit);
+
+		if (definedClassChecker == null) {
+			definedClassChecker = cls -> {
+				for (OWLOntology ont : ((OWLEditorKit) editorKit).getOWLModelManager().getActiveOntologies()) {
+					if (isDefined(cls, ont)) {
+						return true;
+					}
+				}
+				return false;
+			};
+		}
+
 		super.setup(editorKit);
 	}
 
@@ -87,13 +107,15 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		OWLModelManager mm = ((OWLEditorKit)getEditorKit()).getOWLModelManager();
 
-		mm.addOntologyChangeListener(OWLOntologyAspectManager.instance());
+		mm.addOntologyChangeListener(am);
 
 		OWLOntologyManager om = mm.getOWLOntologyManager();
 
 		om.getOntologyStorers().add(new AspectOWLFunctionalSyntaxStorerFactory());
 
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
+
+		OWLIconProviderImpl.class.getClass();
 
 	}
 
@@ -102,7 +124,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	 */
 	@Override
 	public void dispose() throws Exception {
-		((OWLEditorKit)getEditorKit()).getModelManager().removeOntologyChangeListener(OWLOntologyAspectManager.instance());
+		((OWLEditorKit)getEditorKit()).getModelManager().removeOntologyChangeListener(am);
 	}
 
 	@Override
@@ -110,7 +132,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		String className = wovenClass.getClassName();
 
-//		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
+		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 
 		// add aspect buttons to frame section rows
 		if (frameSectionRowClassesForAspectButtons.contains(className)) {
@@ -208,7 +230,33 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
 
 			} catch (Throwable t) {
-				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+			}
+		} else if (className.equals("org.protege.editor.owl.ui.renderer.OWLIconProviderImpl")) {
+
+			// Mark classes that are aspects using a differently colored icon
+
+			ClassPool pool = ClassPool.getDefault();
+			pool.appendSystemPath();
+			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
+
+			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
+
+			try {
+				CtClass ctClass = pool.getCtClass(className);
+
+				CtMethod ctMethod = ctClass.getMethod("visit", "(Lorg/semanticweb/owlapi/model/OWLClass;)V"); // throws NotFoundException if method does not exist
+
+				ctMethod.insertBefore("icon = de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getIcon(owlClass); if (icon != null) return;");
+
+				byte[] bytes = ctClass.toBytecode();
+				ctClass.detach();
+				wovenClass.setBytes(bytes);
+
+				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+			} catch (Throwable t) {
+//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
 			}
 		} else if (className.equals("org.protege.editor.owl.ui.view.dataproperty.OWLDataPropertyCharacteristicsViewComponent")) {
 			ClassPool pool = ClassPool.getDefault();
@@ -271,9 +319,8 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		AspectButton button = new AspectButton(axiom, ontology);
 		button.setActionListener(e -> {
-            OWLOntologyAspectManager am = OWLOntologyAspectManager.instance();
 
-//			if (!am.hasAssertedAspects(axiom)) {
+			//			if (!am.hasAssertedAspects(axiom)) {
 //                am.addAspect(testAspect, axiom); // for testing
 //            } else {
 //            	am.removeAssertedAspect(axiom, testAspect);
@@ -310,7 +357,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	@SuppressWarnings("unused")
 	public static boolean alternativeFormatIfAspectOriented(OWLDocumentFormat format) {
 		if (format instanceof AspectOrientedFunctionalSyntaxDocumentFormat
-				|| !(OWLOntologyAspectManager.instance().hasAspects(editorKit.getModelManager().getActiveOntology()))) {
+				|| !(am.hasAspects(editorKit.getModelManager().getActiveOntology()))) {
 			return true;
 		}
 
@@ -319,6 +366,26 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				"Warning",
 				JOptionPane.YES_NO_OPTION);
 		return userSaysOk == JOptionPane.YES_OPTION;
+	}
+
+	public static Icon getIcon(OWLClass owlClass) {
+		if (am.isAspectInOntology(owlClass, editorKit.getModelManager().getActiveOntologies())) {
+			if(definedClassChecker.isDefinedClass(owlClass)) {
+				return definedAspectClassIcon;
+			}
+			else {
+				return primitiveAspectClassIcon;
+			}
+		}
+		return null;
+	}
+
+	private static boolean isDefined(OWLClass owlClass, OWLOntology ontology) {
+		if (EntitySearcher.isDefined(owlClass, ontology)) {
+			return true;
+		}
+		Set<OWLDisjointUnionAxiom> axioms = ontology.getDisjointUnionAxioms(owlClass);
+		return !axioms.isEmpty();
 	}
 
 }

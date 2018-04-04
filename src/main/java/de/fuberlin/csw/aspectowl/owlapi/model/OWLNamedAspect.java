@@ -1,4 +1,6 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
-public interface OWLNamedAspect extends OWLAspect {
+import org.semanticweb.owlapi.model.OWLClass;
+
+public interface OWLNamedAspect extends OWLAspect, OWLClass {
 }

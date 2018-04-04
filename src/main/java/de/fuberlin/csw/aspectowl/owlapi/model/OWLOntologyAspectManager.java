@@ -2,6 +2,7 @@ package de.fuberlin.csw.aspectowl.owlapi.model;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectAssertionAxiomImpl;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
+import org.protege.editor.owl.ui.renderer.OWLClassIcon;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.util.OWLOntologyChangeVisitorAdapter;
@@ -89,6 +90,13 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
             }
         }
         return false;
+    }
+
+    public boolean isAspectInOntology(OWLClassExpression cls, Set<OWLOntology> activeOntologies) {
+        // TODO this is called often and is not efficient. Needs some sort of caching.
+        return aspectsForPointcut.keySet().stream().filter(tuple -> activeOntologies.contains(tuple.ontology)).map(key ->
+                aspectsForPointcut.get(key)).flatMap(set -> set.stream()).map(axiom ->
+                axiom.getAspect()).filter(aspect -> aspect instanceof OWLClass && activeOntologies.stream().filter(ontology -> ontology.containsReference((OWLClass)aspect)).count() != 0).count() != 0;
     }
 
     /**
