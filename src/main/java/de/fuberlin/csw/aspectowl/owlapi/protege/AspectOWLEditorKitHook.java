@@ -12,6 +12,7 @@ import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionPanel;
 import de.fuberlin.csw.aspectowl.renderer.AspectOWLFunctionalSyntaxStorerFactory;
 import javassist.*;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 import org.protege.editor.core.editorkit.EditorKit;
@@ -195,15 +196,10 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				CtClass ctClass = pool.getCtClass(className);
 
 				CtConstructor ctConstructor = ctClass.getConstructor("()V");
-
-				CtClass declaringClass = ctConstructor.getDeclaringClass();
-
-				if (declaringClass != ctClass) {
-					ctConstructor = CtNewConstructor.copy(ctConstructor, ctClass, null);
-					ctClass.addConstructor(ctConstructor);
-				}
-
 				ctConstructor.insertAt(39, "de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addOntologyFormat(formats);");
+
+				CtMethod ctMethod = ctClass.getMethod("isFormatOk", "(Lorg/protege/editor/owl/OWLEditorKit;Lorg/semanticweb/owlapi/model/OWLDocumentFormat;)Z"); // throws NotFoundException if method does not exist
+				ctMethod.insertBefore("if (!(de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.alternativeFormatIfAspectOriented(format))) return false;");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();
@@ -258,6 +254,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	 * @param original
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	public static List<MListButton> getButtonsWithAspectButton(List<MListButton> original, OWLFrameSectionRow frameSectionRow) {
 
 		for(MListButton button : original) {
@@ -295,12 +292,33 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		return additionalButtons;
 	}
 
+	@SuppressWarnings("unused")
 	public static void addAspectOWLParser(OWLOntologyManager man) {
 		man.getOntologyParsers().add(new AspectOrientedOWLFunctionalSyntaxParserFactory());
 	}
 
+	@SuppressWarnings("unused")
 	public static void addOntologyFormat(List<OWLDocumentFormat> formats) {
+		for (OWLDocumentFormat format : formats) {
+			if (format instanceof AspectOrientedFunctionalSyntaxDocumentFormat) {
+				return;
+			}
+		}
 		formats.add(new AspectOrientedFunctionalSyntaxDocumentFormat());
+	}
+
+	@SuppressWarnings("unused")
+	public static boolean alternativeFormatIfAspectOriented(OWLDocumentFormat format) {
+		if (format instanceof AspectOrientedFunctionalSyntaxDocumentFormat
+				|| !(OWLOntologyAspectManager.instance().hasAspects(editorKit.getModelManager().getActiveOntology()))) {
+			return true;
+		}
+
+		int userSaysOk = JOptionPane.showConfirmDialog(editorKit.getOWLWorkspace(),
+				String.format("The ontology contains aspects. The '%s' format loses all information about aspects.  We highly recommend to use the 'OWL Functional Syntax with Aspect-Oriented Extensions' format.  Continue anyway (you will lose information)?", format),
+				"Warning",
+				JOptionPane.YES_NO_OPTION);
+		return userSaysOk == JOptionPane.YES_OPTION;
 	}
 
 }

@@ -82,6 +82,15 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return !Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(joinPointAxiom)))).orElse(Collections.emptySet()).isEmpty();
     }
 
+    public boolean hasAspects(OWLOntology ontology) {
+        for (OntologyObjectTuple tuple : aspectsForPointcut.keySet()) {
+            if (tuple.ontology.equals(ontology)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns a stream of all inferred aspects for the given object.
      * @param potentialJoinPoint a potential join point consisting of an owl object
