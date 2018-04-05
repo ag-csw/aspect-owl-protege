@@ -1,4 +1,7 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
-public interface OWLAnonymousAspect extends OWLAspect {
+import org.semanticweb.owlapi.model.OWLClassExpression;
+
+public interface OWLAnonymousAspect extends OWLAspect, OWLClassExpression {
+    public OWLClassExpression getClassExpression();
 }

@@ -54,6 +54,11 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     }
 
     @Override
+    public OWLClassExpression getClassExpression() {
+        return ceDelegate;
+    }
+
+    @Override
     public Set<OWLObjectProperty> getAccessibilityRelations() {
         return aspectDelegate.getAccessibilityRelations();
     }
@@ -162,6 +167,21 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     @Override
     public Set<OWLAnnotation> getAnnotations() {
         return aspectDelegate.getAnnotations();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OWLAnonymousAspectImpl)) return false;
+        if (!super.equals(o)) return false;
+        OWLAnonymousAspectImpl that = (OWLAnonymousAspectImpl) o;
+        return Objects.equals(ceDelegate, that.ceDelegate) &&
+                Objects.equals(aspectDelegate, that.aspectDelegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), ceDelegate, aspectDelegate);
     }
 
     private class NameParameterTypesTuple {

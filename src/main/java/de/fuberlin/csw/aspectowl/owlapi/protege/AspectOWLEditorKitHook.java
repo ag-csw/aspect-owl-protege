@@ -9,11 +9,10 @@ import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFo
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
 import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
-import de.fuberlin.csw.aspectowl.protege.editor.core.ui.OWLAspectIcon;
+import de.fuberlin.csw.aspectowl.protege.editor.core.ui.renderer.AspectOWLIconProviderImpl;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionPanel;
 import de.fuberlin.csw.aspectowl.renderer.AspectOWLFunctionalSyntaxStorerFactory;
 import javassist.*;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 import org.protege.editor.core.editorkit.EditorKit;
@@ -22,18 +21,22 @@ import org.protege.editor.core.plugin.PluginUtilities;
 import org.protege.editor.core.ui.list.MListButton;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
+import org.protege.editor.owl.model.OWLWorkspace;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
-import org.protege.editor.owl.ui.renderer.OWLClassIcon;
-import org.protege.editor.owl.ui.renderer.OWLIconProviderImpl;
-import org.protege.editor.owl.ui.renderer.context.DefinedClassChecker;
-import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.search.EntitySearcher;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * @author ralph
@@ -49,12 +52,6 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	private static OWLEditorKit editorKit;
 
 	private static final OWLOntologyAspectManager am = OWLOntologyAspectManager.instance();
-
-	private static DefinedClassChecker definedClassChecker;
-
-	private static final Icon primitiveAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.PRIMITIVE);
-
-	private static final Icon definedAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.DEFINED);
 
 
 	/**
@@ -73,18 +70,6 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	@Override
 	protected void setup(EditorKit editorKit) {
 		AspectOWLEditorKitHook.editorKit = ((OWLEditorKit)editorKit);
-
-		if (definedClassChecker == null) {
-			definedClassChecker = cls -> {
-				for (OWLOntology ont : ((OWLEditorKit) editorKit).getOWLModelManager().getActiveOntologies()) {
-					if (isDefined(cls, ont)) {
-						return true;
-					}
-				}
-				return false;
-			};
-		}
-
 		super.setup(editorKit);
 	}
 
@@ -115,7 +100,13 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
 
-		OWLIconProviderImpl.class.getClass();
+		Class poorLittleClass = OWLWorkspace.class;
+		Field ipField = poorLittleClass.getDeclaredField("iconProvider");
+		ipField.setAccessible(true);
+		Field modifiersField = Field.class.getDeclaredField("modifiers");
+		modifiersField.setAccessible(true); // Ouch. This is EVIL.
+		modifiersField.setInt(ipField, ipField.getModifiers() & ~Modifier.FINAL);
+		ipField.set(editorKit.getOWLWorkspace(), new AspectOWLIconProviderImpl(mm));
 
 	}
 
@@ -132,7 +123,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		String className = wovenClass.getClassName();
 
-		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
+//		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 
 		// add aspect buttons to frame section rows
 		if (frameSectionRowClassesForAspectButtons.contains(className)) {
@@ -222,32 +213,6 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 				CtMethod ctMethod = ctClass.getMethod("isFormatOk", "(Lorg/protege/editor/owl/OWLEditorKit;Lorg/semanticweb/owlapi/model/OWLDocumentFormat;)Z"); // throws NotFoundException if method does not exist
 				ctMethod.insertBefore("if (!(de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.alternativeFormatIfAspectOriented(format))) return false;");
-
-				byte[] bytes = ctClass.toBytecode();
-				ctClass.detach();
-				wovenClass.setBytes(bytes);
-
-				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
-
-			} catch (Throwable t) {
-//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
-			}
-		} else if (className.equals("org.protege.editor.owl.ui.renderer.OWLIconProviderImpl")) {
-
-			// Mark classes that are aspects using a differently colored icon
-
-			ClassPool pool = ClassPool.getDefault();
-			pool.appendSystemPath();
-			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
-
-			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
-
-			try {
-				CtClass ctClass = pool.getCtClass(className);
-
-				CtMethod ctMethod = ctClass.getMethod("visit", "(Lorg/semanticweb/owlapi/model/OWLClass;)V"); // throws NotFoundException if method does not exist
-
-				ctMethod.insertBefore("icon = de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.getIcon(owlClass); if (icon != null) return;");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();
@@ -366,26 +331,6 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				"Warning",
 				JOptionPane.YES_NO_OPTION);
 		return userSaysOk == JOptionPane.YES_OPTION;
-	}
-
-	public static Icon getIcon(OWLClass owlClass) {
-		if (am.isAspectInOntology(owlClass, editorKit.getModelManager().getActiveOntologies())) {
-			if(definedClassChecker.isDefinedClass(owlClass)) {
-				return definedAspectClassIcon;
-			}
-			else {
-				return primitiveAspectClassIcon;
-			}
-		}
-		return null;
-	}
-
-	private static boolean isDefined(OWLClass owlClass, OWLOntology ontology) {
-		if (EntitySearcher.isDefined(owlClass, ontology)) {
-			return true;
-		}
-		Set<OWLDisjointUnionAxiom> axioms = ontology.getDisjointUnionAxioms(owlClass);
-		return !axioms.isEmpty();
 	}
 
 }

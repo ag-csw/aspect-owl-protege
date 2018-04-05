@@ -1,12 +1,11 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAnonymousAspectImpl;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectAssertionAxiomImpl;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
-import org.protege.editor.owl.ui.renderer.OWLClassIcon;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.util.OWLOntologyChangeVisitorAdapter;
-import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAnonymousAspectImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -92,12 +91,48 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return false;
     }
 
-    public boolean isAspectInOntology(OWLClassExpression cls, Set<OWLOntology> activeOntologies) {
+    public boolean isAspectInOntology(OWLClassExpression clsExpr, Set<OWLOntology> activeOntologies) {
         // TODO this is called often and is not efficient. Needs some sort of caching.
-        return aspectsForPointcut.keySet().stream().filter(tuple -> activeOntologies.contains(tuple.ontology)).map(key ->
-                aspectsForPointcut.get(key)).flatMap(set -> set.stream()).map(axiom ->
-                axiom.getAspect()).filter(aspect -> aspect instanceof OWLClass && activeOntologies.stream().filter(ontology -> ontology.containsReference((OWLClass)aspect)).count() != 0).count() != 0;
+
+//        return aspectsForPointcut.keySet().stream().filter(tuple -> activeOntologies.contains(tuple.ontology)).map(key ->
+//                aspectsForPointcut.get(key)).flatMap(set -> set.stream()).map(axiom ->
+//                axiom.getAspect()).filter(aspect -> aspect.equals(clsExpr)).count() != 0;
+
+        for (OntologyObjectTuple<OWLPointcut> tuple : aspectsForPointcut.keySet()) {
+            if (activeOntologies.contains(tuple.ontology)) {
+                for (OWLAspectAssertionAxiom axiom : aspectsForPointcut.get(tuple)) {
+                    OWLAspect aspect = axiom.getAspect();
+                    if (aspect instanceof OWLNamedAspect) {
+                        if (aspect.equals(clsExpr)) {
+                            return true;
+                        }
+                        for (OWLOntology ontology : activeOntologies) {
+                            for (OWLEquivalentClassesAxiom eqClassAxiom : ontology.getEquivalentClassesAxioms((OWLClass)aspect)) {
+                                if (eqClassAxiom.getClassExpressions().contains(clsExpr)) {
+                                    return true;
+                                }
+                            }
+                        }
+                    } else {
+                        if (((OWLAnonymousAspect)aspect).getClassExpression().equals(clsExpr)) {
+                            return true;
+                        }
+                        if (clsExpr instanceof OWLClass) {
+                            for (OWLOntology ontology : activeOntologies) {
+                                for (OWLEquivalentClassesAxiom eqClassAxiom : ontology.getEquivalentClassesAxioms((OWLClass) clsExpr)) {
+                                    if (eqClassAxiom.getClassExpressions().contains(aspect)) {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
+
 
     /**
      * Returns a stream of all inferred aspects for the given object.
