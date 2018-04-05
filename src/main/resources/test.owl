@@ -24,12 +24,12 @@ Declaration(NamedIndividual(:I3))
 
 # Class: :A (:A)
 
-EquivalentClasses(:A :B)
+EquivalentClasses(Aspect(:D) Aspect(ObjectSomeValuesFrom(:r :B)) :A :B)
 
 # Class: :C (:C)
 
 EquivalentClasses(:C :D)
-EquivalentClasses(:C ObjectSomeValuesFrom(:r owl:Thing))
+EquivalentClasses(:C ObjectSomeValuesFrom(:r :B))
 
 
 ############################
@@ -39,6 +39,8 @@ EquivalentClasses(:C ObjectSomeValuesFrom(:r owl:Thing))
 # Individual: :I1 (:I1)
 
 ObjectPropertyAssertion(:r :I1 :I2)
+
+
 
 
 )
