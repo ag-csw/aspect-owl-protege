@@ -106,31 +106,46 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
                         if (aspect.equals(clsExpr)) {
                             return true;
                         }
-                        for (OWLOntology ontology : activeOntologies) {
-                            for (OWLEquivalentClassesAxiom eqClassAxiom : ontology.getEquivalentClassesAxioms((OWLClass)aspect)) {
-                                if (eqClassAxiom.getClassExpressions().contains(clsExpr)) {
-                                    return true;
-                                }
-                            }
+                        if (getEquivalentClassExpressions((OWLClass) aspect, activeOntologies).contains(clsExpr)) {
+                            return true;
                         }
                     } else {
                         if (((OWLAnonymousAspect)aspect).getClassExpression().equals(clsExpr)) {
                             return true;
                         }
-                        if (clsExpr instanceof OWLClass) {
-                            for (OWLOntology ontology : activeOntologies) {
-                                for (OWLEquivalentClassesAxiom eqClassAxiom : ontology.getEquivalentClassesAxioms((OWLClass) clsExpr)) {
-                                    if (eqClassAxiom.getClassExpressions().contains(aspect)) {
-                                        return true;
-                                    }
-                                }
-                            }
+                        if (getEquivalentClassExpressions((OWLAnonymousClassExpression) aspect, activeOntologies).contains(clsExpr)) {
+                            return true;
                         }
                     }
                 }
             }
         }
         return false;
+    }
+
+    private Set<OWLClassExpression> getEquivalentClassExpressions(OWLClass cls, Set<OWLOntology> activeOntologies) {
+        HashSet<OWLClassExpression> result = new HashSet<>();
+        for (OWLOntology ontology : activeOntologies) {
+            for (OWLEquivalentClassesAxiom eqClassAxiom : ontology.getEquivalentClassesAxioms(cls)) {
+                result.addAll(eqClassAxiom.getClassExpressions());
+            }
+        }
+        return result;
+    }
+
+    private Set<OWLClassExpression> getEquivalentClassExpressions(OWLAnonymousClassExpression clsExpr, Set<OWLOntology> activeOntologies) {
+        HashSet<OWLClassExpression> result = new HashSet<>();
+        for (OWLOntology ontology : activeOntologies) {
+            for (OWLClass cls : ontology.getClassesInSignature()) {
+                for (OWLEquivalentClassesAxiom eqClassAxiom : ontology.getEquivalentClassesAxioms(cls)) {
+                    Set<OWLClassExpression> equivalentExpressions = eqClassAxiom.getClassExpressions();
+                    if (equivalentExpressions.contains(clsExpr)) {
+                        result.addAll(equivalentExpressions);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
 
