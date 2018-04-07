@@ -137,5 +137,12 @@
         <class value="de.fuberlin.csw.aspectowl.protege.editorkit.AspectOWLEditorKitFactory" />
         <name value="Factory for the AOOD Protégé editor kit" />
     </extension>
+    <extension id="AspectOWLFunctionalSyntax"
+               point="org.protege.editor.core.application.ViewComponent">
+        <label value="Aspect OWL functional syntax rendering"/>
+        <class value="de.fuberlin.csw.aspectowl.protege.editor.core.ui.view.ontology.OWLAspectFunctionalSyntaxRenderingViewComponent"/>
+        <headerColor value="@org.protege.ontologycolor"/>
+        <category value="@org.protege.ontologycategory"/>
+    </extension>
 
 </plugin>
