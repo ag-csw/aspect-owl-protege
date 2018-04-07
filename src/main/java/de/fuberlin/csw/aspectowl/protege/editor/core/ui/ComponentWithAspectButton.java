@@ -1,5 +1,6 @@
 package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import jdk.nashorn.internal.codegen.ObjectClassGenerator;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -13,11 +14,11 @@ public class ComponentWithAspectButton extends JCheckBox {
     private AspectButton aspectButton;
 //    private JComponent guest;
 
-    public ComponentWithAspectButton(OWLAxiom axiom, OWLOntology ontology, String text, ActionListener aspectButtonActionListener) {
+    public ComponentWithAspectButton(OWLAxiom axiom, OWLOntology ontology, String text, ActionListener aspectButtonActionListener, OWLOntologyAspectManager am) {
         super(text);
 //         setLayout(new BorderLayout());
 
-         aspectButton = new AspectButton(axiom, ontology);
+         aspectButton = new AspectButton(axiom, ontology, am);
          aspectButton.setActionListener(aspectButtonActionListener);
 
 //         add(target, BorderLayout.CENTER);

@@ -16,19 +16,21 @@ import java.util.Set;
 public class AspectOWLIconProviderImpl extends OWLIconProviderImpl {
 
     private OWLModelManager mm;
-    private OWLOntologyAspectManager am = OWLOntologyAspectManager.instance();
+    private OWLOntologyAspectManager am;
 
     private static final Icon primitiveAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.PRIMITIVE);
     private static final Icon definedAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.DEFINED);
 
 
-    public AspectOWLIconProviderImpl(@Nonnull OWLModelManager owlModelManager) {
+    public AspectOWLIconProviderImpl(@Nonnull OWLModelManager owlModelManager, OWLOntologyAspectManager am) {
         super(owlModelManager);
         this.mm = owlModelManager;
+        this.am = am;
     }
 
-    public AspectOWLIconProviderImpl(@Nonnull DefinedClassChecker definedClassChecker) {
+    public AspectOWLIconProviderImpl(@Nonnull DefinedClassChecker definedClassChecker, OWLOntologyAspectManager am) {
         super(definedClassChecker);
+        this.am = am;
     }
 
     @Override

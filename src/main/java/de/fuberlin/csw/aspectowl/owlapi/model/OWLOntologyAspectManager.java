@@ -21,13 +21,6 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
 
     private static OWLOntologyAspectManager instance;
 
-    public static OWLOntologyAspectManager instance() {
-        if (instance == null) {
-            instance = new OWLOntologyAspectManager();
-        }
-        return instance;
-    }
-
     private ConcurrentHashMap<OntologyObjectTuple<OWLPointcut>, Set<OWLAspectAssertionAxiom>> aspectsForPointcut = CollectionFactory.createSyncMap();
 
     /**

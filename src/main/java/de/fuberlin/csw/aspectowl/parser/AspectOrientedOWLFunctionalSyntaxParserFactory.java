@@ -3,6 +3,7 @@
  */
 package de.fuberlin.csw.aspectowl.parser;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import org.semanticweb.owlapi.io.OWLParser;
 import org.semanticweb.owlapi.io.OWLParserFactoryImpl;
 
@@ -16,10 +17,13 @@ public class AspectOrientedOWLFunctionalSyntaxParserFactory extends OWLParserFac
 	 */
 	private static final long serialVersionUID = 2617848554167933720L;
 
+	private OWLOntologyAspectManager am;
+
 	/**
 	 */
-	public AspectOrientedOWLFunctionalSyntaxParserFactory() {
+	public AspectOrientedOWLFunctionalSyntaxParserFactory(OWLOntologyAspectManager am) {
 		super(new AspectOrientedFunctionalSyntaxDocumentFormatFactory());
+		this.am = am;
 	}
 
 	/* (non-Javadoc)
@@ -27,7 +31,7 @@ public class AspectOrientedOWLFunctionalSyntaxParserFactory extends OWLParserFac
 	 */
 	@Override
 	public OWLParser createParser() {
-		return new AspectOrientedOWLFunctionalSyntaxOWLParser();
+		return new AspectOrientedOWLFunctionalSyntaxOWLParser(am);
 	}
 	
 }

@@ -26,10 +26,11 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
     protected RemappingIndividualProvider anonProvider;
     private OWLOntologyAspectManager am;
 
-    public void setUp(OWLOntology ontology, OWLOntologyLoaderConfiguration configuration) {
+    public void setUp(OWLOntology ontology, OWLOntologyLoaderConfiguration configuration, OWLOntologyAspectManager am) {
         this.man = ontology.getOWLOntologyManager();
         this.ontology = ontology;
         this.configuration = configuration;
+        this.am = am;
         this.df = man.getOWLDataFactory();
         anonProvider=new RemappingIndividualProvider(df);
         this.currentAnnotations = new HashSet<OWLAnnotation>();
@@ -42,7 +43,6 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
             prefixMap.put("xsd:", Namespaces.XSD.toString());
         }
         string2IRI = new HashMap<String, IRI>();
-        this.am = OWLOntologyAspectManager.instance();
     }
 
     public IRI getIRI(String s) {

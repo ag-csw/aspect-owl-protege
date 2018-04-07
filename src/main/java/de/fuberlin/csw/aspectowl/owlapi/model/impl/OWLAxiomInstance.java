@@ -14,11 +14,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class OWLAxiomInstance implements AspectContainer {
     private final OWLAxiom ax;
     private final OWLOntology ont;
+    private final OWLOntologyAspectManager am;
 
 
-    public OWLAxiomInstance(OWLAxiom ax, OWLOntology ont) {
+    public OWLAxiomInstance(OWLAxiom ax, OWLOntology ont, OWLOntologyAspectManager am) {
         this.ax = checkNotNull(ax);
         this.ont = ont;
+        this.am = am;
     }
 
     public OWLAxiom getAxiom() {
@@ -32,7 +34,7 @@ public class OWLAxiomInstance implements AspectContainer {
 
     @Override
     public Set<OWLAspect> getAspects() {
-        return OWLOntologyAspectManager.instance().getAssertedAspects(ont, ax);
+        return am.getAssertedAspects(ont, ax);
     }
 
 

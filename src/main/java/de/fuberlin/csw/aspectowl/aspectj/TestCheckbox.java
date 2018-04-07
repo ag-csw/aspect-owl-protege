@@ -40,8 +40,7 @@ public class TestCheckbox {
             OWLAxiom axiom = man.getOWLDataFactory().getOWLDeclarationAxiom(df.getOWLClass(IRI.create("http://example.org/aspectowl#A")));
     //        OWLAxiom axiom = new OWLDeclarationAxiomImpl(new OWLClassImpl(IRI.create("http://example.org/aspectowl#A")), Collections.emptySet());
 
-            JCheckBox checkbox1 = new ComponentWithAspectButton(axiom, ontology,"Apple", e -> System.out.println(e.getActionCommand()
-            ));
+            JCheckBox checkbox1 = new ComponentWithAspectButton(axiom, ontology,"Apple", e -> System.out.println(e.getActionCommand()), null);
 
 
             JCheckBox checkbox2 = new JCheckBox("Banana");

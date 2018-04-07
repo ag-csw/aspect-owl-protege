@@ -22,10 +22,10 @@ public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObject
      * @param ontology the ontology
      * @param writer
      */
-    public AspectFunctionalSyntaxObjectRenderer(@Nonnull OWLOntology ontology, Writer writer) {
+    public AspectFunctionalSyntaxObjectRenderer(@Nonnull OWLOntology ontology, Writer writer, OWLOntologyAspectManager am) {
         super(ontology, writer);
         this.writer = writer;
-        am = OWLOntologyAspectManager.instance();
+        this.am = am;
     }
 
     @Override

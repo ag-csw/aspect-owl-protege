@@ -17,12 +17,13 @@ public class AspectButton extends MListButton {
     private OWLAxiom axiom;
     private OWLOntology ontology;
 
-    private OWLOntologyAspectManager aspectManager = OWLOntologyAspectManager.instance();
+    private OWLOntologyAspectManager aspectManager;
 
-    public AspectButton(OWLAxiom axiom, OWLOntology ontology) {
+    public AspectButton(OWLAxiom axiom, OWLOntology ontology, OWLOntologyAspectManager aspectManager) {
         super("Aspects", ROLL_OVER_COLOR, null);
         this.axiom = axiom;
         this.ontology = ontology;
+        this.aspectManager = aspectManager;
     }
 
     @Override

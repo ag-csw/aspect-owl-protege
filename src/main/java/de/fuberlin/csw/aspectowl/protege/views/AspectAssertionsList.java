@@ -1,10 +1,12 @@
 package de.fuberlin.csw.aspectowl.protege.views;
 
+import com.hp.hpl.jena.sparql.function.library.e;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLJoinPointAxiomPointcut;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
+import de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook;
 import org.protege.editor.core.ui.list.MList;
 import org.protege.editor.core.ui.list.MListItem;
 import org.protege.editor.core.ui.list.MListSectionHeader;
@@ -30,7 +32,7 @@ public class AspectAssertionsList extends MList {
     // TODO This belongs to the model, move it elsewhere.
     public static AxiomType<OWLAspectAssertionAxiom> OWL_AXIOM_ASSERTION_AXIOM_TYPE;
 
-    private final static OWLOntologyAspectManager aspectManager = OWLOntologyAspectManager.instance();
+    private final OWLOntologyAspectManager aspectManager;
 
 //    TODO weaving does not work (yet)
 //    static {
@@ -102,6 +104,7 @@ public class AspectAssertionsList extends MList {
 
     public AspectAssertionsList(OWLEditorKit eKit) {
         this.editorKit = eKit;
+        aspectManager = AspectOWLEditorKitHook.getAspectManager(editorKit);
         setCellRenderer(new AspectAssertionListItemRenderer(eKit));
         addMouseListener(mouseListener);
         eKit.getOWLModelManager().addOntologyChangeListener(ontChangeListener);
@@ -151,19 +154,19 @@ public class AspectAssertionsList extends MList {
 
     protected void handleOntologyChanges(List<? extends OWLOntologyChange> changes) {
 
-//        // this is complicated by the fact that adding an aspect to an axiom produces a new axiom
-//        if (newAxiom != null){
-//            for (OWLOntologyChange change : changes){
-//                if (change instanceof OWLAxiomChange){
-//                    if (change.getAxiom().equalsIgnoreAnnotations(getRoot())){
-//                        // @@TODO should check that ontology contains the new axiom
-//                        setRootObject(newAxiom);
-//                        newAxiom = null;
-//                        return;
-//                    }
-//                }
-//            }
-//        }
+        // this is complicated by the fact that adding an aspect to an axiom produces a new axiom
+        if (newAxiom != null){
+            for (OWLOntologyChange change : changes){
+                if (change instanceof OWLAxiomChange){
+                    if (change.getAxiom().equalsIgnoreAnnotations(getRoot().getAxiom())){
+                        // @@TODO should check that ontology contains the new axiom
+                        setRootObject(new OWLAxiomInstance(newAxiom, root.getOntology(), aspectManager));
+                        newAxiom = null;
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     protected void handleAdd() {

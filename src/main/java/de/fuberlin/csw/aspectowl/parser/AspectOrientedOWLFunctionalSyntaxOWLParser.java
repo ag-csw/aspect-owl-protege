@@ -3,6 +3,7 @@
  */
 package de.fuberlin.csw.aspectowl.parser;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import org.semanticweb.owlapi.io.AbstractOWLParser;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.io.OWLParserException;
@@ -23,6 +24,12 @@ import java.io.Reader;
 public class AspectOrientedOWLFunctionalSyntaxOWLParser extends AbstractOWLParser {
 
 	private static final long serialVersionUID = -3478225770820865746L;
+
+	private OWLOntologyAspectManager am;
+
+	public AspectOrientedOWLFunctionalSyntaxOWLParser(OWLOntologyAspectManager am) {
+		this.am = am;
+	}
 
 	@Nonnull
 	@Override
@@ -56,7 +63,7 @@ public class AspectOrientedOWLFunctionalSyntaxOWLParser extends AbstractOWLParse
 						configuration);
 				parser = new AspectOWLFunctionalSyntaxParser(new InputStreamReader(is, "UTF-8"));
 			}
-			parser.setUp(ontology, configuration);
+			parser.setUp(ontology, configuration, am);
 			return parser.parse();
 		} catch (ParseException e) {
 			throw new OWLParserException(e.getMessage(), e, 0, 0);

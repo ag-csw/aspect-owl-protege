@@ -47,9 +47,9 @@
 
 	<groupId>de.fuberlin.csw.aood.protege</groupId>
 	<artifactId>de.fuberlin.csw.aood.protege.plugin</artifactId>
-	<version>v0.4.2.5-alpha</version>
+	<version>v0.4.2.8.2</version>
 	<name>Aspect-Oriented Ontology Protégé Plug-In</name> 
-	<description>A plug-in for aspectAssertionAxiom-oriented ontology development.</description>
+	<description>A plug-in for aspect-oriented ontology development.</description>
 
 	<properties>
 		<protege.version>5.2.0</protege.version>
