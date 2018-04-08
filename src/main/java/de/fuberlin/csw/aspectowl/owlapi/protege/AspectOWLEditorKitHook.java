@@ -205,6 +205,43 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 			} catch (Throwable t) {
 //				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
 			}
+		} else if (className.equals("org.protege.editor.owl.model.OntologyReloader")) {
+
+			// Each time an ontology is loaded, Protege creates a new OWLOntologyManager. This ontology manager is used
+			// for the loading process. After the ontology (and potential imports) are loaded, the ontologies are copied
+			// to the main ontology manager (the one stored in the single OWLModelManager instance). Then, the loading
+			// OWLOntologyManger is discarded. Anyway, we need to add our ParserFactory to each loading ontology manager.
+
+			ClassPool pool = ClassPool.getDefault();
+			pool.appendSystemPath();
+			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
+
+			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
+
+
+			try {
+				CtClass ctClass = pool.getCtClass(className);
+
+				CtMethod ctMethod = ctClass.getMethod("performReloadAndGetPatch", "()Ljava/util/List;"); // throws NotFoundException if method does not exist
+
+				CtClass declaringClass = ctMethod.getDeclaringClass();
+
+				if (declaringClass != ctClass) {
+					ctMethod = CtNewMethod.copy(ctMethod, ctClass, null);
+					ctClass.addMethod(ctMethod);
+				}
+
+				ctMethod.insertAt(99,"de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addAspectOWLParser(reloadingManager, modelManager);");
+
+				byte[] bytes = ctClass.toBytecode();
+				ctClass.detach();
+				wovenClass.setBytes(bytes);
+
+				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+			} catch (Throwable t) {
+//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+			}
 		} else if (className.equals("org.protege.editor.owl.ui.OntologyFormatPanel")) {
 
 			ClassPool pool = ClassPool.getDefault();
