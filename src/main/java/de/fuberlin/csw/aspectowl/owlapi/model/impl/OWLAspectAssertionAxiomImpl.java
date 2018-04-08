@@ -1,12 +1,13 @@
 package de.fuberlin.csw.aspectowl.owlapi.model.impl;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.*;
-import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionsList;
+import de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook;
 import org.semanticweb.owlapi.model.*;
 import uk.ac.manchester.cs.owl.owlapi.OWLLogicalAxiomImplWithEntityAndAnonCaching;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 
 public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAndAnonCaching implements OWLAspectAssertionAxiom {
 
@@ -63,7 +64,7 @@ public class OWLAspectAssertionAxiomImpl extends OWLLogicalAxiomImplWithEntityAn
     @Nonnull
     @Override
     public AxiomType<?> getAxiomType() {
-        return AspectAssertionsList.OWL_AXIOM_ASSERTION_AXIOM_TYPE;
+        return AspectOWLEditorKitHook.OWL_ASPECT_ASSERTION_AXIOM_TYPE;
     }
 
     @Override

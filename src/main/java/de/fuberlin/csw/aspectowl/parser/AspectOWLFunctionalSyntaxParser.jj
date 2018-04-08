@@ -100,7 +100,9 @@ public class AspectOWLFunctionalSyntaxParser {
     private void addAspects(OWLAxiom joinPointAxiom, Set<OWLAspect> aspects) {
         for (OWLAspect aspect : aspects) {
             OWLAspectAssertionAxiom aspectAssertionAxiom = am.getAspectAssertionAxiom(ontology, new OWLJoinPointAxiomPointcut(joinPointAxiom), aspect);
-            am.addAspect(ontology, aspectAssertionAxiom);
+            AddAxiom addAxiom = new AddAxiom(ontology, aspectAssertionAxiom);
+            applyChange(addAxiom);
+            am.addAspect(ontology, aspectAssertionAxiom); // we need to do this manually here because ontology change listeners are deactivated during loading
         }
     }
 }

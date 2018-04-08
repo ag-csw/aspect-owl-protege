@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
   not possible),   */
 public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter implements OWLOntologyChangeListener {
 
-    private static OWLOntologyAspectManager instance;
-
     private ConcurrentHashMap<OntologyObjectTuple<OWLPointcut>, Set<OWLAspectAssertionAxiom>> aspectsForPointcut = CollectionFactory.createSyncMap();
 
     /**

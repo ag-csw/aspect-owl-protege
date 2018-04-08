@@ -27,7 +27,7 @@ public class AspectOWLPostClassLoadingWeavingHelper {
 //				CtClass ctClass = pool.get(AxiomType.class.getName());
 //				CtClass axiomTypeClass = pool.get( AxiomType.class.getName() );
 
-            CtField defField = new CtField(ctClass, "OWL_AXIOM_ASSERTION_AXIOM_TYPE", ctClass);
+            CtField defField = new CtField(ctClass, "OWL_ASPECT_ASSERTION_AXIOM_TYPE", ctClass);
             defField.setModifiers( Modifier.STATIC + Modifier.PUBLIC + Modifier.FINAL);
 
             ctClass.addField( defField, CtField.Initializer.byCall(ctClass, "getInstance", new String[]{OWLAspectAssertionAxiom.class.getName() + ".class", "38", "\"AspectAssertion\"", "true", "true", "true"}) );

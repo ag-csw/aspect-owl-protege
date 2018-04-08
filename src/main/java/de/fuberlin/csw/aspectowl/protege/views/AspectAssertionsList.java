@@ -1,6 +1,5 @@
 package de.fuberlin.csw.aspectowl.protege.views;
 
-import com.hp.hpl.jena.sparql.function.library.e;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLJoinPointAxiomPointcut;
@@ -22,49 +21,13 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
 
 public class AspectAssertionsList extends MList {
 
-    // TODO This belongs to the model, move it elsewhere.
-    public static AxiomType<OWLAspectAssertionAxiom> OWL_AXIOM_ASSERTION_AXIOM_TYPE;
-
     private final OWLOntologyAspectManager aspectManager;
 
-//    TODO weaving does not work (yet)
-//    static {
-//        Class axiomTypeClass = AxiomType.class;
-//        try {
-//            Field axiomTypeField = axiomTypeClass.getField("OWL_AXIOM_ASSERTION_AXIOM_TYPE");
-//            OWL_AXIOM_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>) axiomTypeField.get(null);
-//        } catch (NoSuchFieldException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    static {
-        // sneak in our aspectAssertionAxiom assertion axiom type (need to use brute force and a hammer, since the AxiomType class
-        // is final and its constructor is private).
-        Class<AxiomType> axiomTypeClass = AxiomType.class;
-        try {
-            Constructor constr = axiomTypeClass.getDeclaredConstructor(Class.class, Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE);
-            constr.setAccessible(true);
-            OWL_AXIOM_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>)constr.newInstance(OWLAspectAssertionAxiom.class, 38, "AspectAssertion", true, true, true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static final String HEADER_TEXT = "Aspects";
 
@@ -172,7 +135,7 @@ public class AspectAssertionsList extends MList {
     protected void handleAdd() {
         // don't need to check the section as only the direct imports can be added
         if (editor == null){
-            editor = editorKit.getWorkspace().getOWLComponentFactory().getOWLClassDescriptionEditor(null, OWL_AXIOM_ASSERTION_AXIOM_TYPE);
+            editor = editorKit.getWorkspace().getOWLComponentFactory().getOWLClassDescriptionEditor(null, AspectOWLEditorKitHook.OWL_ASPECT_ASSERTION_AXIOM_TYPE);
         }
 
         editor.setEditedObject(null);
@@ -227,7 +190,7 @@ public class AspectAssertionsList extends MList {
         public void handleEdit() {
             // don't need to check the section as only the direct imports can be added
             if (editor == null){
-                editor = editorKit.getWorkspace().getOWLComponentFactory().getOWLClassDescriptionEditor(null, OWL_AXIOM_ASSERTION_AXIOM_TYPE);
+                editor = editorKit.getWorkspace().getOWLComponentFactory().getOWLClassDescriptionEditor(null, AspectOWLEditorKitHook.OWL_ASPECT_ASSERTION_AXIOM_TYPE);
             }
             OWLAspect originalAspect = aspectAssertionAxiom.getAspect();
             editor.setEditedObject(originalAspect);

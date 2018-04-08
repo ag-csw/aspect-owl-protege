@@ -3,6 +3,7 @@
  */
 package de.fuberlin.csw.aspectowl.owlapi.protege;
 
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFormat;
@@ -25,15 +26,14 @@ import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.model.OWLWorkspace;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLDocumentFormat;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -49,6 +49,41 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 	private final OWLOntologyAspectManager am = new OWLOntologyAspectManager();
 	private final static Map<ModelManager, OWLOntologyAspectManager> aspectManagers = new HashMap<>();
+
+	public static AxiomType<OWLAspectAssertionAxiom> OWL_ASPECT_ASSERTION_AXIOM_TYPE;
+
+//    TODO weaving does not work (yet)
+//    static {
+//        Class axiomTypeClass = AxiomType.class;
+//        try {
+//            Field axiomTypeField = axiomTypeClass.getField("OWL_ASPECT_ASSERTION_AXIOM_TYPE");
+//            OWL_ASPECT_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>) axiomTypeField.get(null);
+//        } catch (NoSuchFieldException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+	static {
+		// sneak in our aspectAssertionAxiom assertion axiom type (need to use brute force and a hammer, since the AxiomType class
+		// is final and its constructor is private).
+		Class<AxiomType> axiomTypeClass = AxiomType.class;
+		try {
+			Constructor<AxiomType> constr = axiomTypeClass.getDeclaredConstructor(Class.class, Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE);
+			constr.setAccessible(true);
+			OWL_ASPECT_ASSERTION_AXIOM_TYPE = (AxiomType<OWLAspectAssertionAxiom>)constr.newInstance(OWLAspectAssertionAxiom.class, 38, "AspectAssertion", true, true, true);
+			AxiomType.AXIOM_TYPES.add(OWL_ASPECT_ASSERTION_AXIOM_TYPE);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * 
@@ -355,6 +390,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 	@SuppressWarnings("unused")
 	public static void addAspectOWLParser(OWLOntologyManager man, OWLModelManager modelManager) {
 		man.getOntologyParsers().add(new AspectOrientedOWLFunctionalSyntaxParserFactory(getAspectManager(modelManager)));
+//		man.addOntologyChangeListener(aspectManagers.get(modelManager));
 	}
 
 	@SuppressWarnings("unused")
