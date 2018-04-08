@@ -181,6 +181,8 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         OWLAxiom axiom = change.getAxiom();
         if (axiom instanceof OWLAspectAssertionAxiom) {
             removeAspectAssertionAxiom(change.getOntology(), ((OWLAspectAssertionAxiom) axiom));
+        } else {
+            aspectsForPointcut.remove(new OntologyObjectTuple<>(change.getOntology(), new OWLJoinPointAxiomPointcut(axiom)));
         }
     }
 
