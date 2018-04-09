@@ -13,11 +13,8 @@ package de.fuberlin.csw.aspectowl.parser;
 
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.*;
-import java.net.*;
 import java.util.*;
 import org.semanticweb.owlapi.util.*;
-import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
-import java.io.IOException;
 import org.semanticweb.owlapi.io.OWLParserException;
 import de.fuberlin.csw.aspectowl.owlapi.model.*;
 
@@ -259,11 +256,11 @@ TOKEN: { <PN_CHARS_U: <PN_CHARS_BASE> | "_"> }
 TOKEN: { <NODEID: "_:"<PN_LOCAL>> }
 TOKEN: { <ERROR: ~[]> }
 
-public FunctionalSyntaxDocumentFormat parse() throws OWLParserException, UnloadableImportException :
+public AspectOrientedFunctionalSyntaxDocumentFormat parse() throws OWLParserException, UnloadableImportException :
 { }
 {
     (Prefix())*Ontology()<EOF> {
-        FunctionalSyntaxDocumentFormat format = new FunctionalSyntaxDocumentFormat();
+        AspectOrientedFunctionalSyntaxDocumentFormat format = new AspectOrientedFunctionalSyntaxDocumentFormat();
         for(String pn : prefixMap.keySet()) {
             format.setPrefix(pn, prefixMap.get(pn));
         }

@@ -4,11 +4,8 @@ package de.fuberlin.csw.aspectowl.parser;
 
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.*;
-import java.net.*;
 import java.util.*;
 import org.semanticweb.owlapi.util.*;
-import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
-import java.io.IOException;
 import org.semanticweb.owlapi.io.OWLParserException;
 import de.fuberlin.csw.aspectowl.owlapi.model.*;
 
@@ -97,7 +94,7 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
         }
     }
 
-  final public FunctionalSyntaxDocumentFormat parse() throws ParseException, OWLParserException, UnloadableImportException {
+  final public AspectOrientedFunctionalSyntaxDocumentFormat parse() throws ParseException, OWLParserException, UnloadableImportException {
     label_1:
     while (true) {
       if (jj_2_1(2)) {
@@ -109,7 +106,7 @@ public class AspectOWLFunctionalSyntaxParser implements AspectOWLFunctionalSynta
     }
     Ontology();
     jj_consume_token(0);
-FunctionalSyntaxDocumentFormat format = new FunctionalSyntaxDocumentFormat();
+AspectOrientedFunctionalSyntaxDocumentFormat format = new AspectOrientedFunctionalSyntaxDocumentFormat();
         for(String pn : prefixMap.keySet()) {
             format.setPrefix(pn, prefixMap.get(pn));
         }
@@ -3383,6 +3380,13 @@ signature.add(iri);
     finally { jj_save(144, xla); }
   }
 
+  private boolean jj_3R_33()
+ {
+    if (jj_scan_token(OBJECTUNIONOF)) return true;
+    if (jj_scan_token(OPENPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_142()
  {
     if (jj_3R_132()) return true;
@@ -5272,13 +5276,6 @@ signature.add(iri);
   private boolean jj_3R_76()
  {
     if (jj_scan_token(SUBOBJECTPROPERTYOF)) return true;
-    if (jj_scan_token(OPENPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_33()
- {
-    if (jj_scan_token(OBJECTUNIONOF)) return true;
     if (jj_scan_token(OPENPAR)) return true;
     return false;
   }

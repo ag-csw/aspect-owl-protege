@@ -3,11 +3,8 @@
 package de.fuberlin.csw.aspectowl.parser;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.*;
-import java.net.*;
 import java.util.*;
 import org.semanticweb.owlapi.util.*;
-import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
-import java.io.IOException;
 import org.semanticweb.owlapi.io.OWLParserException;
 import de.fuberlin.csw.aspectowl.owlapi.model.*;
 
