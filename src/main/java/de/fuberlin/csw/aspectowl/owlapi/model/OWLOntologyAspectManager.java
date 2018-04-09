@@ -90,22 +90,24 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
 //                axiom.getAspect()).filter(aspect -> aspect.equals(clsExpr)).count() != 0;
 
         for (OntologyObjectTuple<OWLPointcut> tuple : aspectsForPointcut.keySet()) {
-            if (activeOntologies.contains(tuple.ontology)) {
-                for (OWLAspectAssertionAxiom axiom : aspectsForPointcut.get(tuple)) {
-                    OWLAspect aspect = axiom.getAspect();
-                    if (aspect instanceof OWLNamedAspect) {
-                        if (aspect.equals(clsExpr)) {
-                            return true;
-                        }
-                        if (getEquivalentClassExpressions((OWLClass) aspect, activeOntologies).contains(clsExpr)) {
-                            return true;
-                        }
-                    } else {
-                        if (((OWLAnonymousAspect)aspect).getClassExpression().equals(clsExpr)) {
-                            return true;
-                        }
-                        if (getEquivalentClassExpressions((OWLAnonymousClassExpression) aspect, activeOntologies).contains(clsExpr)) {
-                            return true;
+            for (OWLOntology activeOntology : activeOntologies) {
+                if (activeOntology.equals(tuple.ontology)) { // HashSet.contains does not work here because an OWLOntologyImpl's hashCode is calculated based on the ontology's ID which may change after it was added to the set.
+                    for (OWLAspectAssertionAxiom axiom : aspectsForPointcut.get(tuple)) {
+                        OWLAspect aspect = axiom.getAspect();
+                        if (aspect instanceof OWLNamedAspect) {
+                            if (aspect.equals(clsExpr)) {
+                                return true;
+                            }
+                            if (getEquivalentClassExpressions((OWLClass) aspect, activeOntologies).contains(clsExpr)) {
+                                return true;
+                            }
+                        } else {
+                            if (((OWLAnonymousAspect) aspect).getClassExpression().equals(clsExpr)) {
+                                return true;
+                            }
+                            if (getEquivalentClassExpressions((OWLAnonymousClassExpression) aspect, activeOntologies).contains(clsExpr)) {
+                                return true;
+                            }
                         }
                     }
                 }
