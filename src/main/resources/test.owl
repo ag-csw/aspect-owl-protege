@@ -12,11 +12,16 @@ Declaration(Class(:A))
 Declaration(Class(:B))
 Declaration(Class(:C))
 Declaration(Class(:D))
+Declaration(Class(:E))
+Declaration(Class(:F))
+Declaration(Class(:G))
+Declaration(Class(:H))
 Declaration(ObjectProperty(:r))
 Declaration(ObjectProperty(:s))
 Declaration(NamedIndividual(:I1))
 Declaration(NamedIndividual(:I2))
 Declaration(NamedIndividual(:I3))
+Declaration(NamedIndividual(:I4))
 
 ############################
 #   Classes
@@ -31,6 +36,10 @@ EquivalentClasses(Aspect(:D) Aspect(ObjectSomeValuesFrom(:r :B)) :A :B)
 EquivalentClasses(:C :D)
 EquivalentClasses(:C ObjectSomeValuesFrom(:r :B))
 
+# Class: :E (:E)
+
+DisjointClasses(:E :F)
+
 
 ############################
 #   Named Individuals
@@ -39,6 +48,13 @@ EquivalentClasses(:C ObjectSomeValuesFrom(:r :B))
 # Individual: :I1 (:I1)
 
 ObjectPropertyAssertion(:r :I1 :I2)
+
+# Individual: :I4 (:I4)
+
+ClassAssertion(Aspect(:G) :E :I4)
+ClassAssertion(Aspect(:H) :F :I4)
+
+
 
 
 

@@ -106,11 +106,11 @@
     </extension>
     <extension
     	id="SaveAspectOrientedOntology"
-    	name="Save aspectAssertionAxiom-oriented Ontology"
+    	name="Save aspect-oriented Ontology"
     	point="org.protege.editor.core.application.EditorKitMenuAction">
-    	<name value="Save aspectAssertionAxiom-oriented Ontology"/>
+    	<name value="Save aspect-oriented Ontology"/>
     	<class value="de.fuberlin.csw.aspectowl.protege.SaveAspectOrientedOntology"/>
-    	<toolTip value="Save your aspectAssertionAxiom-oriented Ontology in its own file format"/>
+    	<toolTip value="Save your aspect-oriented Ontology in its own file format"/>
     	<path value="org.protege.editor.core.application.menu.FileMenu/SlotAB-Z"/>
     	<editorKitId value="OWLEditorKit"/>
     	<accelerator value="shift A"/>
@@ -124,14 +124,14 @@
     </extension>
     <extension id="InconsistentAspectSeparatorOntologyExplanationGenerator"
                point="org.protege.editor.owl.inconsistentOntologyExplanation">
-        <class value="uk.ac.manchester.cs.owl.explanation.InconsistentOntologyExplanationPluginImpl"/>
+        <class value="de.fuberlin.csw.aspectowl.explanation.AspectExplanationPluginImpl"/>
         <name value="Identification and deactivation of aspects that cause inconsistency"/>
     </extension>
-    <extension id="AspectOWLEditorPluginFactory"
+    <!--extension id="AspectOWLEditorPluginFactory"
                point="org.protege.editor.owl.inconsistentOntologyExplanation">
         <class value="uk.ac.manchester.cs.owl.explanation.InconsistentOntologyExplanationPluginImpl"/>
         <name value="Identification and deactivation of aspects that cause inconsistency"/>
-    </extension>
+    </extension-->
     <extension id="AspectOrientedOntologyDevelopmentEditorKitFactory"
                point="org.protege.editor.core.editorkit.EditorKitFactory">
         <class value="de.fuberlin.csw.aspectowl.protege.editorkit.AspectOWLEditorKitFactory" />

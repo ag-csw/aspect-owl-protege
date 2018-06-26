@@ -4,6 +4,7 @@ import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAnonymousAspectImpl;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAspectAssertionAxiomImpl;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLNamedAspectImpl;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.util.OWLOntologyChangeVisitorAdapter;
 
@@ -11,12 +12,18 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /* I know. Calling a class 'SomethingManager' is an anti-pattern. What brought me here was days of
   unsuccessful experimenting with OSGI byte code weaving (in order to add all the aspect related
   functionality to the existing OWL object interfaces in the OWLAPI, hacks for replacing the
   OWLDataFactory during or after the initialization of the Protégé OWL workspace (bottom line:
   not possible),   */
+
+/**
+ * The central facility for managing all aspect-related issues.
+ * At runtime there exists exactly one instance of this class per Protege workspace instance.
+ */
 public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter implements OWLOntologyChangeListener {
 
     private ConcurrentHashMap<OntologyObjectTuple<OWLPointcut>, Set<OWLAspectAssertionAxiom>> aspectsForPointcut = CollectionFactory.createSyncMap();
@@ -82,6 +89,21 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return false;
     }
 
+    /**
+     * Returns a set containing all aspects in all of the given ontologies
+     * @param activeOntologies
+     * @return
+     */
+    public Stream<OWLClass> getAllAspects(Set<OWLOntology> activeOntologies) {
+        return activeOntologies.stream().flatMap(ontology -> ontology.getClassesInSignature(Imports.INCLUDED).stream()).filter(clsExpr -> isAspectInOntology(clsExpr, activeOntologies));
+    }
+
+    /**
+     * Returns true if the given class expression has the role of an aspect in one of the given ontologies.
+     * @param clsExpr
+     * @param activeOntologies
+     * @return
+     */
     public boolean isAspectInOntology(OWLClassExpression clsExpr, Set<OWLOntology> activeOntologies) {
         // TODO this is called often and is not efficient. Needs some sort of caching.
 
