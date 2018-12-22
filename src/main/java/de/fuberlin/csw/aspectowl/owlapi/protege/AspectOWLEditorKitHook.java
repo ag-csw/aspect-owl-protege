@@ -6,6 +6,7 @@ package de.fuberlin.csw.aspectowl.owlapi.protege;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.model.impl.OWLAxiomInstance;
+import de.fuberlin.csw.aspectowl.owlapi.vocab.AspectOWLVocabulary;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFormat;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
@@ -83,6 +84,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
+		AspectOWLVocabulary.ASPECT.getIRI(); // Workaround for https://github.com/protegeproject/protege/issues/336
 	}
 
 	/**
