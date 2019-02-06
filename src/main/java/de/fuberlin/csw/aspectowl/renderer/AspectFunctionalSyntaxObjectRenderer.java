@@ -53,6 +53,11 @@ public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObject
             anno.accept(this);
             writeSpace();
         }
+        
+        for (OWLAspect nestedAspect : aspect.getAspects()) {
+        	nestedAspect.accept(this);
+        	writeSpace();
+        }
 
         aspect.accept(this);
 

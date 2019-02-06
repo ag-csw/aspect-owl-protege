@@ -8,8 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 
 public class AddPointcut extends OWLPointcutChange {
+	
+	private static final long serialVersionUID = -2754681684243858566L;
 
-    public AddPointcut(@Nonnull OWLOntology ontology, @Nonnull OWLPointcut pointcut) {
+	public AddPointcut(@Nonnull OWLOntology ontology, @Nonnull OWLPointcut pointcut) {
         super(ontology, pointcut);
     }
 

@@ -19,7 +19,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class AspectAssertionPanel extends JComponent {
 
-    private static final int PREF_WIDTH = 500;
+	private static final long serialVersionUID = -5974200966389671425L;
+
+	private static final int PREF_WIDTH = 500;
 
     private AspectAssertionsList aspectAssertionComponent;
 

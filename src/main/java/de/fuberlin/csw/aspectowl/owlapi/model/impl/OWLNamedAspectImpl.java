@@ -17,10 +17,11 @@ public class OWLNamedAspectImpl extends OWLClassImpl implements OWLNamedAspect {
     /**
      * @param iri class iri
      * @param annotations
+     * @param aspects
      */
-    public OWLNamedAspectImpl(@Nonnull IRI iri, Set<OWLAnnotation> annotations) {
+    public OWLNamedAspectImpl(@Nonnull IRI iri, Set<OWLAnnotation> annotations, Set<OWLAspect> aspects) {
         super(iri);
-        delegate = new OWLAspectImplDelegate(this, annotations);
+        delegate = new OWLAspectImplDelegate(this, annotations, aspects);
     }
 
     @Override
@@ -30,12 +31,21 @@ public class OWLNamedAspectImpl extends OWLClassImpl implements OWLNamedAspect {
 
     @Override
     public OWLAspect getAspectWithoutAnnotations() {
-        return new OWLNamedAspectImpl(getIRI(), Collections.EMPTY_SET);
+        return new OWLNamedAspectImpl(getIRI(), Collections.EMPTY_SET, delegate.getAspects());
     }
 
     @Nonnull
     @Override
     public Set<OWLAnnotation> getAnnotations() {
         return delegate.getAnnotations();
+    }
+    
+    /**
+     * @see de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect#getAspects()
+     */
+    @Override
+    @Nonnull
+    public Set<OWLAspect> getAspects() {
+    	return delegate.getAspects();
     }
 }

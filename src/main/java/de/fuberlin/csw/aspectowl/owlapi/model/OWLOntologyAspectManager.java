@@ -32,13 +32,14 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      * Creates and returns a new OWLAspect constructed from the given ontology, join point and advice class expression.
      * @param expr
      * @param annotations
+     * @param aspects nested aspects
      * @return
      */
-    public OWLAspect getAspect(OWLClassExpression expr, Set<OWLAnnotation> annotations) {
+    public OWLAspect getAspect(OWLClassExpression expr, Set<OWLAnnotation> annotations, Set<OWLAspect> aspects) {
         if (expr.isAnonymous()) {
-            return new OWLAnonymousAspectImpl((OWLAnonymousClassExpression)expr, annotations);
+            return new OWLAnonymousAspectImpl((OWLAnonymousClassExpression)expr, annotations, aspects);
         }
-        return new OWLNamedAspectImpl(((OWLClass) expr).getIRI(), annotations);
+        return new OWLNamedAspectImpl(((OWLClass) expr).getIRI(), annotations, aspects);
     }
 
     /**
@@ -182,6 +183,11 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
             aspectsForPointcut.put(key, aspects);
         }
         aspects.add(aspectAssertionAxiom);
+        
+        
+        // TODO github issue #9: When an aspect assertion axiom is added, its aspect may have nested aspects.
+        // We need to traverse the tree of nested aspects and add an aspect assertion axiom for each nested aspect.
+        // The question is whether this is the best place to do that or whether this should be handled outside of the manager.
     }
 
     @Override
@@ -206,12 +212,6 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         } else {
             aspectsForPointcut.remove(new OntologyObjectTuple<>(change.getOntology(), new OWLJoinPointAxiomPointcut(axiom)));
         }
-    }
-
-    @Override
-    public void visit(RemoveOntologyAnnotation change) {
-        change.getOntology();
-        aspectsForPointcut.remove(change.getAnnotation());
     }
 
     private class OntologyObjectTuple<O> {

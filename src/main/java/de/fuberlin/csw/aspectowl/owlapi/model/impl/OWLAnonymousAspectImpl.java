@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 /**
  * Is in package uk.ac.manchester.cs.owl.owlapi because it needs to access the index and compareObjectOfSameType
  * methods, which are protected.
+ * 
+ * @author ralph
  */
 public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl implements OWLAnonymousAspect {
 
@@ -32,9 +34,9 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     private OWLAnonymousClassExpressionImpl ceDelegate;
     private OWLAspectImplDelegate aspectDelegate;
 
-    public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression, Set<OWLAnnotation> annotations) {
+    public OWLAnonymousAspectImpl(OWLAnonymousClassExpression classExpression, Set<OWLAnnotation> annotations, Set<OWLAspect> aspects) {
         this.ceDelegate = (OWLAnonymousClassExpressionImpl) classExpression;
-        this.aspectDelegate = new OWLAspectImplDelegate(this, annotations);
+        this.aspectDelegate = new OWLAspectImplDelegate(this, annotations, aspects);
 
 
         // We are using the crowbar (aka Java Reflection) in order to make it possible to use the delegate pattern on the
@@ -65,7 +67,15 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
 
     @Override
     public OWLAspect getAspectWithoutAnnotations() {
-        return new OWLAnonymousAspectImpl(ceDelegate, Collections.EMPTY_SET);
+        return new OWLAnonymousAspectImpl(ceDelegate, Collections.EMPTY_SET, aspectDelegate.getAspects());
+    }
+    
+    /**
+     * @see de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect#getAspects()
+     */
+    @Override
+    public Set<OWLAspect> getAspects() {
+    	return aspectDelegate.getAspects();
     }
 
     @Nonnull

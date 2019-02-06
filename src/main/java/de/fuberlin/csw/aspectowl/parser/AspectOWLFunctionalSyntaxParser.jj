@@ -1409,9 +1409,11 @@ OWLAspect Aspect() :
 {
   	OWLClassExpression advice;
 	Set<OWLAnnotation> annos = new HashSet<OWLAnnotation>();
+	Set<OWLAspect> nestedAspects = new HashSet<OWLAspect>(); // nested aspects
 	OWLAnnotation anno;
+	OWLAspect nestedAspect;
 }
-{ (<ASPECT><OPENPAR> ((anno=Annotation(){annos.add(anno);})*) advice=Advice()<CLOSEPAR>) { return am.getAspect(advice, annos); } }
+{ (<ASPECT><OPENPAR> ((anno=Annotation(){annos.add(anno);})*) ((nestedAspect=Aspect(){nestedAspects.add(nestedAspect);})*) advice=Advice()<CLOSEPAR>) { return am.getAspect(advice, annos, nestedAspects); } }
 
 OWLAspectAssertionAxiom AspectAssertion() :
 {
@@ -1420,7 +1422,7 @@ OWLAspectAssertionAxiom AspectAssertion() :
 	Set<OWLAnnotation> axiomAnnos;
 }
 { <ASPECTASSERTION><OPENPAR>axiomAnnos=AxiomAnnotationSet() joinPoint=JoinPoint() advice=Advice()<CLOSEPAR> {
-    OWLAspect aspect = am.getAspect(advice, axiomAnnos);
+    OWLAspect aspect = am.getAspect(advice, axiomAnnos, Collections.EMPTY_SET); // TODO allow nested aspects for stand-alone aspect assertion axioms (as already implemented for inline axiom aspects)
     return am.getAspectAssertionAxiom(ontology, new OWLEntityPointcut(joinPoint), aspect);
 } }
 
@@ -1451,20 +1453,20 @@ OWLPointcut Pointcut() :
 
 SPARQLPointcut SPARQLPointcut() :
 {
-	OWLAspect aspectAssertionAxiom;
+	OWLAspect aspect;
 	String query;
 	Set<OWLAnnotation> annotations; // TODO we actually do not need annotations on the pointcuts, since we already have annotations on the aspects
 }
-{ <SPARQLPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspectAssertionAxiom=Aspect() query=QuotedString())<CLOSEPAR> { return new SPARQLPointcut(query); } }
+{ <SPARQLPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspect=Aspect() query=QuotedString())<CLOSEPAR> { return new SPARQLPointcut(query); } }
 
 
 OWLModulePointcut ModulePointcut() :
 {
-	OWLAspect aspectAssertionAxiom;
+	OWLAspect aspect;
 	Set<OWLEntity> signature;
 	Set<OWLAnnotation> annotations;
 }
-{ <MODULEPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspectAssertionAxiom=Aspect() signature=Signature())<CLOSEPAR> { return new OWLModulePointcut(signature); } }
+{ <MODULEPOINTCUT><OPENPAR>(annotations=AxiomAnnotationSet() aspect=Aspect() signature=Signature())<CLOSEPAR> { return new OWLModulePointcut(signature); } }
 
 Set<OWLEntity> Signature() :
 {

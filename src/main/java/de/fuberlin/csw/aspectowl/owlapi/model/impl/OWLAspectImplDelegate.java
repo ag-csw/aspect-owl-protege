@@ -22,17 +22,23 @@ public class OWLAspectImplDelegate {
 	private OWLAspect aspect;
 
 	private HashSet<OWLObjectProperty> accessibilityRelations = new HashSet<>();
-
+	
 	@Nonnull
 	private final List<OWLAnnotation> annotations;
+
+	@Nonnull
+	private final List<OWLAspect> aspects;
+
 
 	/**
 	 * @param aspect
 	 * @param annotations
+	 * @param aspects Nested aspects
 	 */
-	public OWLAspectImplDelegate(OWLAspect aspect, Set<OWLAnnotation> annotations) {
+	public OWLAspectImplDelegate(OWLAspect aspect, Set<OWLAnnotation> annotations, Set<OWLAspect> aspects) {
 		this.aspect = aspect;
 		this.annotations = CollectionFactory.sortOptionally((Set<OWLAnnotation>) annotations);
+		this.aspects = CollectionFactory.sortOptionally((Set<OWLAspect>) aspects);
 	}
 
 	private static final long serialVersionUID = 4829969668138075822L;
@@ -45,6 +51,16 @@ public class OWLAspectImplDelegate {
 	public Set<OWLAnnotation> getAnnotations() {
 		return CollectionFactory
 				.getCopyOnRequestSetFromImmutableCollection(annotations);
+	}
+	
+	/**
+	 * Returns the nested aspects of this aspect.
+	 * @return the nested aspects of this aspect
+	 */
+	@Nonnull
+	public Set<OWLAspect> getAspects() {
+		return CollectionFactory
+		.getCopyOnRequestSetFromImmutableCollection(aspects);
 	}
 
 }
