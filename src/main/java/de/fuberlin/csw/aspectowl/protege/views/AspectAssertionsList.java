@@ -154,7 +154,7 @@ public class AspectAssertionsList extends MList {
             OWLClassExpression expression = editor.getEditedObject();
             if (expression != null) {
                 OWLOntology ontology = getRoot().getOntology();
-                ontology.getOWLOntologyManager()
+//                ontology.getOWLOntologyManager()
                 Set <OWLAnnotation> annotations = Collections.EMPTY_SET; // TODO add annotation editor to UI, github issue #8
                 OWLAspect aspect = aspectManager.getAspect(expression, annotations, Collections.EMPTY_SET);
                 OWLAspectAssertionAxiom aspectAssertionAxiom = aspectManager.getAspectAssertionAxiom(ontology, new OWLJoinPointAxiomPointcut(getRoot().getAxiom()), aspect);
