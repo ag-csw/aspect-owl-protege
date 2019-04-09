@@ -1,9 +1,6 @@
 package de.fuberlin.csw.aspectowl.owlapi.model;
 
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationSubject;
-import org.semanticweb.owlapi.model.OWLAnonymousIndividual;
-import org.semanticweb.owlapi.model.OWLIndividual;
 
 /**
  * Encapsulates OWL entities that may act as an aspect joint point (IRIs and anonymous individuals).

@@ -99,6 +99,8 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         return activeOntologies.stream().flatMap(ontology -> ontology.getClassesInSignature(Imports.INCLUDED).stream()).filter(clsExpr -> isAspectInOntology(clsExpr, activeOntologies));
     }
 
+    private HashMap<OntologyObjectTuple<OWLClassExpression>, Boolean> cache = new HashMap<>();
+    
     /**
      * Returns true if the given class expression has the role of an aspect in one of the given ontologies.
      * @param clsExpr
@@ -107,11 +109,14 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      */
     public boolean isAspectInOntology(OWLClassExpression clsExpr, Set<OWLOntology> activeOntologies) {
         // TODO this is called often and is not efficient. Needs some sort of caching.
+    	// see issue #14
 
 //        return aspectsForPointcut.keySet().stream().filter(tuple -> activeOntologies.contains(tuple.ontology)).map(key ->
 //                aspectsForPointcut.get(key)).flatMap(set -> set.stream()).map(axiom ->
 //                axiom.getAspect()).filter(aspect -> aspect.equals(clsExpr)).count() != 0;
 
+    	
+    	
         for (OntologyObjectTuple<OWLPointcut> tuple : aspectsForPointcut.keySet()) {
             for (OWLOntology activeOntology : activeOntologies) {
                 if (activeOntology.equals(tuple.ontology)) { // HashSet.contains does not work here because an OWLOntologyImpl's hashCode is calculated based on the ontology's ID which may change after it was added to the set.
@@ -201,6 +206,8 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         if (axiom instanceof OWLAspectAssertionAxiom) {
             OWLAspectAssertionAxiom aspectAssertionAxiom = (OWLAspectAssertionAxiom)axiom;
             addAspect(change.getOntology(), aspectAssertionAxiom);
+        } else if (axiom instanceof OWLClassAxiom) {
+        	// issue #11
         }
     }
 
