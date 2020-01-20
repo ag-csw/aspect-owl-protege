@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
- * Is in package uk.ac.manchester.cs.owl.owlapi because it needs to access the index and compareObjectOfSameType
- * methods, which are protected.
+ * <strike>Is in package uk.ac.manchester.cs.owl.owlapi because it needs to access the index and compareObjectOfSameType
+ * methods, which are protected.</strike> Nope. See below
  * 
  * @author ralph
  */
@@ -76,6 +76,11 @@ public class OWLAnonymousAspectImpl extends OWLAnonymousClassExpressionImpl impl
     @Override
     public Set<OWLAspect> getAspects() {
     	return aspectDelegate.getAspects();
+    }
+
+    @Override
+    public OWLClassExpression asClassExpression() {
+        return ceDelegate;
     }
 
     @Nonnull

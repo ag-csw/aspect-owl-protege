@@ -48,4 +48,9 @@ public class OWLNamedAspectImpl extends OWLClassImpl implements OWLNamedAspect {
     public Set<OWLAspect> getAspects() {
     	return delegate.getAspects();
     }
+
+    @Override
+    public OWLClassExpression asClassExpression() {
+        return delegate.asClassExpression();
+    }
 }

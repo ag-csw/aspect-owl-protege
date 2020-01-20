@@ -48,13 +48,13 @@ import org.protege.editor.owl.ui.frame.AbstractOWLFrameSection;
 import org.protege.editor.owl.ui.frame.AxiomListFrameSectionRow;
 import org.protege.editor.owl.ui.frame.OWLFrame;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
-
-import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
+import de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook;
 
 
 /**
@@ -67,12 +67,16 @@ public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<S
 	
 	private OWLOntology aspectAnnotatedInferredAxioms;
 	
+	private OWLOntologyAspectManager aspectManager;
+
+	
 	/**
 	 * @param editorKit
 	 * @param frame
 	 */
 	public AspectAnnotatedAxiomsFrameSection(OWLEditorKit editorKit, OWLFrame<? extends Set<OWLAxiom>> frame) {
 		super(editorKit, "Axioms with aspects", frame);
+		aspectManager = AspectOWLEditorKitHook.getAspectManager(editorKit);
 	}
 
 	public void setAspectAnnotatedInferredAxioms(OWLOntology aspectAnnotatedInferredAxioms) {
@@ -130,15 +134,9 @@ public class AspectAnnotatedAxiomsFrameSection extends AbstractOWLFrameSection<S
 	 */
 	@Override
 	protected void refill(OWLOntology ontology) {
-		Set<OWLAnnotationProperty> aspectAnnotationProperties = AspectOWLUtils.getAllAspectAnnotationProperties(ontology);
-		
-		for (OWLAxiom axiom : ontology.getAxioms()) {
-			for (OWLAnnotationProperty aspectAnnotationProperty : aspectAnnotationProperties) {
-				if (!axiom.getAnnotations(aspectAnnotationProperty).isEmpty()) {
-					addRow(new AxiomListFrameSectionRow(getOWLEditorKit(), this, ontology, getRootObject(), axiom));
-				}
-			}
-		}
+		ontology.getAxioms().stream()
+			.filter(axiom -> aspectManager.hasAssertedAspects(ontology, axiom))
+			.forEach(axiom -> addRow(new AxiomListFrameSectionRow(getOWLEditorKit(), this, ontology, getRootObject(), axiom)));
 	}
 	
 	@Override

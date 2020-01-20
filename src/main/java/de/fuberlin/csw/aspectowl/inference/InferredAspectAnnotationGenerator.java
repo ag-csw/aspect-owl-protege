@@ -36,19 +36,11 @@
  *******************************************************************************/
 package de.fuberlin.csw.aspectowl.inference;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspect;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
+import de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook;
+import de.fuberlin.csw.aspectowl.util.AnnotatedAxiomsDuplicateFilter;
+import de.fuberlin.csw.aspectowl.util.DefaultOWLAxiomVisitorAdapter;
 import org.protege.editor.core.util.ProtegeDirectories;
 import org.protege.editor.owl.model.OWLModelManager;
 import org.protege.editor.owl.model.OWLWorkspace;
@@ -58,23 +50,22 @@ import org.semanticweb.owl.explanation.api.Explanation;
 import org.semanticweb.owl.explanation.api.ExplanationGenerator;
 import org.semanticweb.owl.explanation.api.ExplanationManager;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.model.parameters.Imports;
+import org.semanticweb.owlapi.normalform.NegationalNormalFormConverter;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.util.InferredOntologyGenerator;
-
-import de.fuberlin.csw.aspectowl.util.AnnotatedAxiomsDuplicateFilter;
-import de.fuberlin.csw.aspectowl.util.AspectOWLUtils;
-import de.fuberlin.csw.aspectowl.util.DefaultOWLAxiomVisitorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.manchester.cs.owl.owlapi.concurrent.ConcurrentOWLOntologyImpl;
+
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class handles the propagation of aspects of asserted axioms to inferred
@@ -93,9 +84,10 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 
 	private OWLWorkspace workspace;
 	
+	private OWLOntologyAspectManager am;
+	private OWLOntology rootOnto;
+
 	private ExplanationGenerator<OWLAxiom> explanationGenerator;
-	
-	private Set<OWLAnnotationProperty> aspectProperties;
 	
 	private OWLOntologyManager tempOM;
 	private OWLOntology inferredAspectsOnto;
@@ -112,6 +104,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 	public static InferredAspectAnnotationGenerator getInstance(OWLWorkspace workspace) {
 		if (instance == null) {
 			instance = new InferredAspectAnnotationGenerator(workspace);
+			AspectOWLEditorKitHook.getAspectManager(workspace.getEditorKit());
 		}
 		return instance;
 	}
@@ -140,7 +133,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 				
 		OWLReasonerManager reasonerManager = modelManager.getOWLReasonerManager();
 		OWLReasoner reasoner = reasonerManager.getCurrentReasoner();
-		OWLOntology rootOnto = reasoner.getRootOntology();
+		rootOnto = reasoner.getRootOntology();
 		
         String hash = null;
 		try {
@@ -160,9 +153,6 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 			return cachedResult;
 		}
 		
-		
-        aspectProperties = AspectOWLUtils.getAllAspectAnnotationProperties(rootOnto);
-		
         OWLOntology inferredOnt = tempOM.createOntology(IRI.create("http://another.com/ontology" + System.currentTimeMillis()));
         InferredOntologyGenerator ontGen = new InferredOntologyGenerator(reasoner);
         ontGen.fillOntology(tempOM.getOWLDataFactory(), inferredOnt);
@@ -178,7 +168,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 		explanationGenerator = ExplanationManager.createExplanationGeneratorFactory(modelManager.getOWLReasonerManager().getCurrentReasonerFactory().getReasonerFactory()).createExplanationGenerator(rootOnto);
 		
 //		int completed = 0;
-		
+				
 		for (OWLAxiom axiom : inferredAxioms) {
 
 //			monitor.setProgress(++completed);
@@ -205,7 +195,6 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 		
 		// clean up
 		tempOM = null;
-		aspectProperties = null;
 		explanationGenerator = null;
 		
 		try {
@@ -218,66 +207,36 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 
 	}
 	
-	
 	@Override
-	protected void handleDefault(OWLAxiom axiom) {
-		
+	protected void handleDefault(final OWLAxiom inferredAxiom) {
+
+	    OWLDataFactory df = tempOM.getOWLDataFactory();
+
 		try {
-			Set<Explanation<OWLAxiom>> explanations = explanationGenerator.getExplanations(axiom);
-			
-			for (Explanation<OWLAxiom> explanation : explanations) {
-				
-				// Some reasoners include the inferred axiom itself in the set
-				// of explanations. We do not want that, so we skip it here.
-				if (explanation.getSize() == 1 && explanation.getAxioms().iterator().next().equals(axiom))
-					continue;
-				
-				// Handle case were there are several logical paths leading to a
-				// consequence where one of the paths is generally valid
-				// (contains no axioms with aspects)
-				HashSet<OWLAnnotation> tracker = new HashSet<OWLAnnotation>();
-				
-				for (OWLAxiom explanationAxiom : explanation.getAxioms()) {
-					
-					HashSet<OWLAnnotation> allAspectAnnotations = new HashSet<OWLAnnotation>();
-					for (OWLAnnotationProperty aspectAnnotationProperty : aspectProperties) {
-						Set<OWLAnnotation> annotations = explanationAxiom.getAnnotations(aspectAnnotationProperty);
-						allAspectAnnotations.addAll(annotations);
-					}
-					
-					
-					if (!allAspectAnnotations.isEmpty()) {
-						tracker.addAll(allAspectAnnotations);
 
-						Set<OWLAxiom> existingAxioms = inferredAspectsOnto.getAxiomsIgnoreAnnotations(axiom);
-						if (!existingAxioms.isEmpty()) {
-							axiom = existingAxioms.iterator().next();
-							log.debug("Will add annotation to axiom: " + axiom);
-							tempOM.removeAxiom(inferredAspectsOnto, axiom);
-						}
-						OWLAxiom inferredAxiomWithAspects = axiom.getAnnotatedAxiom(allAspectAnnotations);
-						tempOM.addAxiom(inferredAspectsOnto, inferredAxiomWithAspects);
-						
-						// for testing. TODO remove the following two lines
-//						om.removeAxiom(infOnto, axiom);
-//						om.addAxiom(infOnto, inferredAxiomWithAspects);
+			Set<OWLClassExpression> aspectIntersections = explanationGenerator.getExplanations(inferredAxiom).stream() // all explanations
+				.filter(explanation -> !(explanation.getSize() == 1 && explanation.getAxioms().stream().findFirst().orElse(inferredAxiom).equals(inferredAxiom))) // all explanations excluding the trivial ones
+				.map(Explanation::getAxioms) // Stream<Set<OWLAxiom>>
+                .map(axioms -> axioms.stream().map(axiom -> am.getAssertedAspects(rootOnto, axiom).stream())) // Stream<Stream<Set<<OWLAspect>>>
+                .map(s -> s.map(aspects -> aspects.findAny().isPresent() ? aspects.map(OWLAspect::asClassExpression) : Stream.of(df.getOWLThing())))  // Stream<Stream<Set<<OWLClassExpression>>> for comparison on class expression level
+                .flatMap(Stream::distinct) // Stream<Stream<OWLClassExpression>> // each inner stream contains only distinct class expressions
+                .flatMap(classExpressions -> Stream.of(df.getOWLObjectIntersectionOf(classExpressions.collect(Collectors.toSet())))) // Stream<OWLClassExpression>
+                .collect(Collectors.toSet());
 
-						log.debug("Added axiom: " + inferredAxiomWithAspects);
-					}
-				}
-				if (tracker.isEmpty()) {
-					// We have found an explanation path that is generally 
-					// valid without being restricted to any particular
-					// aspect. We're done for this axiom.
-					log.debug("Found a generally (aspect-less) valid explanation path for " + axiom + ". Aborting."); 
-					tempOM.removeAxiom(inferredAspectsOnto, axiom);
-					return;
-				}
-			}
+			OWLClassExpression aspectUnion = df.getOWLObjectUnionOf(aspectIntersections);
+            NegationalNormalFormConverter nnf = new NegationalNormalFormConverter(df);
+            OWLClassExpression aspectNNF = nnf.convertToNormalForm(aspectUnion);
+            Set<OWLClassExpression> conjunctAspectSet = aspectNNF.asConjunctSet();
+
+            log.debug(conjunctAspectSet.toString());
+
+//            conjunctAspectSet.forEach(aspect -> am.getInferredAspects());
+
+
 		} catch (Exception e) {
 			// The explanation generator throws an exception in case of an
 			// unsupported axiom type. So it's quite normal to end up here.
-			log.debug(e.getMessage() + ": " + axiom);
+			log.debug(e.getMessage() + ": " + inferredAxiom);
 		}
 	}
 	

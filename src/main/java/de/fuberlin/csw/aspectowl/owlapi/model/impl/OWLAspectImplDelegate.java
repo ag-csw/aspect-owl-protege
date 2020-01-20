@@ -63,4 +63,12 @@ public class OWLAspectImplDelegate {
 		.getCopyOnRequestSetFromImmutableCollection(aspects);
 	}
 
+    /**
+     *
+     * @return This aspect's pure OWLClassExpression
+     */
+	public OWLClassExpression asClassExpression() {
+	    return aspect.asClassExpression();
+    }
+
 }

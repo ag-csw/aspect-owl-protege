@@ -27,4 +27,10 @@ public interface OWLAspect extends OWLClassExpression, HasAnnotations {
 	 * @return The nested aspects of this aspect.
 	 */
 	public Set<OWLAspect> getAspects();
+
+    /**
+     *
+     * @return This OWLAspect as an OWLClassExpression.
+     */
+	public OWLClassExpression asClassExpression();
 }

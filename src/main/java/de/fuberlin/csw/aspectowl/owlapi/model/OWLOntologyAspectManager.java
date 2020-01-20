@@ -177,6 +177,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      */
     public Set<OWLAspect> getInferredAspects(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
         // TODO
+
         return Collections.emptySet();
     }
 

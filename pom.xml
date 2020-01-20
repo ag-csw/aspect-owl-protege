@@ -105,18 +105,18 @@
 			</exclusions>
 		</dependency>
 
-		<!--dependency>
+		<dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>owlexplanation</artifactId>
         	<version>2.0.0</version>
-        	<scope>provided</scope>
+        	<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>owlapi-osgidistribution</artifactId>
 					<groupId>net.sourceforge.owlapi</groupId>
 				</exclusion>
 			</exclusions>
-        </dependency-->
+        </dependency>
 
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
@@ -298,7 +298,8 @@
 							miglayout,
 							xml-apis,
 							telemetry,
-							javassist
+							javassist,
+							owlexplanation
 						</Embed-Dependency>
 						<Embed-Directory>lib</Embed-Directory>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -363,7 +364,8 @@
 						</goals>
 						<configuration>
 							<executable>osascript</executable>
-							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher ${project.basedir}/src/main/resources/test.owl"'</commandlineArgs>
+							<!--commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher ${project.basedir}/src/main/resources/test.owl"'</commandlineArgs-->
+							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher /Users/ralph/Diss/ontologies/AOOD_ontology/examples/temporal/temporal.owl"'</commandlineArgs>
 							<async>true</async>
 							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
