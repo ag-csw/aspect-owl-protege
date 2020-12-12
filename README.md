@@ -1,2 +1,2 @@
-# aspectAssertionAxiom-owl-protege
-A Protégé plug-in for aspectAssertionAxiom-oriented ontology development.
+# aspect-owl-protege
+A Protégé plug-in for aspect-oriented ontology development.
