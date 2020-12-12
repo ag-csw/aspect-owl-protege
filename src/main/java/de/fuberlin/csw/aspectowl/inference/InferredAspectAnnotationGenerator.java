@@ -104,7 +104,6 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 	public static InferredAspectAnnotationGenerator getInstance(OWLWorkspace workspace) {
 		if (instance == null) {
 			instance = new InferredAspectAnnotationGenerator(workspace);
-			AspectOWLEditorKitHook.getAspectManager(workspace.getEditorKit());
 		}
 		return instance;
 	}
@@ -115,6 +114,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 	 */
 	public InferredAspectAnnotationGenerator(OWLWorkspace workspace) {
 		this.workspace = workspace;
+		am = AspectOWLEditorKitHook.getAspectManager(workspace.getEditorKit());
 		cacheDir = new File(ProtegeDirectories.getDataDirectory(), "aspect-cache");
 		cacheDir.mkdirs();
 	}
@@ -142,16 +142,17 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		OWLOntology cachedResult = null;
-		try {
-			cachedResult = getFromCache(hash);
-		} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
-		if (cachedResult != null) {
-			return cachedResult;
-		}
+
+		// TODO reenable (disabled for testing)
+//		OWLOntology cachedResult = null;
+//		try {
+//			cachedResult = getFromCache(hash);
+//		} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
+//			e.printStackTrace();
+//		}
+//		if (cachedResult != null) {
+//			return cachedResult;
+//		}
 		
         OWLOntology inferredOnt = tempOM.createOntology(IRI.create("http://another.com/ontology" + System.currentTimeMillis()));
         InferredOntologyGenerator ontGen = new InferredOntologyGenerator(reasoner);
@@ -161,7 +162,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 		
 		Set<OWLAxiom> inferredAxioms = inferredOnt.getAxioms();
 		
-//		int tasks = inferredAxioms.size() + 1; // every axiom + explanation generator initialization
+//		int tasks = inferredAxioms.size() + 1;
 
 //		ProgressMonitor monitor = new ProgressMonitor(workspace, "Inferring aspects", "Initializing explanation generator", 0, tasks);
 
@@ -214,16 +215,16 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 
 		try {
 
-			Set<OWLClassExpression> aspectIntersections = explanationGenerator.getExplanations(inferredAxiom).stream() // all explanations
-				.filter(explanation -> !(explanation.getSize() == 1 && explanation.getAxioms().stream().findFirst().orElse(inferredAxiom).equals(inferredAxiom))) // all explanations excluding the trivial ones
-				.map(Explanation::getAxioms) // Stream<Set<OWLAxiom>>
-                .map(axioms -> axioms.stream().map(axiom -> am.getAssertedAspects(rootOnto, axiom).stream())) // Stream<Stream<Set<<OWLAspect>>>
-                .map(s -> s.map(aspects -> aspects.findAny().isPresent() ? aspects.map(OWLAspect::asClassExpression) : Stream.of(df.getOWLThing())))  // Stream<Stream<Set<<OWLClassExpression>>> for comparison on class expression level
-                .flatMap(Stream::distinct) // Stream<Stream<OWLClassExpression>> // each inner stream contains only distinct class expressions
-                .flatMap(classExpressions -> Stream.of(df.getOWLObjectIntersectionOf(classExpressions.collect(Collectors.toSet())))) // Stream<OWLClassExpression>
+			Set<OWLClassExpression> aspectIntersections = explanationGenerator.getExplanations(inferredAxiom).stream()
+				.filter(explanation -> !(explanation.getSize() == 1 && explanation.getAxioms().stream().findFirst().orElse(inferredAxiom).equals(inferredAxiom)))
+				.map(Explanation::getAxioms)
+                .map(axioms -> axioms.stream().map(axiom -> am.getAssertedAspects(rootOnto, axiom).stream()))
+                .map(s -> s.map(aspects -> aspects.reduce()aspects.findAny().isPresent() ? aspects.map(OWLAspect::asClassExpression) : Stream.of(df.getOWLThing())))
+                .flatMap(Stream::distinct)
+                .flatMap(classExpressions -> Stream.of(df.getOWLObjectIntersectionOf(classExpressions.collect(Collectors.toSet()))))
                 .collect(Collectors.toSet());
 
-			OWLClassExpression aspectUnion = df.getOWLObjectUnionOf(aspectIntersections);
+			OWLClassExpression aspectUnion = df.getOWLObjectUnionOf(aspectIntersections).getNNF();
             NegationalNormalFormConverter nnf = new NegationalNormalFormConverter(df);
             OWLClassExpression aspectNNF = nnf.convertToNormalForm(aspectUnion);
             Set<OWLClassExpression> conjunctAspectSet = aspectNNF.asConjunctSet();
