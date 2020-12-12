@@ -121,7 +121,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 		CtMethod.class.getClass();
 		ByteArrayClassPath.class.getClass();
 
-		PluginUtilities.getInstance().getApplicationContext().registerService(WeavingHook.class, this, new Hashtable<>());
+		PluginUtilities.getInstance().getApplicationContext().registerService(WeavingHook.class.getName(), this, new Hashtable<>());
 
 		OWLModelManager mm = ((OWLEditorKit)getEditorKit()).getOWLModelManager();
 
@@ -231,7 +231,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 					ctClass.addMethod(ctMethod);
 				}
 
-				ctMethod.insertAt(90,"de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addAspectOWLParser(loadingManager, modelManager);");
+				ctMethod.insertAt(92,"de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addAspectOWLParser(loadingManager, modelManager);");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();

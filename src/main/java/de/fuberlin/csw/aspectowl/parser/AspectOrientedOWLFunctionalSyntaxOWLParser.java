@@ -60,7 +60,7 @@ public class AspectOrientedOWLFunctionalSyntaxOWLParser extends AbstractOWLParse
 				parser = new AspectOWLFunctionalSyntaxParser(new InputStreamReader(is, "UTF-8"));
 			} else {
 				is = getInputStream(documentSource.getDocumentIRI(),
-						configuration);
+						configuration, documentSource.getAcceptHeaders().orElse("*/*"));
 				parser = new AspectOWLFunctionalSyntaxParser(new InputStreamReader(is, "UTF-8"));
 			}
 			parser.setUp(ontology, configuration, am);

@@ -1,7 +1,6 @@
 package de.fuberlin.csw.aspectowl.protege.editor.core.ui;
 
 import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
-import jdk.nashorn.internal.codegen.ObjectClassGenerator;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 

@@ -47,13 +47,13 @@
 
 	<groupId>de.fuberlin.csw.aood.protege</groupId>
 	<artifactId>de.fuberlin.csw.aood.protege.plugin</artifactId>
-	<version>v0.4.2.8.5</version>
+	<version>v0.4.5.9</version>
 	<name>Aspect-Oriented Ontology Protégé Plug-In</name> 
 	<description>A plug-in for aspect-oriented ontology development.</description>
 
 	<properties>
-		<protege.version>5.2.0</protege.version>
-		<owlapi.version>4.2.8</owlapi.version>
+		<protege.version>5.5.0</protege.version>
+		<owlapi.version>4.5.9</owlapi.version>
 		<org.osgi.framework.system.packages.extra>org.w3c.dom.:ranges</org.osgi.framework.system.packages.extra>
 	</properties>
 
@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>edu.stanford.protege</groupId>
 			<artifactId>explanation-workbench</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.1</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -108,7 +108,7 @@
 		<dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>owlexplanation</artifactId>
-        	<version>2.0.0</version>
+        	<version>5.0.0</version>
         	<scope>compile</scope>
 			<exclusions>
 				<exclusion>
@@ -121,7 +121,7 @@
         <dependency>
         	<groupId>net.sourceforge.owlapi</groupId>
         	<artifactId>telemetry</artifactId>
-        	<version>2.0.0</version>
+        	<version>5.0.0</version>
         	<exclusions>
         		<exclusion>
         			<artifactId>owlapi-api</artifactId>
@@ -145,7 +145,7 @@
         <dependency>
         	<groupId>junit</groupId>
         	<artifactId>junit</artifactId>
-        	<version>4.12</version>
+        	<version>4.13.1</version>
         	<scope>test</scope>
         </dependency>
 <!--
@@ -164,7 +164,7 @@
         <dependency>
         	<groupId>edu.stanford.protege</groupId>
         	<artifactId>sparql-query-plugin</artifactId>
-        	<version>2.0.2</version>
+        	<version>3.0.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>owlapi-distribution</artifactId>
@@ -322,7 +322,7 @@
 						</goals>
 
 						<configuration>
-							<outputDirectory>/Applications/Protégé-5.2.app/Contents/Java/plugins</outputDirectory>
+							<outputDirectory>/Applications/Protégé_5.5.0.app/Contents/Java/plugins</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/target</directory>
@@ -365,7 +365,7 @@
 						<configuration>
 							<executable>osascript</executable>
 							<!--commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher ${project.basedir}/src/main/resources/test.owl"'</commandlineArgs-->
-							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher /Users/ralph/Diss/ontologies/AOOD_ontology/examples/temporal/temporal.owl"'</commandlineArgs>
+							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé_5.5.0.app/Contents/MacOS/JavaAppLauncher /Users/ralph/Diss/ontologies/AOOD_ontology/examples/temporal/temporal.owl"'</commandlineArgs>
 							<async>true</async>
 							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
@@ -388,7 +388,7 @@
 			<dependency>
 				<groupId>net.sourceforge.owlapi</groupId>
 				<artifactId>owlapi-osgidistribution</artifactId>
-				<version>4.2.8</version>
+				<version>${owlapi.version}</version>
 				<type>bundle</type>
 			</dependency>
 		</dependencies>

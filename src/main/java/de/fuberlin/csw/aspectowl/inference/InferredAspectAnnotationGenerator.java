@@ -166,7 +166,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 
 //		ProgressMonitor monitor = new ProgressMonitor(workspace, "Inferring aspects", "Initializing explanation generator", 0, tasks);
 
-		explanationGenerator = ExplanationManager.createExplanationGeneratorFactory(modelManager.getOWLReasonerManager().getCurrentReasonerFactory().getReasonerFactory()).createExplanationGenerator(rootOnto);
+		explanationGenerator = ExplanationManager.createExplanationGeneratorFactory(modelManager.getOWLReasonerManager().getCurrentReasonerFactory().getReasonerFactory(), () -> OWLManager.createOWLOntologyManager()).createExplanationGenerator(rootOnto);
 		
 //		int completed = 0;
 				
@@ -219,7 +219,7 @@ public class InferredAspectAnnotationGenerator extends DefaultOWLAxiomVisitorAda
 				.filter(explanation -> !(explanation.getSize() == 1 && explanation.getAxioms().stream().findFirst().orElse(inferredAxiom).equals(inferredAxiom)))
 				.map(Explanation::getAxioms)
                 .map(axioms -> axioms.stream().map(axiom -> am.getAssertedAspects(rootOnto, axiom).stream()))
-                .map(s -> s.map(aspects -> aspects.reduce()aspects.findAny().isPresent() ? aspects.map(OWLAspect::asClassExpression) : Stream.of(df.getOWLThing())))
+                .map(s -> s.map(aspects -> aspects.findAny().isPresent() ? aspects.map(OWLAspect::asClassExpression) : Stream.of(df.getOWLThing())))
                 .flatMap(Stream::distinct)
                 .flatMap(classExpressions -> Stream.of(df.getOWLObjectIntersectionOf(classExpressions.collect(Collectors.toSet()))))
                 .collect(Collectors.toSet());
