@@ -201,9 +201,15 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         changes.forEach(change -> change.accept(this));
     }
 
+    private OWLAxiom lastRemovedAxiom;
+    private Set<OWLAspectAssertionAxiom> lastRemovedAspects;
+
     @Override
     public void visit(AddAxiom change) {
         OWLAxiom axiom = change.getAxiom();
+        if (lastRemovedAxiom != null && axiom.equalsIgnoreAnnotations(lastRemovedAxiom)) {
+            Optional.ofNullable(lastRemovedAspects).ifPresent(aspectAssertionAxioms -> aspectAssertionAxioms.stream().forEach(aspectAssertionAxiom -> addAspect(change.getOntology(), aspectAssertionAxiom)));
+        }
         if (axiom instanceof OWLAspectAssertionAxiom) {
             OWLAspectAssertionAxiom aspectAssertionAxiom = (OWLAspectAssertionAxiom)axiom;
             addAspect(change.getOntology(), aspectAssertionAxiom);
@@ -215,10 +221,11 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     @Override
     public void visit(RemoveAxiom change) {
         OWLAxiom axiom = change.getAxiom();
+        lastRemovedAxiom = axiom; // store last removed axiom in case it is re-added with annotations (this is how adding an annotation works: remove axiom and re-add with annotations)
         if (axiom instanceof OWLAspectAssertionAxiom) {
             removeAspectAssertionAxiom(change.getOntology(), ((OWLAspectAssertionAxiom) axiom));
         } else {
-            aspectsForPointcut.remove(new OntologyObjectTuple<>(change.getOntology(), new OWLJoinPointAxiomPointcut(axiom.getAxiomWithoutAnnotations())));
+            lastRemovedAspects = aspectsForPointcut.remove(new OntologyObjectTuple<>(change.getOntology(), new OWLJoinPointAxiomPointcut(axiom.getAxiomWithoutAnnotations())));
         }
     }
 
