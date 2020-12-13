@@ -12,7 +12,7 @@ public class OWLJoinPointAxiomPointcut extends OWLAxiomPointcut {
     private OWLAxiom joinPointAxiom;
 
     public OWLJoinPointAxiomPointcut(OWLAxiom joinPointAxiom) {
-        this.joinPointAxiom = joinPointAxiom;
+        this.joinPointAxiom = joinPointAxiom.getAxiomWithoutAnnotations();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class OWLJoinPointAxiomPointcut extends OWLAxiomPointcut {
         if (this == o) return true;
         if (!(o instanceof OWLJoinPointAxiomPointcut)) return false;
         OWLJoinPointAxiomPointcut that = (OWLJoinPointAxiomPointcut) o;
-        return Objects.equals(joinPointAxiom, that.joinPointAxiom);
+        return Objects.equals(joinPointAxiom, that.joinPointAxiom.getAxiomWithoutAnnotations());
     }
 
     @Override

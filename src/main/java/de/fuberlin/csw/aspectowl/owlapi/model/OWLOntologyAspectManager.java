@@ -60,7 +60,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      * @return a stream containing all aspects asserted for the given join point
      */
     public Set<OWLAspect> getAssertedAspects(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
-        return Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(potentialJoinPoint)))).orElse(Collections.emptySet()).stream().map(axiom -> axiom.getAspect()).collect(Collectors.toSet());
+        return Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(potentialJoinPoint.getAxiomWithoutAnnotations())))).orElse(Collections.emptySet()).stream().map(axiom -> axiom.getAspect()).collect(Collectors.toSet());
     }
 
     /**
@@ -70,7 +70,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
      * @return a stream containing all aspects asserted for the given join point
      */
     public Set<OWLAspectAssertionAxiom> getAspectAssertionAxioms(OWLOntology ontology, OWLAxiom potentialJoinPoint) {
-        return CollectionFactory.getCopyOnRequestSet(Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(potentialJoinPoint)))).orElse(Collections.emptySet()));
+        return CollectionFactory.getCopyOnRequestSet(Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(potentialJoinPoint.getAxiomWithoutAnnotations())))).orElse(Collections.emptySet()));
     }
 
     public void removeAspectAssertionAxiom(OWLOntology ontology, OWLAspectAssertionAxiom aspectAssertionAxiom) {
@@ -78,7 +78,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
     }
 
     public boolean hasAssertedAspects(OWLOntology ontology, OWLAxiom joinPointAxiom) {
-        return !Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(joinPointAxiom)))).orElse(Collections.emptySet()).isEmpty();
+        return !Optional.ofNullable(aspectsForPointcut.get(new OntologyObjectTuple(ontology, new OWLJoinPointAxiomPointcut(joinPointAxiom.getAxiomWithoutAnnotations())))).orElse(Collections.emptySet()).isEmpty();
     }
 
     public boolean hasAspects(OWLOntology ontology) {
@@ -218,7 +218,7 @@ public class OWLOntologyAspectManager extends OWLOntologyChangeVisitorAdapter im
         if (axiom instanceof OWLAspectAssertionAxiom) {
             removeAspectAssertionAxiom(change.getOntology(), ((OWLAspectAssertionAxiom) axiom));
         } else {
-            aspectsForPointcut.remove(new OntologyObjectTuple<>(change.getOntology(), new OWLJoinPointAxiomPointcut(axiom)));
+            aspectsForPointcut.remove(new OntologyObjectTuple<>(change.getOntology(), new OWLJoinPointAxiomPointcut(axiom.getAxiomWithoutAnnotations())));
         }
     }
 
