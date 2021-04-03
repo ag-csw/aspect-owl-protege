@@ -10,8 +10,8 @@ import de.fuberlin.csw.aspectowl.owlapi.vocab.AspectOWLVocabulary;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedFunctionalSyntaxDocumentFormat;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOWLFunctionalSyntaxParserFactory;
 import de.fuberlin.csw.aspectowl.parser.AspectOrientedOntologyPreSaveChecker;
+import de.fuberlin.csw.aspectowl.protege.AspectOWLWorkspace;
 import de.fuberlin.csw.aspectowl.protege.editor.core.ui.AspectButton;
-import de.fuberlin.csw.aspectowl.protege.editor.core.ui.renderer.AspectOWLIconProviderImpl;
 import de.fuberlin.csw.aspectowl.protege.views.AspectAssertionPanel;
 import de.fuberlin.csw.aspectowl.renderer.AspectOWLFunctionalSyntaxStorerFactory;
 import javassist.*;
@@ -24,7 +24,6 @@ import org.protege.editor.core.plugin.PluginUtilities;
 import org.protege.editor.core.ui.list.MListButton;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.model.OWLModelManager;
-import org.protege.editor.owl.model.OWLWorkspace;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.frame.OWLFrameSectionRow;
 import org.semanticweb.owlapi.model.*;
@@ -133,14 +132,24 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		mm.addIOListener(new AspectOrientedOntologyPreSaveChecker(om));
 
-		Class poorLittleClass = OWLWorkspace.class;
-		Field ipField = poorLittleClass.getDeclaredField("iconProvider");
-		ipField.setAccessible(true);
-		Field modifiersField = Field.class.getDeclaredField("modifiers");
-		modifiersField.setAccessible(true); // Ouch. This is EVIL.
-		modifiersField.setInt(ipField, ipField.getModifiers() & ~Modifier.FINAL);
-		ipField.set(((OWLEditorKit)getEditorKit()).getOWLWorkspace(), new AspectOWLIconProviderImpl(mm, am));
+		// The following commented-in code does not work in Java 9 and upwards due to tighter security measurements
+		// in the reflection API introduced with that version.
+		// Instead we replace the OWLWorkspace instance with our AspectOWLWorkspace, which overrides the
+		// getOWLIconProvider method
+//		Class poorLittleClass = OWLWorkspace.class;
+//		Field ipField = poorLittleClass.getDeclaredField("iconProvider");
+//		ipField.setAccessible(true);
+//		Field modifiersField = Field.class.getDeclaredField("modifiers");
+//		modifiersField.setAccessible(true); // Ouch. This is EVIL.
+//		modifiersField.setInt(ipField, ipField.getModifiers() & ~Modifier.FINAL);
+//		ipField.set(((OWLEditorKit)getEditorKit()).getOWLWorkspace(), new AspectOWLIconProviderImpl(mm, am));
 
+		AspectOWLWorkspace workspaceReplacement = new AspectOWLWorkspace(am, mm); // need to pass ModelManager here because the EditorKit's MM instance is set later.
+		workspaceReplacement.setup(getEditorKit());
+		Class poorLittleClass = OWLEditorKit.class;
+		Field ipField = poorLittleClass.getDeclaredField("workspace");
+		ipField.setAccessible(true);
+		ipField.set(getEditorKit(), workspaceReplacement);
 	}
 
 	/* (non-Javadoc)
@@ -169,11 +178,9 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 
 		String className = wovenClass.getClassName();
 
-//		System.out.format("Weaving class: %s,\tClassloader: %s\n", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
-
 		// add aspect buttons to frame section rows
 		if (frameSectionRowClassesForAspectButtons.contains(className)) {
-
+			log.debug("Weaving class: {}, Classloader: {}", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 			ClassPool pool = ClassPool.getDefault();
 			pool.appendSystemPath();
 			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
@@ -203,9 +210,11 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
 
 			} catch (Throwable t) {
-//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+				log.error("Weaving failed for class {}: {}.", className, t.getMessage());
 			}
 		} else if (className.equals("org.protege.editor.owl.model.io.OntologyLoader")) {
+
+			log.debug("Weaving class: {}, Classloader: {}", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 
 			// Each time an ontology is loaded, Protege creates a new OWLOntologyManager. This ontology manager is used
 			// for the loading process. After the ontology (and potential imports) are loaded, the ontologies are copied
@@ -231,7 +240,7 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 					ctClass.addMethod(ctMethod);
 				}
 
-				ctMethod.insertAt(92,"de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addAspectOWLParser(loadingManager, modelManager);");
+				ctMethod.insertAt(103,"de.fuberlin.csw.aspectowl.owlapi.protege.AspectOWLEditorKitHook.addAspectOWLParser(loadingManager, modelManager);");
 
 				byte[] bytes = ctClass.toBytecode();
 				ctClass.detach();
@@ -240,9 +249,11 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
 
 			} catch (Throwable t) {
-//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+				log.error("Weaving failed for class {}: {}.", className, t.getMessage());
 			}
 		} else if (className.equals("org.protege.editor.owl.model.OntologyReloader")) {
+
+			log.debug("Weaving class: {}, Classloader: {}", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 
 			// Each time an ontology is loaded, Protege creates a new OWLOntologyManager. This ontology manager is used
 			// for the loading process. After the ontology (and potential imports) are loaded, the ontologies are copied
@@ -277,9 +288,11 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
 
 			} catch (Throwable t) {
-//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+				log.error("Weaving failed for class {}: {}.", className, t.getMessage());
 			}
 		} else if (className.equals("org.protege.editor.owl.ui.OntologyFormatPanel")) {
+
+			log.debug("Weaving class: {}, Classloader: {}", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
 
 			ClassPool pool = ClassPool.getDefault();
 			pool.appendSystemPath();
@@ -304,9 +317,12 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
 
 			} catch (Throwable t) {
-//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+				log.error("Weaving failed for class {}: {}.", className, t.getMessage());
 			}
 		} else if (className.equals("org.protege.editor.owl.ui.view.dataproperty.OWLDataPropertyCharacteristicsViewComponent")) {
+
+			log.debug("Weaving class: {}, Classloader: {}", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
+
 			ClassPool pool = ClassPool.getDefault();
 			pool.appendSystemPath();
 			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
@@ -322,7 +338,34 @@ public class AspectOWLEditorKitHook extends EditorKitHook implements WeavingHook
 //				ctMethod.insertAfter();
 
 			} catch (Throwable t) {
-//				System.out.format("Weaving failed for class %s: %s.\n", className, t.getMessage());
+				log.error("Weaving failed for class {}: {}.", className, t.getMessage());
+			}
+		} else if (className.equals("org.protege.editor.owl.model.OWLWorkspace")) {
+
+			log.debug("Weaving class: {}, Classloader: {}", className, wovenClass.getBundleWiring().getClassLoader().getClass().getName());
+
+			ClassPool pool = ClassPool.getDefault();
+			pool.appendSystemPath();
+			pool.appendClassPath(new ClassClassPath(AspectOWLEditorKitHook.class));
+
+			pool.insertClassPath(new ByteArrayClassPath(wovenClass.getClassName(), wovenClass.getBytes()));
+
+
+			try {
+				CtClass ctClass = pool.getCtClass(className);
+				CtField ctIconProviderField = ctClass.getField("iconProvider");
+				int modifiers = ctIconProviderField.getModifiers();
+				int notFinalModifier = Modifier.clear(modifiers, Modifier.FINAL);
+				ctIconProviderField.setModifiers(notFinalModifier);
+
+				byte[] bytes = ctClass.toBytecode();
+				ctClass.detach();
+				wovenClass.setBytes(bytes);
+
+				wovenClass.getDynamicImports().add("de.fuberlin.csw.aspectowl.owlapi.protege");
+
+			} catch (Throwable t) {
+				log.error("Weaving failed for class {}: {}.", className, t.getMessage());
 			}
 //		} else if (className.equals("org.semanticweb.owlapi.model.AxiomType$1")) {
 //			try {

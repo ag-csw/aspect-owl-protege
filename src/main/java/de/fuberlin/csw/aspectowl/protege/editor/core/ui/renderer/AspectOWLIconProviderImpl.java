@@ -21,16 +21,10 @@ public class AspectOWLIconProviderImpl extends OWLIconProviderImpl {
     private static final Icon primitiveAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.PRIMITIVE);
     private static final Icon definedAspectClassIcon = new OWLAspectIcon(OWLClassIcon.Type.DEFINED);
 
-
-    public AspectOWLIconProviderImpl(@Nonnull OWLModelManager owlModelManager, OWLOntologyAspectManager am) {
-        super(owlModelManager);
-        this.mm = owlModelManager;
-        this.am = am;
-    }
-
-    public AspectOWLIconProviderImpl(@Nonnull DefinedClassChecker definedClassChecker, OWLOntologyAspectManager am) {
+    public AspectOWLIconProviderImpl(@Nonnull DefinedClassChecker definedClassChecker, OWLOntologyAspectManager am, OWLModelManager mm) {
         super(definedClassChecker);
         this.am = am;
+        this.mm = mm;
     }
 
     @Override

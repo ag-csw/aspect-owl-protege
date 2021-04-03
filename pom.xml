@@ -47,7 +47,7 @@
 
 	<groupId>de.fuberlin.csw.aood.protege</groupId>
 	<artifactId>de.fuberlin.csw.aood.protege.plugin</artifactId>
-	<version>v0.4.5.9.2</version>
+	<version>v0.4.5.9.2-j15</version>
 	<name>Aspect-Oriented Ontology Protégé Plug-In</name> 
 	<description>A plug-in for aspect-oriented ontology development.</description>
 
@@ -55,6 +55,7 @@
 		<protege.version>5.5.0</protege.version>
 		<owlapi.version>4.5.9</owlapi.version>
 		<org.osgi.framework.system.packages.extra>org.w3c.dom.:ranges</org.osgi.framework.system.packages.extra>
+		<protege.install.location>/Users/ralph/devel/Applications/protege-j15/Protege-5.6.0-beta-1-SNAPSHOT</protege.install.location>
 	</properties>
 
 	<packaging>bundle</packaging>
@@ -226,8 +227,8 @@
               <artifactId>maven-compiler-plugin</artifactId>
               <version>3.7.0</version>
               <configuration>
-                <source>1.8</source>
-                <target>1.8</target>
+                <source>15</source>
+                <target>15</target>
               </configuration>
             </plugin>
 			<!--<plugin>-->
@@ -266,6 +267,7 @@
 				</executions>
 				<configuration>
 					<instructions>
+						<_noee>true</_noee>
 						<Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Bundle-Vendor>Corporate Semantic Web Group, Institute for Computer Science, Freie Universitaet Berlin</Bundle-Vendor>
@@ -322,7 +324,7 @@
 						</goals>
 
 						<configuration>
-							<outputDirectory>/Applications/Protégé_5.5.0.app/Contents/Java/plugins</outputDirectory>
+							<outputDirectory>${protege.install.location}/plugins</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/target</directory>
@@ -365,7 +367,7 @@
 						<configuration>
 							<executable>osascript</executable>
 							<!--commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé-5.2.app/Contents/MacOS/JavaAppLauncher ${project.basedir}/src/main/resources/test.owl"'</commandlineArgs-->
-							<commandlineArgs>-e 'tell application "Terminal" to do script "/Applications/Protégé_5.5.0.app/Contents/MacOS/JavaAppLauncher /Users/ralph/Diss/ontologies/AOOD_ontology/examples/temporal/temporal.owl"'</commandlineArgs>
+							<commandlineArgs>-e 'tell application "Terminal" to do script "${protege.install.location}/run.command /Users/ralph/Diss/ontologies/AOOD_ontology/examples/temporal/temporal.owl"'</commandlineArgs>
 							<async>true</async>
 							<asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
 						</configuration>
