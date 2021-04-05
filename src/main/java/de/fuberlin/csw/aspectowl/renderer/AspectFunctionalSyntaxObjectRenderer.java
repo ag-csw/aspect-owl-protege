@@ -1,16 +1,19 @@
 package de.fuberlin.csw.aspectowl.renderer;
 
-import de.fuberlin.csw.aspectowl.owlapi.model.*;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAssertionAxiom;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLAspectAxiomVisitor;
+import de.fuberlin.csw.aspectowl.owlapi.model.OWLOntologyAspectManager;
 import de.fuberlin.csw.aspectowl.owlapi.vocab.AspectOWLVocabulary;
 import org.semanticweb.owlapi.functional.renderer.FunctionalSyntaxObjectRenderer;
-import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLRuntimeException;
 import org.semanticweb.owlapi.util.CollectionFactory;
 import org.semanticweb.owlapi.vocab.OWLXMLVocabulary;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 
 
 public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObjectRenderer implements OWLAspectAxiomVisitor {
@@ -35,39 +38,31 @@ public class AspectFunctionalSyntaxObjectRenderer extends FunctionalSyntaxObject
     }
 
     protected void writeAspects(@Nonnull OWLAxiom ax) {
-        for (OWLAspect aspect: getSortedAspects(ax)) {
-            writeAspect(aspect);
-        }
+        am.getAspectAssertionAxioms(ont, ax).forEach(this::writeAspect);
     }
 
-    @Nonnull
-    private List<OWLAspect> getSortedAspects(OWLAxiom ax) {
-        return CollectionFactory.sortOptionally(am.getAssertedAspects(ont, ax));
-    }
-
-    private void writeAspect(@Nonnull OWLAspect aspect) {
+    private void writeAspect(@Nonnull OWLAspectAssertionAxiom aspectAssertionAxiom) {
         write(AspectOWLVocabulary.ASPECT);
         writeOpenBracket();
 
-        for (OWLAnnotation anno : CollectionFactory.getCopyOnRequestSet(aspect.getAnnotations())) {
+        CollectionFactory.sortOptionally(CollectionFactory.getCopyOnRequestSet(aspectAssertionAxiom.getAnnotations())).forEach(anno -> {
             anno.accept(this);
             writeSpace();
-        }
-        
-        for (OWLAspect nestedAspect : aspect.getAspects()) {
-        	nestedAspect.accept(this);
-        	writeSpace();
-        }
+        });
 
-        aspect.accept(this);
+        CollectionFactory.sortOptionally(am.getAspectAssertionAxioms(ont, aspectAssertionAxiom)).forEach(nestedAspectAssertionAxiom -> {
+            writeAspect(nestedAspectAssertionAxiom);
+            writeSpace();
+        });
+
+        aspectAssertionAxiom.getAspect().accept(this);
 
         writeCloseBracket();
         writeSpace();
     }
 
     @Override
-    public void visit(OWLAspectAssertionAxiom axiom) {
-
+    public void visit(@Nonnull OWLAspectAssertionAxiom axiom) {
     }
 
     private void write(@Nonnull AspectOWLVocabulary v) {
